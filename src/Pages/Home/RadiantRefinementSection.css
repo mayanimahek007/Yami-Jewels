@@ -1,0 +1,125 @@
+.radiant-section {
+  display: flex;
+  align-items: end;
+  justify-content: center;
+  gap: 48px;
+  background: #fdf8f8;
+  padding: 10px 0;
+}
+
+.radiant-left-card {
+    position: relative;
+    background: #fff;
+    border-radius: 24px;
+    box-shadow: 0 4px 24px rgba(180,123,72,0.10);
+    width: 30%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+.radiant-rating {
+  position: absolute;
+  top: 18px;
+  left: 18px;
+  background: #f7f5f2;
+  border-radius: 16px;
+  padding: 4px 16px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #b47b48;
+  z-index: 2;
+  box-shadow: 0 2px 8px rgba(180,123,72,0.08);
+}
+.radiant-rating-value {
+  color: #222;
+  font-size: 0.95rem;
+  margin-left: 8px;
+}
+.radiant-main-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 24px;
+}
+
+.radiant-content {
+  /* flex: 1; */
+  min-width: 320px;
+  text-align: left;
+  height: 490px;
+  padding: 0 0px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+}
+.radiant-title {
+  font-size: 2.1rem;
+  color: #48182E;
+  font-family: 'Playfair Display', serif;
+  margin-bottom: 12px;
+  font-weight: 700;
+}
+.radiant-desc {
+  font-size: 1.08rem;
+  color: #555;
+  margin-bottom: 32px;
+  max-width: 450px;
+}
+.radiant-btn {
+  font-size: 1rem;
+  padding: 12px 28px;
+  border-radius: 24px;
+  font-weight: 600;
+  cursor: pointer;
+  background: #fff;
+  color: #b47b48;
+  border: 2px solid #b47b48;
+  transition: all 0.3s;
+}
+.radiant-btn:hover {
+  background: #f3e7e9;
+  color: #a06a3a;
+}
+
+.radiant-right-card {
+    background: #fff;
+    border-radius: 18px;
+    box-shadow: 0 4px 16px rgba(180,123,72,0.10);
+    width: 20%;
+    height: 300px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+.radiant-small-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 18px;
+}
+
+@media (max-width: 900px) {
+  .radiant-section {
+    flex-direction: column;
+    gap: 32px;
+    padding: 32px 0;
+  }
+  .radiant-content {
+    min-width: 0;
+    width: 100%;
+    text-align: center;
+    align-items: center;
+    padding: 0 12px;
+  }
+  .radiant-title {
+    font-size: 1.5rem;
+  }
+  .radiant-left-card, .radiant-right-card {
+    width: 220px;
+    height: 220px;
+  }
+}

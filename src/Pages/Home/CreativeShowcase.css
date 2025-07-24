@@ -1,0 +1,136 @@
+.creative-showcase-unique {
+  position: relative;
+  min-height: 420px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background: #fdf8f8;
+  padding: 10px 0 20px 0;
+}
+
+.cs-bg-decor {
+  position: absolute;
+  top: -80px;
+  left: -120px;
+  width: 420px;
+  height: 420px;
+  background: #fdf8f8;
+  z-index: 1;
+  filter: blur(8px);
+  opacity: 0.7;
+}
+
+.cs-content-unique {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 56px;
+  max-width: 950px;
+  width: 100%;
+  justify-content: center;
+}
+
+.cs-image-wrapper {
+  position: relative;
+  width: 340px;
+  height: 340px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #fffbe6 60%, #f3e7e9 100%);
+  border-radius: 50%;
+  box-shadow: 0 8px 32px rgba(180,123,72,0.10);
+  overflow: hidden;
+  border: 6px solid #fff7f0;
+  animation: float 3s ease-in-out infinite alternate;
+}
+
+@keyframes float {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(-18px); }
+}
+
+.cs-image-unique {
+  width: 300px;
+  height: 300px;
+  object-fit: cover;
+  border-radius: 50%;
+  border: 4px solid #b47b48;
+  box-shadow: 0 4px 24px rgba(180,123,72,0.12);
+  background: #fff;
+}
+
+.cs-sparkle {
+  position: absolute;
+  top: 18px;
+  right: 32px;
+  font-size: 2.2rem;
+  color: #ffd700;
+  animation: sparkle 1.8s infinite alternate;
+  pointer-events: none;
+}
+
+@keyframes sparkle {
+  0% { opacity: 0.7; transform: scale(1) rotate(0deg); }
+  100% { opacity: 1; transform: scale(1.2) rotate(20deg); }
+}
+
+.cs-text-unique {
+  max-width: 420px;
+  text-align: left;
+}
+
+.cs-title-unique {
+  font-size: 2.8rem;
+  color: #b47b48;
+  font-family: 'Playfair Display', serif;
+  margin-bottom: 10px;
+  letter-spacing: 1px;
+}
+
+.cs-tagline {
+  font-size: 1.2rem;
+  color: #a06a3a;
+  font-style: italic;
+  margin-bottom: 18px;
+  letter-spacing: 0.5px;
+}
+
+.cs-desc-unique {
+  font-size: 1.1rem;
+  color: #444;
+  margin-bottom: 28px;
+}
+
+.cs-btn-unique {
+  background: linear-gradient(90deg, #b47b48 60%, #a06a3a 100%);
+  color: #fff;
+  border: none;
+  padding: 14px 38px;
+  border-radius: 24px;
+  font-size: 1.1rem;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 2px 12px rgba(180,123,72,0.10);
+  transition: background 0.2s, transform 0.2s;
+}
+
+.cs-btn-unique:hover {
+  background: linear-gradient(90deg, #a06a3a 60%, #b47b48 100%);
+  transform: scale(1.06);
+}
+
+@media (max-width: 800px) {
+  .cs-content-unique {
+    flex-direction: column;
+    gap: 32px;
+    align-items: center;
+  }
+  .cs-text-unique {
+    text-align: center;
+  }
+}
