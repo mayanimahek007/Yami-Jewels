@@ -24,7 +24,7 @@ const Home = () => {
             <CreativeShowcase />
             <GiftingSection />
             <RadiantRefinementSection />
-            <Footer />
+        
         </>
     )
 }

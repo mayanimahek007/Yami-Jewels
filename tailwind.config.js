@@ -13,6 +13,9 @@ module.exports = {
         "xl": '1280px', // Extra large screens and up
         '2xl': '1536px', // 2X large screens and up
       },
+       fontFamily: {
+      montserrat: ['Montserrat', 'Arial', 'sans-serif'],
+    },
     },
   },
   plugins: [],
