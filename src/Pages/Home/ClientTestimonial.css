@@ -1,0 +1,98 @@
+/* Additional styling for Client Testimonial section */
+
+.client-testimonial {
+  position: relative;
+  overflow: hidden;
+}
+
+.client-testimonial::before {
+  content: '"';
+  position: absolute;
+  top: 20px;
+  left: 50px;
+  font-size: 120px;
+  color: rgba(217, 119, 6, 0.1); /* amber-600 with low opacity */
+  font-family: 'Georgia', serif;
+  z-index: 0;
+}
+
+.client-testimonial::after {
+  content: '"';
+  position: absolute;
+  bottom: 20px;
+  right: 50px;
+  font-size: 120px;
+  color: rgba(217, 119, 6, 0.1); /* amber-600 with low opacity */
+  font-family: 'Georgia', serif;
+  z-index: 0;
+}
+
+/* Testimonial Slider Styling */
+.testimonial-slider {
+  padding: 20px 0;
+}
+
+.testimonial-slider .slick-slide {
+  padding: 0 15px;
+}
+
+.testimonial-slider .slick-prev,
+.testimonial-slider .slick-next {
+  width: 40px;
+  height: 40px;
+  background-color: rgba(217, 119, 6, 0.8);
+  border-radius: 50%;
+  z-index: 1;
+}
+
+.testimonial-slider .slick-prev:hover,
+.testimonial-slider .slick-next:hover {
+  background-color: rgba(217, 119, 6, 1);
+}
+
+.testimonial-slider .slick-prev {
+  left: -5px;
+}
+
+.testimonial-slider .slick-next {
+  right: -5px;
+}
+
+.testimonial-slider .slick-prev:before,
+.testimonial-slider .slick-next:before {
+  font-size: 20px;
+  opacity: 1;
+}
+
+.testimonial-slider .slick-dots li button:before {
+  color: #b47b48;
+  opacity: 0.5;
+}
+
+.testimonial-slider .slick-dots li.slick-active button:before {
+  color: #b47b48;
+  opacity: 1;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .client-testimonial::before,
+  .client-testimonial::after {
+    font-size: 80px;
+  }
+  
+  .testimonial-slider .slick-prev {
+    left: 5px;
+  }
+  
+  .testimonial-slider .slick-next {
+    right: 5px;
+  }
+}
+
+@media (max-width: 480px) {
+  .client-testimonial::before,
+  .client-testimonial::after {
+    display: none;
+  }
+}

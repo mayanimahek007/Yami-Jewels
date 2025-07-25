@@ -1,14 +1,18 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import Slider from 'react-slick';
 import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
 import { HiOutlineHeart } from 'react-icons/hi';
 import { HiMiniHeart } from 'react-icons/hi2';
-import { FaRegHeart } from 'react-icons/fa6';
+import { FaRegHeart, FaWhatsapp } from 'react-icons/fa';
+import whatsappConfig from '../../config/whatsapp.config';
+import WhatsAppOrderModal from '../../Components/WhatsAppOrderModal';
 
 const products = [
   // ON SALE
   {
+    id: 1,
     name: 'Hartswell Arc',
     price: '₹3185.00',
     oldPrice: '₹3503.00',
@@ -16,6 +20,7 @@ const products = [
     tag: 'ON SALE',
   },
   {
+    id: 2,
     name: 'Greyspire Crest',
     price: '₹1430.00',
     oldPrice: '₹1573.00',
@@ -23,6 +28,7 @@ const products = [
     tag: 'ON SALE',
   },
   {
+    id: 3,
     name: 'Amber Twist',
     price: '₹1999.00',
     oldPrice: '₹2399.00',
@@ -30,6 +36,7 @@ const products = [
     tag: 'ON SALE',
   },
   {
+    id: 4,
     name: 'Pearl Sparkle',
     price: '₹2850.00',
     oldPrice: '₹3000.00',
@@ -39,6 +46,7 @@ const products = [
 
   // BEST SELLER
   {
+    id: 5,
     name: 'Braxton Edge',
     price: '₹2405.00',
     oldPrice: '₹2645.00',
@@ -46,6 +54,7 @@ const products = [
     tag: 'BEST SELLER',
   },
   {
+    id: 6,
     name: 'Golden Bloom',
     price: '₹3300.00',
     oldPrice: '₹3600.00',
@@ -53,6 +62,7 @@ const products = [
     tag: 'BEST SELLER',
   },
   {
+    id: 7,
     name: 'Elegant Curve',
     price: '₹2150.00',
     oldPrice: '₹2500.00',
@@ -60,6 +70,7 @@ const products = [
     tag: 'BEST SELLER',
   },
   {
+    id: 8,
     name: 'Shimmer Stone',
     price: '₹2650.00',
     oldPrice: '₹2990.00',
@@ -69,6 +80,7 @@ const products = [
 
   // TOP RATED
   {
+    id: 9,
     name: 'Ashford Signet',
     price: '₹4160.00',
     oldPrice: '₹4576.00',
@@ -76,6 +88,7 @@ const products = [
     tag: 'TOP RATED',
   },
   {
+    id: 10,
     name: 'Radiant Shine',
     price: '₹4500.00',
     oldPrice: '₹4800.00',
@@ -83,6 +96,7 @@ const products = [
     tag: 'TOP RATED',
   },
   {
+    id: 11,
     name: 'Starlet Loop',
     price: '₹3999.00',
     oldPrice: '₹4400.00',
@@ -90,6 +104,7 @@ const products = [
     tag: 'TOP RATED',
   },
   {
+    id: 12,
     name: 'Vintage Halo',
     price: '₹3750.00',
     oldPrice: '₹4000.00',
@@ -129,6 +144,28 @@ const tabList = [
 const ProductDisplaySection = () => {
   const [activeTab, setActiveTab] = useState('ON SALE');
   const [wishlist, setWishlist] = useState([]);
+  const [selectedProduct, setSelectedProduct] = useState(null);
+  const [isOrderModalOpen, setIsOrderModalOpen] = useState(false);
+  
+  // WhatsApp quick order function
+  const handleQuickOrder = (product) => {
+    setSelectedProduct(product);
+    setIsOrderModalOpen(true);
+  };
+  
+  // Confirm order and proceed to WhatsApp
+  const confirmOrder = () => {
+    // Close modal
+    setIsOrderModalOpen(false);
+    
+    if (selectedProduct) {
+      // Generate WhatsApp URL with order details using config
+      const whatsappUrl = whatsappConfig.generateOrderUrl(selectedProduct, 1); // Default quantity 1
+      
+      // Open WhatsApp in a new tab
+      window.open(whatsappUrl, '_blank');
+    }
+  };
 
   const filteredProducts = products.filter(
     (product) => product.tag === activeTab
@@ -136,6 +173,14 @@ const ProductDisplaySection = () => {
 
   return (
     <section className="w-full py-16 bg-[#fdf8f8]">
+      {/* WhatsApp Order Modal */}
+      <WhatsAppOrderModal 
+        isOpen={isOrderModalOpen}
+        onClose={() => setIsOrderModalOpen(false)}
+        product={selectedProduct || {}}
+        quantity={1}
+        onConfirm={confirmOrder}
+      />
       <div className="max-w-7xl mx-auto px-4">
         <h2 className="text-4xl font-bold text-center text-[#48182E] mb-2 font-playfair">
           Trending Collection
@@ -184,30 +229,49 @@ const ProductDisplaySection = () => {
         <Slider {...sliderSettings}>
           {filteredProducts.map((product, index) => (
             <div key={index} className="px-2">
-              <div className="relative flex flex-col items-center bg-[#b47b48] rounded-2xl shadow p-1">
-                <img
-                  src={product.img}
-                  alt={product.name}
-                  className="w-full h-64 object-cover rounded-xl"
-                />
-                <button
-                  className="absolute top-3 right-3 text-white text-xl bg-[#0a3c47] rounded-full p-2 hover:text-[#b47b48] transition-all"
-                  onClick={() =>
-                    setWishlist((prev) =>
-                      prev.includes(product.name)
-                        ? prev.filter((item) => item !== product.name)
-                        : [...prev, product.name]
-                    )
-                  }
-                >
-                  {wishlist.includes(product.name) ? <HiMiniHeart /> : <FaRegHeart />}
-                </button>
-
-              </div>
-              <div className="w-full text-center mt-2">
-                <h3 className="text-base font-medium text-gray-800 font-playfair">
-                  {product.name}
-                </h3>
+              <Link to={`/product/${product.id}`} className="block">
+                <div className="relative bg-[#b47b48] rounded-2xl shadow p-1 flex flex-col items-center group">
+                  <img
+                    src={product.img}
+                    alt={product.name}
+                    className="w-full h-64 object-cover rounded-xl group-hover:opacity-90 transition duration-300"
+                  />
+                </div>
+              </Link>
+              <div className="w-full flex justify-between items-center mt-2">
+                <Link to={`/product/${product.id}`} className="block">
+                  <h3 className="text-base font-medium text-gray-800 font-playfair hover:text-[#48182E] transition">
+                    {product.name}
+                  </h3>
+                </Link>
+                <div className="flex items-center">
+                  <h3 className="text-base font-medium text-gray-800 font-playfair">{product.price}</h3>
+                  <div className="flex ml-2">
+                    <button
+                      onClick={() =>
+                        setWishlist((prev) =>
+                          prev.includes(product.name)
+                            ? prev.filter((item) => item !== product.name)
+                            : [...prev, product.name]
+                        )
+                      }
+                      className="text-[#48182E] hover:scale-110 transition mr-2"
+                    >
+                      {wishlist.includes(product.name) ? <HiMiniHeart size={18} /> : <FaRegHeart size={18} />}
+                    </button>
+                    <button
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        handleQuickOrder(product);
+                      }}
+                      className="text-[#25D366] hover:scale-110 transition"
+                      title="Quick Order via WhatsApp"
+                    >
+                      <FaWhatsapp size={18} />
+                    </button>
+                  </div>
+                </div>
               </div>
             </div>
 

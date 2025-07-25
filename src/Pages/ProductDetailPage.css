@@ -1,0 +1,61 @@
+.similar-products-slider {
+  margin-bottom: 40px;
+}
+
+.similar-products-slider .slick-slide {
+  padding: 0 8px;
+}
+
+.similar-products-slider .slick-prev,
+.similar-products-slider .slick-next {
+  width: 40px;
+  height: 40px;
+  background: #b47b48;
+  border-radius: 50%;
+  z-index: 1;
+  transition: all 0.3s ease;
+}
+
+.similar-products-slider .slick-prev:hover,
+.similar-products-slider .slick-next:hover {
+  background: #8c5e37;
+}
+
+.similar-products-slider .slick-prev {
+  left: -20px;
+}
+
+.similar-products-slider .slick-next {
+  right: -20px;
+}
+
+.similar-products-slider .slick-prev:before,
+.similar-products-slider .slick-next:before {
+  font-size: 20px;
+  opacity: 1;
+}
+
+.similar-products-slider .slick-dots {
+  bottom: -30px;
+}
+
+.similar-products-slider .slick-dots li button:before {
+  font-size: 10px;
+  color: #b47b48;
+  opacity: 0.5;
+}
+
+.similar-products-slider .slick-dots li.slick-active button:before {
+  opacity: 1;
+  color: #b47b48;
+}
+
+@media (max-width: 768px) {
+  .similar-products-slider .slick-prev {
+    left: -10px;
+  }
+  
+  .similar-products-slider .slick-next {
+    right: -10px;
+  }
+}

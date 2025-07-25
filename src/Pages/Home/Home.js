@@ -6,10 +6,12 @@ import ChooseTypeSection from './ChooseTypeSection';
 import RadiantRefinementSection from './RadiantRefinementSection';
 import GiftingSection from './GiftingSection';
 import NewArrivalsPage from '../NewArrivalsPage';
+import NewArrivalsSection from './NewArrivalsSection';
 import HeroSection from './HeroSection';
 import Footer from './Footer';
 import ProductDisplaySection from './ProductDisplaySection';
 import Unique from './Unique';
+import ClientTestimonial from './ClientTestimonial';
 
 const Home = () => {
     return (
@@ -17,14 +19,17 @@ const Home = () => {
             <HeroSection />
             <EditorialShowcase />
             <NewArrivalsPage />
+
             <ChooseTypeSection />
             <ProductDisplaySection />
             <FeaturedCollection />
             <Unique />
-            <CreativeShowcase />
             <GiftingSection />
-            <RadiantRefinementSection />
-        
+            <CreativeShowcase />
+            <NewArrivalsSection />
+            <ClientTestimonial />
+            {/* <RadiantRefinementSection /> */}
+
         </>
     )
 }
