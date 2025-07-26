@@ -52,48 +52,71 @@ const ProductForm = () => {
     }
   }, [isEditMode, id, navigate]);
 
-  const fetchProductData = async () => {
-    setLoading(true);
-    try {
-      const response = await fetch(`http://localhost:5000/api/products/${id}`);
-      
-      if (!response.ok) {
-        throw new Error('Failed to fetch product data');
-      }
-      
-      const data = await response.json();
-      
-      // Format the data for the form
-      setFormData({
-        name: data.name || '',
-        categoryName: data.categoryName || '',
-        size: data.size || '',
-        stock: data.stock || '',
-        regularPrice: data.regularPrice || '',
-        salePrice: data.salePrice || '',
-        description: data.description || '',
-        metalVariations: data.metalVariations && data.metalVariations.length > 0 
-          ? data.metalVariations 
-          : [{ type: '', color: '', karat: '', regularPrice: '', salePrice: '' }],
-        images: data.images || []
-      });
-      
-      // Set image previews if available
-      if (data.images && data.images.length > 0) {
-        const previewUrls = data.images.map(img => img.url || '');
-        setImagePreviewUrls(previewUrls);
-      }
-      
-      // Set video preview if available
-      if (data.videoUrl) {
-        setVideoPreviewUrl(data.videoUrl);
-      }
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
+const fetchProductData = async () => {
+  setLoading(true);
+  try {
+    const response = await fetch(`http://localhost:5000/api/products/${id}`);
+    
+    if (!response.ok) {
+      throw new Error('Failed to fetch product data');
     }
-  };
+    
+    const responseData = await response.json();
+    const data = responseData.data.product; // Access the nested product data
+    
+    console.log('Product data:', data); // Debug log
+    
+    // Format the data for the form
+    setFormData({
+      name: data.name || '',
+      categoryName: data.categoryName || '',
+      size: data.size || '',
+      stock: data.stock || '',
+      regularPrice: data.regularPrice || '',
+      salePrice: data.salePrice || '',
+      description: data.description || '',
+      metalVariations: data.metalVariations && data.metalVariations.length > 0 
+        ? data.metalVariations.map(v => ({
+            type: v.type || '',
+            color: v.color || '',
+            karat: v.karat || '',
+            regularPrice: v.regularPrice || '',
+            salePrice: v.salePrice || ''
+          }))
+        : [{ type: '', color: '', karat: '', regularPrice: '', salePrice: '' }],
+      images: data.images || [],
+      existingImages: data.images || [],
+      videoUrl: data.videoUrl || null
+    });
+    
+    // Set image previews if available
+    if (data.images && data.images.length > 0) {
+      const previewUrls = data.images.map(img => 
+        img.url.startsWith('http') ? img.url : `http://localhost:5000${img.url}`
+      );
+      setImagePreviewUrls(previewUrls);
+    }
+    
+    // Set video preview if available
+    if (data.videoUrl) {
+      setVideoPreviewUrl(
+        data.videoUrl.startsWith('http') ? data.videoUrl : `http://localhost:5000${data.videoUrl}`
+      );
+    }
+  } catch (err) {
+    setError(err.message || 'Failed to load product data');
+  } finally {
+    setLoading(false);
+  }
+};
+
+useEffect(() => {
+  console.log('Form data updated:', formData);
+}, [formData]);
+
+useEffect(() => {
+  console.log('Image preview URLs:', imagePreviewUrls);
+}, [imagePreviewUrls]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -146,12 +169,53 @@ const ProductForm = () => {
   };
 
   const removeImage = (index) => {
-    const updatedFiles = [...imageFiles];
-    updatedFiles.splice(index, 1);
-    setImageFiles(updatedFiles);
+    // Determine if the image at this index is a new upload or an existing one
+    // Existing images have URLs that start with the server URL
+    const isExistingImage = imagePreviewUrls[index] && imagePreviewUrls[index].startsWith('http://localhost:5000');
     
+    if (isExistingImage) {
+      // For existing images, we need to update the existingImages array in formData
+      if (formData.existingImages) {
+        // Find the corresponding index in existingImages
+        // This is more reliable than using a simple offset calculation
+        const existingImageUrl = imagePreviewUrls[index];
+        const existingImageIndex = formData.existingImages.findIndex(
+          img => `http://localhost:5000${img.url}` === existingImageUrl
+        );
+        
+        if (existingImageIndex >= 0) {
+          const updatedExistingImages = [...formData.existingImages];
+          updatedExistingImages.splice(existingImageIndex, 1);
+          
+          setFormData({
+            ...formData,
+            existingImages: updatedExistingImages
+          });
+        }
+      }
+    } else {
+      // For new images, find the corresponding index in imageFiles
+      // Count how many new images come before this index
+      let newImageCount = 0;
+      for (let i = 0; i < index; i++) {
+        if (!imagePreviewUrls[i].startsWith('http://localhost:5000')) {
+          newImageCount++;
+        }
+      }
+      
+      // Remove from imageFiles array using the calculated index
+      if (newImageCount < imageFiles.length) {
+        const updatedFiles = [...imageFiles];
+        updatedFiles.splice(newImageCount, 1);
+        setImageFiles(updatedFiles);
+      }
+    }
+    
+    // Update preview URLs
     const updatedPreviewUrls = [...imagePreviewUrls];
-    URL.revokeObjectURL(updatedPreviewUrls[index]); // Clean up URL object
+    if (!isExistingImage) {
+      URL.revokeObjectURL(updatedPreviewUrls[index]); // Clean up URL object only for local files
+    }
     updatedPreviewUrls.splice(index, 1);
     setImagePreviewUrls(updatedPreviewUrls);
   };
@@ -200,15 +264,23 @@ const ProductForm = () => {
         });
       });
       
-      // Add images
+      // Add new images
       imageFiles.forEach((file, index) => {
         formDataObj.append('images', file);
         formDataObj.append(`images[${index}][alt]`, `${formData.name} View ${index + 1}`);
       });
       
+      // If in edit mode, add existing images information
+      if (isEditMode && formData.existingImages) {
+        formDataObj.append('existingImages', JSON.stringify(formData.existingImages));
+      }
+      
       // Add video if exists
       if (videoFile) {
         formDataObj.append('videoUrl', videoFile);
+      } else if (isEditMode && formData.videoUrl && !videoFile) {
+        // If in edit mode and there's an existing video but no new video file
+        formDataObj.append('existingVideoUrl', formData.videoUrl);
       }
       
       let url = 'http://localhost:5000/api/products/admin';

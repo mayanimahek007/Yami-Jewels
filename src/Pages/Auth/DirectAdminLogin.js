@@ -1,57 +1,41 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import headerLogo from '../../assets/images/headerlogo.svg';
 
-const TokenLoginPage = () => {
+const DirectAdminLogin = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const { currentUser, tokenLogin } = useAuth();
+  const { tokenLogin } = useAuth();
 
   useEffect(() => {
-    const processTokenLogin = async () => {
+    const processDirectLogin = async () => {
       try {
-        // Check if we already have a logged in user
-        if (currentUser) {
-          if (currentUser.role === 'admin') {
-            navigate('/admin/dashboard');
-          } else {
-            navigate('/');
-          }
-          return;
-        }
+        // Sample login response data (in a real scenario, this would come from an API)
+        const loginResponse = { 
+          status: "success", 
+          token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4ODRmZjMwNDA1NjQzZjBiZmM2NWQyMyIsImlhdCI6MTc1MzU1MTk1MSwiZXhwIjoxNzU2MTQzOTUxfQ.kOXKCJkk5vvUgJ5E5HO2UpW71ek-xAgIVW0V5etK9XQ", 
+          data: { 
+            user: { 
+              _id: "6884ff30405643f0bfc65d23", 
+              name: "Admin User", 
+              email: "mayanimahek007@gmail.com", 
+              role: "admin" 
+            } 
+          } 
+        };
 
-        // Get token from URL parameters
-        const urlParams = new URLSearchParams(window.location.search);
-        const tokenParam = urlParams.get('token');
-        const userData = urlParams.get('userData');
-
-        if (!tokenParam || !userData) {
-          setError('Invalid login parameters');
-          setLoading(false);
-          return;
-        }
-
-        try {
-          // Parse the user data
-          const parsedUserData = JSON.parse(decodeURIComponent(userData));
-          
+        // Check if the login was successful
+        if (loginResponse.status === 'success' && loginResponse.token && loginResponse.data.user) {
           // Use the tokenLogin function from AuthContext
-          tokenLogin(tokenParam, parsedUserData);
+          // Pass the entire response object to let tokenLogin handle the nested structure
+          tokenLogin(loginResponse.token, loginResponse);
 
-          // Redirect based on role - check for nested user data structure
-          const userRole = parsedUserData.data && parsedUserData.data.user 
-            ? parsedUserData.data.user.role 
-            : parsedUserData.role;
-            
-          if (userRole === 'admin') {
-            navigate('/admin/dashboard');
-          } else {
-            navigate('/');
-          }
-        } catch (parseError) {
-          setError('Invalid user data format');
-          console.error('Error parsing user data:', parseError);
+          // Redirect to admin dashboard
+          navigate('/admin/dashboard');
+        } else {
+          setError('Invalid login response');
         }
       } catch (err) {
         setError(err.message || 'An error occurred during login');
@@ -61,15 +45,20 @@ const TokenLoginPage = () => {
       }
     };
 
-    processTokenLogin();
-  }, [navigate, currentUser, tokenLogin]);
+    processDirectLogin();
+  }, [navigate, tokenLogin]);
 
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">
+          <img
+            className="mx-auto h-20 w-auto mb-4"
+            src={headerLogo}
+            alt="Yami Jewels"
+          />
           <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#48182E] mx-auto"></div>
-          <p className="mt-4 text-lg">Logging you in...</p>
+          <p className="mt-4 text-lg">Logging you in as Admin...</p>
         </div>
       </div>
     );
@@ -79,6 +68,11 @@ const TokenLoginPage = () => {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
         <div className="max-w-md w-full bg-white p-8 rounded-lg shadow-md text-center">
+          <img
+            className="mx-auto h-20 w-auto mb-4"
+            src={headerLogo}
+            alt="Yami Jewels"
+          />
           <div className="text-red-600 text-5xl mb-4">⚠️</div>
           <h2 className="text-2xl font-bold text-gray-900 mb-2">Login Error</h2>
           <p className="text-gray-600 mb-6">{error}</p>
@@ -96,4 +90,4 @@ const TokenLoginPage = () => {
   return null;
 };
 
-export default TokenLoginPage;
+export default DirectAdminLogin;

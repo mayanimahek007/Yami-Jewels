@@ -1,13 +1,14 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import Slider from 'react-slick';
 import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
-import { HiOutlineHeart } from 'react-icons/hi';
 import { HiMiniHeart } from 'react-icons/hi2';
 import { FaRegHeart, FaWhatsapp } from 'react-icons/fa';
 import whatsappConfig from '../../config/whatsapp.config';
 import WhatsAppOrderModal from '../../Components/WhatsAppOrderModal';
+import { toggleWishlist, removeFromWishlist } from '../../services/productService';
+import { useAuth } from '../../context/AuthContext';
 
 const products = [
   // ON SALE
@@ -143,9 +144,11 @@ const tabList = [
 
 const ProductDisplaySection = () => {
   const [activeTab, setActiveTab] = useState('ON SALE');
-  const [wishlist, setWishlist] = useState([]);
+  const [wishlistedProducts, setWishlistedProducts] = useState([]);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [isOrderModalOpen, setIsOrderModalOpen] = useState(false);
+  const { currentUser } = useAuth();
+  const navigate = useNavigate();
   
   // WhatsApp quick order function
   const handleQuickOrder = (product) => {
@@ -164,6 +167,39 @@ const ProductDisplaySection = () => {
       
       // Open WhatsApp in a new tab
       window.open(whatsappUrl, '_blank');
+    }
+  };
+
+  // Handle wishlist toggle
+  const handleToggleWishlist = async (productId) => {
+    if (!currentUser) {
+      // Redirect to login if user is not authenticated
+      navigate('/login');
+      return;
+    }
+
+    try {
+      // Check if product is already in wishlist
+      const isWishlisted = wishlistedProducts.includes(productId);
+      
+      if (isWishlisted) {
+        // If already in wishlist, remove it
+        await removeFromWishlist(productId);
+      } else {
+        // If not in wishlist, add it
+        await toggleWishlist(productId);
+      }
+      
+      // Update the local state to reflect the change
+      setWishlistedProducts(prev => {
+        if (prev.includes(productId)) {
+          return prev.filter(id => id !== productId);
+        } else {
+          return [...prev, productId];
+        }
+      });
+    } catch (err) {
+      console.error('Error toggling wishlist:', err);
     }
   };
 
@@ -217,12 +253,12 @@ const ProductDisplaySection = () => {
 
         {/* View All Button */}
         <div className="flex items-center justify-end px-2 mb-6">
-          <a
-            href="/product"
+          <Link
+            to="/product"
             className="text-white text-base font-medium flex items-center gap-1 bg-[#b98453] px-4 py-2 rounded-full shadow"
           >
             View All <span>→</span>
-          </a>
+          </Link>
         </div>
 
         {/* Product Slider */}
@@ -248,16 +284,14 @@ const ProductDisplaySection = () => {
                   <h3 className="text-base font-medium text-gray-800 font-playfair">{product.price}</h3>
                   <div className="flex ml-2">
                     <button
-                      onClick={() =>
-                        setWishlist((prev) =>
-                          prev.includes(product.name)
-                            ? prev.filter((item) => item !== product.name)
-                            : [...prev, product.name]
-                        )
-                      }
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        handleToggleWishlist(product.id);
+                      }}
                       className="text-[#48182E] hover:scale-110 transition mr-2"
                     >
-                      {wishlist.includes(product.name) ? <HiMiniHeart size={18} /> : <FaRegHeart size={18} />}
+                      {wishlistedProducts.includes(product.id) ? <HiMiniHeart size={18} /> : <FaRegHeart size={18} />}
                     </button>
                     <button
                       onClick={(e) => {

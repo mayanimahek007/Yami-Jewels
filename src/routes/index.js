@@ -1,5 +1,5 @@
 import React from 'react'
-import { Route, Routes, Navigate } from 'react-router-dom';
+import { Route, Routes as RouterRoutes, Navigate } from 'react-router-dom';
 import { publicRoutes, adminRoutes } from './allRoutes';
 import Layout from '../Components/Layout';
 import ScrollToTop from '../Components/ScrollToTop';
@@ -16,34 +16,39 @@ const ProtectedRoute = ({ children }) => {
     return children;
 };
 
-const index = () => {
+const Routes = () => {
+    const { isAdmin } = useAuth();
+    
     return (
         <>
             <ScrollToTop />
-            <Routes>
-                {/* Public Routes */}
-                {publicRoutes?.map((item, index) => (
-                    <Route path={item?.path} key={index} element={<Layout>{item?.compoments}</Layout>}></Route>
-                ))}
-                
-                {/* Admin Routes - Protected */}
-                {adminRoutes?.map((item, index) => (
-                    <Route 
-                        path={item?.path} 
-                        key={`admin-${index}`} 
-                        element={
-                            <ProtectedRoute>
-                                <Layout>{item?.compoments}</Layout>
-                            </ProtectedRoute>
-                        }
-                    />
-                ))}
+            <RouterRoutes>
+                {/* Render routes based on user role */}
+                {isAdmin ? (
+                    // Admin Routes
+                    adminRoutes?.map((item, index) => (
+                        <Route 
+                            path={item?.path} 
+                            key={`admin-${index}`} 
+                            element={
+                                <ProtectedRoute>
+                                    <Layout>{item?.component}</Layout>
+                                </ProtectedRoute>
+                            }
+                        />
+                    ))
+                ) : (
+                    // Public Routes for non-admin users
+                    publicRoutes?.map((item, index) => (
+                        <Route path={item?.path} key={index} element={<Layout>{item?.component}</Layout>}></Route>
+                    ))
+                )}
                 
                 {/* Fallback route */}
                 <Route path="*" element={<Navigate to="/" replace />} />
-            </Routes>
+            </RouterRoutes>
         </>
     );
 };
 
-export default index;
+export default Routes;

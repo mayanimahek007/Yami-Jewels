@@ -1,84 +1,105 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { HiMiniHeart } from 'react-icons/hi2';
 import { FaRegHeart, FaWhatsapp } from 'react-icons/fa';
 import shopbanner from '../assets/images/bg.webp';
 import whatsappConfig from '../config/whatsapp.config';
 import WhatsAppOrderModal from '../Components/WhatsAppOrderModal';
-const products = [
-  {
-    id: 1,
-    name: 'The Ashley',
-    price: '$2500.00',
-    img: require('../assets/images/ring.jpg'),
-  },
-  {
-    id: 2,
-    name: 'The Lexie',
-    price: '$2500.00',
-    img: require('../assets/images/earring.jpg'),
-  },
-  {
-    id: 3,
-    name: 'The Alison',
-    price: '$2500.00',
-    img: require('../assets/images/radiant.jpg'),
-  },
-  {
-    id: 4,
-    name: 'The Eleanor',
-    price: '$2500.00',
-    img: require('../assets/images/diamond.jpg'),
-  },
-  {
-    id: 5,
-    name: 'The Ashley',
-    price: '$2500.00',
-    img: require('../assets/images/ring.jpg'),
-  },
-  {
-    id: 6,
-    name: 'The Lexie',
-    price: '$2500.00',
-    img: require('../assets/images/earring.jpg'),
-  },
-  {
-    id: 7,
-    name: 'The Alison',
-    price: '$2500.00',
-    img: require('../assets/images/radiant.jpg'),
-  },
-  {
-    id: 8,
-    name: 'The Eleanor',
-    price: '$2500.00',
-    img: require('../assets/images/diamond.jpg'),
-  },
-  {
-    id: 9,
-    name: 'The Alison',
-    price: '$2500.00',
-    img: require('../assets/images/radiant.jpg'),
-  },
-  {
-    id: 10,
-    name: 'The Eleanor',
-    price: '$2500.00',
-    img: require('../assets/images/diamond.jpg'),
-  },
-];
-
+import { getAllProducts, toggleWishlist, removeFromWishlist, getUserWishlist } from '../services/productService';
+import { useAuth } from '../context/AuthContext';
 const ProductPage = () => {
-  const [wishlist, setWishlist] = useState([]);
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [isOrderModalOpen, setIsOrderModalOpen] = useState(false);
+  const { currentUser } = useAuth();
+  const navigate = useNavigate();
 
-  const toggleWishlist = (name) => {
-    setWishlist((prev) =>
-      prev.includes(name)
-        ? prev.filter((item) => item !== name)
-        : [...prev, name]
-    );
+  useEffect(() => {
+    fetchProducts();
+  }, []);
+  
+  // Check user's wishlist when user logs in
+  useEffect(() => {
+    if (currentUser && products.length > 0) {
+      checkWishlistStatus();
+    }
+  }, [currentUser, products]);
+
+  const fetchProducts = async () => {
+    setLoading(true);
+    setError('');
+    try {
+      const response = await getAllProducts();
+      setProducts(response.data.products || []);
+      
+      // If user is logged in, check wishlist status
+      if (currentUser) {
+        checkWishlistStatus();
+      }
+    } catch (err) {
+      console.error('Error fetching products:', err);
+      setError('Failed to load products. Please try again later.');
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+  // Check which products are in user's wishlist
+  const checkWishlistStatus = async () => {
+    if (!currentUser) return;
+    
+    try {
+      const wishlistData = await getUserWishlist();
+      if (wishlistData && wishlistData.status === 'success') {
+        const wishlistProductIds = wishlistData.data.products.map(product => product._id);
+        
+        // Update products with wishlist status
+        setProducts(prevProducts => 
+          prevProducts.map(product => ({
+            ...product,
+            isWishlisted: wishlistProductIds.includes(product._id)
+          }))
+        );
+      }
+    } catch (err) {
+      console.error('Error checking wishlist status:', err);
+      // Don't update UI on error
+    }
+  };
+
+  const handleToggleWishlist = async (productId) => {
+    if (!currentUser) {
+      // Redirect to login if user is not authenticated
+      navigate('/login');
+      return;
+    }
+
+    try {
+      // Find the product to determine if it's already wishlisted
+      const product = products.find(p => p._id === productId);
+      console.log(`Toggling wishlist for product ${productId}`, product);
+      if (product) {
+        if (product.isWishlisted) {
+          // If already in wishlist, remove it
+          await removeFromWishlist(productId);
+        } else {
+          // If not in wishlist, add it
+          await toggleWishlist(productId);
+        }
+        
+        // Update the local state to reflect the change
+        setProducts(products.map(p => {
+          if (p._id === productId) {
+            return { ...p, isWishlisted: !p.isWishlisted };
+          }
+          return p;
+        }));
+      }
+    } catch (err) {
+      console.error('Error toggling wishlist:', err);
+    }
   };
   
   // WhatsApp quick order function
@@ -113,7 +134,6 @@ const ProductPage = () => {
     />
     
     <div className="relative w-full h-[300px] sm:h-[400px] md:h-[400px]">
-      {/* <h2 className="text-3xl font-bold text-[#48182E] font-montserrat mb-6">Similar Products</h2> */}
       <img
         src={shopbanner}
         alt="Banner"
@@ -122,53 +142,84 @@ const ProductPage = () => {
       <div className="absolute inset-0 flex items-center justify-center">
         <h1 className="text-4xl sm:text-5xl font-montserrat text-[#47182E]">All Collections</h1>
       </div>
-      </div>
-       <div className="min-h-screen bg-[#fdf8f8] flex flex-col items-center py-10 px-4">
+    </div>
+    
+    <div className="min-h-screen bg-[#fdf8f8] flex flex-col items-center py-10 px-4">
+      {error && (
+        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-6 w-full max-w-7xl" role="alert">
+          <span className="block sm:inline">{error}</span>
+        </div>
+      )}
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 w-full max-w-7xl">
-        {products.map((product, index) => (
-          <div key={product.id + index}>
-            <Link to={`/product/${product.id}`} className="block">
-              <div className="relative bg-[#b47b48] rounded-2xl shadow p-1 flex flex-col items-center group">
-                <img
-                  src={product.img}
-                  alt={product.name}
-                  className="w-full h-64 object-cover rounded-xl group-hover:opacity-90 transition duration-300"
-                />
-              </div>
-            </Link>
-
-            <div className="w-full flex justify-between text-center mt-2">
-              <Link to={`/product/${product.id}`} className="block">
-                <h3 className="text-base font-medium text-gray-800 font-montserrat hover:text-[#48182E] transition">{product.name}</h3>
+      {loading ? (
+        <div className="flex justify-center items-center h-64 w-full">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#48182E]"></div>
+        </div>
+      ) : products.length === 0 ? (
+        <div className="text-center py-10 w-full max-w-7xl">
+          <h3 className="text-xl font-medium text-gray-900">No products found</h3>
+          <p className="mt-2 text-gray-600">Please check back later for our latest collections.</p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 w-full max-w-7xl">
+          {products.map((product) => (
+            <div key={product._id}>
+              <Link to={`/product/${product._id}`} className="block">
+                <div className="relative bg-[#b47b48] rounded-2xl shadow p-1 flex flex-col items-center group">
+                  <img
+                    src={`http://localhost:5000${product.images[0]?.url}`}
+                    alt={product.images[0]?.alt || product.name}
+                    className="w-full h-64 object-cover rounded-xl group-hover:opacity-90 transition duration-300"
+                  />
+                </div>
               </Link>
-              <div className="flex items-center">
-                <h3 className="text-base font-medium text-gray-800 font-montserrat">{product.price}</h3>
-                <div className="flex ml-2">
-                  <button
-                    onClick={() => toggleWishlist(product.name)}
-                    className="text-[#48182E] hover:scale-110 transition mr-2"
-                  >
-                    {wishlist.includes(product.name) ? <HiMiniHeart size={18} /> : <FaRegHeart size={18} />}
-                  </button>
-                  <button
-                    onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      handleQuickOrder(product);
-                    }}
-                    className="text-[#25D366] hover:scale-110 transition"
-                    title="Quick Order via WhatsApp"
-                  >
-                    <FaWhatsapp size={18} />
-                  </button>
+
+              <div className="w-full flex justify-between text-center mt-2">
+                <Link to={`/product/${product._id}`} className="block">
+                  <h3 className="text-base font-medium text-gray-800 font-montserrat hover:text-[#48182E] transition">{product.name}</h3>
+                </Link>
+                <div className="flex items-center">
+                  <div className="text-right">
+                    {product.salePrice < product.regularPrice ? (
+                      <>
+                        <span className="text-base font-medium text-gray-800 font-montserrat">${product.salePrice.toFixed(2)}</span>
+                        <span className="ml-2 text-sm text-gray-500 line-through">${product.regularPrice.toFixed(2)}</span>
+                      </>
+                    ) : (
+                      <span className="text-base font-medium text-gray-800 font-montserrat">${product.regularPrice.toFixed(2)}</span>
+                    )}
+                  </div>
+                  <div className="flex ml-2">
+                    <button
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        handleToggleWishlist(product._id);
+                        console.log(`Toggled wishlist for product ${product._id}`);
+                      }}
+                      className="text-[#48182E] hover:scale-110 transition mr-2"
+                    >
+                      {product.isWishlisted ? <HiMiniHeart size={18} /> : <FaRegHeart size={18} />}
+                    </button>
+                    <button
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        handleQuickOrder(product);
+                      }}
+                      className="text-[#25D366] hover:scale-110 transition"
+                      title="Quick Order via WhatsApp"
+                    >
+                      <FaWhatsapp size={18} />
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-        ))}
-      </div>
-      </div>
+          ))}
+        </div>
+      )}
+    </div>
     </>
   );
 };

@@ -59,7 +59,13 @@ const Header = () => {
                                 />
                             </div>
                             <div className='text-white flex items-center justify-center gap-5'>
-                                <CiHeart size={25} className="cursor-pointer" />
+                                {currentUser ? (
+                                    <Link to="/wishlist">
+                                        <CiHeart size={25} className="cursor-pointer" />
+                                    </Link>
+                                ) : (
+                                    <CiHeart size={25} className="cursor-pointer" onClick={() => navigate('/login')} />
+                                )}
                                 <div className="relative" ref={accountMenuRef}>
                                     <PiUser size={25} className="cursor-pointer" onClick={() => setShowAccountMenu(!showAccountMenu)} />
                                     <div className={`absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50 ${showAccountMenu ? 'block' : 'hidden'}`}>
@@ -70,6 +76,12 @@ const Header = () => {
                                                         <RiAdminLine className="mr-2" /> Admin Dashboard
                                                     </Link>
                                                 )}
+                                                <Link to="/profile" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                                    Profile
+                                                </Link>
+                                                <Link to="/wishlist" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                                    Wishlist
+                                                </Link>
                                                 <Link to="/update-password" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                                                     Update Password
                                                 </Link>
@@ -112,7 +124,13 @@ const Header = () => {
                             <FaBars className='text-white w-6 h-6' onClick={() => handleOpen()} />
                             <img src={headerLogo} alt='...' className='sm:w-40 w-32 h-24 object-cover cursor-pointer' />
                             <div className='text-white flex items-center justify-center gap-3'>
-                                <CiHeart size={25} />
+                                {currentUser ? (
+                                    <Link to="/wishlist">
+                                        <CiHeart size={25} />
+                                    </Link>
+                                ) : (
+                                    <CiHeart size={25} onClick={() => navigate('/login')} />
+                                )}
                                 <PiHandbag size={25} />
                             </div>
                         </div>
@@ -156,6 +174,20 @@ const Header = () => {
                                         <p>Admin Dashboard</p>
                                     </div>
                                 )}
+                                <div className='flex items-center gap-1 cursor-pointer' onClick={() => {
+                                    navigate('/profile');
+                                    handleClose();
+                                }}>
+                                    <PiUser size={25} />
+                                    <p>Profile</p>
+                                </div>
+                                <div className='flex items-center gap-1 cursor-pointer' onClick={() => {
+                                    navigate('/wishlist');
+                                    handleClose();
+                                }}>
+                                    <CiHeart size={25} />
+                                    <p>Wishlist</p>
+                                </div>
                                 <div className='flex items-center gap-1 cursor-pointer' onClick={() => {
                                     navigate('/update-password');
                                     handleClose();

@@ -24,6 +24,117 @@ export const getAllProducts = async () => {
   }
 };
 
+// Toggle product wishlist status (Add to wishlist)
+export const toggleWishlist = async (productId) => {
+  try {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      throw new Error('Authentication required');
+    }
+
+    const response = await fetch(`${API_URL}/wishlist`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify({ productId })
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || 'Failed to update wishlist');
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error(`Error toggling wishlist for product ${productId}:`, error);
+    throw error;
+  }
+};
+
+// Remove product from wishlist
+export const removeFromWishlist = async (productId) => {
+  try {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      throw new Error('Authentication required');
+    }
+
+    const response = await fetch(`${API_URL}/wishlist/${productId}`, {
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || 'Failed to remove from wishlist');
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error(`Error removing product ${productId} from wishlist:`, error);
+    throw error;
+  }
+};
+
+// Get user's wishlist
+export const getWishlist = async () => {
+  try {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      throw new Error('Authentication required');
+    }
+
+    const response = await fetch(`${API_URL}/wishlist`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      }
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || 'Failed to fetch wishlist');
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error('Error fetching wishlist:', error);
+    throw error;
+  }
+};
+
+
+export const getUserWishlist = async () => {
+  try {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      throw new Error('Authentication required');
+    }
+
+    const response = await fetch(`${API_URL}/wishlist/me`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || 'Failed to fetch user wishlist');
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error('Error fetching user wishlist:', error);
+    throw error;
+  }
+};
+
 // Get product by ID
 export const getProductById = async (productId) => {
   try {
@@ -116,15 +227,68 @@ export const updateProduct = async (productId, productData) => {
       throw new Error('Authentication required');
     }
 
-    // For update, we can use JSON directly if no files are being updated
-    // Otherwise, we would need to use FormData similar to createProduct
+    // Check if we need to use FormData (for file uploads) or JSON
+    const hasFiles = (
+      (productData.images && productData.images.length > 0 && productData.images.some(img => img instanceof File)) ||
+      (productData.videoUrl && productData.videoUrl instanceof File)
+    );
+
+    let requestBody;
+    let headers = {
+      'Authorization': `Bearer ${token}`
+    };
+
+    if (hasFiles) {
+      // Create FormData for file uploads
+      const formData = new FormData();
+      
+      // Add text fields
+      Object.keys(productData).forEach(key => {
+        if (key !== 'images' && key !== 'videoUrl' && key !== 'metalVariations' && key !== 'existingImages') {
+          formData.append(key, productData[key]);
+        }
+      });
+
+      // Add metal variations
+      if (productData.metalVariations && productData.metalVariations.length > 0) {
+        productData.metalVariations.forEach((variation, index) => {
+          Object.keys(variation).forEach(key => {
+            formData.append(`metalVariations[${index}][${key}]`, variation[key]);
+          });
+        });
+      }
+
+      // Add existing images information
+      if (productData.existingImages) {
+        formData.append('existingImages', JSON.stringify(productData.existingImages));
+      }
+
+      // Add new images
+      if (productData.images && productData.images.length > 0) {
+        productData.images.forEach((image, index) => {
+          if (image instanceof File) {
+            formData.append('images', image);
+            formData.append(`images[${index}][alt]`, productData.name ? `${productData.name} View ${index + 1}` : '');
+          }
+        });
+      }
+
+      // Add video if exists
+      if (productData.videoUrl && productData.videoUrl instanceof File) {
+        formData.append('videoUrl', productData.videoUrl);
+      }
+
+      requestBody = formData;
+    } else {
+      // Use JSON if no files are being updated
+      headers['Content-Type'] = 'application/json';
+      requestBody = JSON.stringify(productData);
+    }
+
     const response = await fetch(`${API_URL}/admin/${productId}`, {
       method: 'PATCH',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
-      },
-      body: JSON.stringify(productData)
+      headers,
+      body: requestBody
     });
 
     if (!response.ok) {

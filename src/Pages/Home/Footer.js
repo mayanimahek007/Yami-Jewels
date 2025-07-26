@@ -23,25 +23,25 @@ const Footer = () => (
       <div>
         <h4 className="font-semibold mb-3 text-lg">Our Policies</h4>
         <ul className="space-y-2 text-sm">
-          <li><a href="#" className="hover:text-[#bfa14a]">Privacy Policy</a></li>
-          <li><a href="#" className="hover:text-[#bfa14a]">Refund Policy</a></li>
-          <li><a href="#" className="hover:text-[#bfa14a]">Terms of Usage</a></li>
-          <li><a href="#" className="hover:text-[#bfa14a]">Shipping Policy</a></li>
+          <li><a href="/privacy-policy" className="hover:text-[#bfa14a]">Privacy Policy</a></li>
+          <li><a href="/refund-policy" className="hover:text-[#bfa14a]">Refund Policy</a></li>
+          <li><a href="/terms-of-usage" className="hover:text-[#bfa14a]">Terms of Usage</a></li>
+          <li><a href="/shipping-policy" className="hover:text-[#bfa14a]">Shipping Policy</a></li>
         </ul>
       </div>
       {/* Useful Links */}
       <div>
         <h4 className="font-semibold mb-3 text-lg">Useful Links</h4>
         <ul className="space-y-2 text-sm">
-          <li><a href="#" className="hover:text-[#bfa14a]">About Us</a></li>
-          <li><a href="#" className="hover:text-[#bfa14a]">Contact Us</a></li>
-          <li><a href="#" className="hover:text-[#bfa14a]">Sitemap</a></li>
+          <li><a href="/about-us" className="hover:text-[#bfa14a]">About Us</a></li>
+          <li><a href="/contact-us" className="hover:text-[#bfa14a]">Contact Us</a></li>
+          <li><a href="/sitemap" className="hover:text-[#bfa14a]">Sitemap</a></li>
         </ul>
         <h4 className="font-semibold mt-5 mb-2 text-lg">Keep In Touch</h4>
         <div className="flex gap-4 mt-2">
-          <a href="#" className="bg-white/10 rounded-full p-2 hover:bg-[#bfa14a] transition"><FaFacebook /></a>
-          <a href="#" className="bg-white/10 rounded-full p-2 hover:bg-[#bfa14a] transition"><FaInstagram /></a>
-          <a href="#" className="bg-white/10 rounded-full p-2 hover:bg-[#bfa14a] transition"><FaXTwitter /></a>
+          <a href="https://facebook.com" className="bg-white/10 rounded-full p-2 hover:bg-[#bfa14a] transition"><FaFacebook /></a>
+          <a href="https://instagram.com" className="bg-white/10 rounded-full p-2 hover:bg-[#bfa14a] transition"><FaInstagram /></a>
+          <a href="https://twitter.com" className="bg-white/10 rounded-full p-2 hover:bg-[#bfa14a] transition"><FaXTwitter /></a>
         </div>
       </div>
       {/* Contact Details */}
@@ -67,8 +67,8 @@ const Footer = () => (
       <div className="text-xs text-gray-300 text-center">© {new Date().getFullYear()} Yami Jewels | All rights reserved</div>
       {/* App icons placeholder */}
       {/* <div className="flex gap-2">
-        <a href="#"><img src="https://img.icons8.com/color/48/000000/apple-app-store.png" alt="App Store" className="h-8" /></a>
-        <a href="#"><img src="https://img.icons8.com/color/48/000000/google-play.png" alt="Google Play" className="h-8" /></a>
+        <a href="https://apps.apple.com/store" target="_blank" rel="noopener noreferrer"><img src="https://img.icons8.com/color/48/000000/apple-app-store.png" alt="App Store" className="h-8" /></a>
+        <a href="https://play.google.com/store" target="_blank" rel="noopener noreferrer"><img src="https://img.icons8.com/color/48/000000/google-play.png" alt="Google Play" className="h-8" /></a>
       </div> */}
     </div>
   </footer>

@@ -39,7 +39,20 @@ const AdminDashboard = () => {
       }
 
       const data = await response.json();
-      setProducts(data.products || data);
+      console.log('API Response:', data);
+      
+      // Check if data is an array or has a products property
+      if (Array.isArray(data)) {
+        setProducts(data);
+      } else if (data.products && Array.isArray(data.products)) {
+        setProducts(data.products);
+      } else if (data.data && Array.isArray(data.data.products)) {
+        setProducts(data.data.products);
+      } else {
+        // If none of the above, set to empty array to prevent errors
+        console.error('Products data is not in expected format:', data);
+        setProducts([]);
+      }
     } catch (err) {
       setError(err.message);
     } finally {
@@ -51,7 +64,7 @@ const AdminDashboard = () => {
     setLoading(true);
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:5000/api/users', {
+      const response = await fetch('http://localhost:5000/api/users/admin/users', {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -62,7 +75,20 @@ const AdminDashboard = () => {
       }
 
       const data = await response.json();
-      setUsers(data.users || data);
+      console.log('Users API Response:', data);
+      
+      // Check if data is an array or has a users property
+      if (Array.isArray(data)) {
+        setUsers(data);
+      } else if (data.users && Array.isArray(data.users)) {
+        setUsers(data.users);
+      } else if (data.data && Array.isArray(data.data.users)) {
+        setUsers(data.data.users);
+      } else {
+        // If none of the above, set to empty array to prevent errors
+        console.error('Users data is not in expected format:', data);
+        setUsers([]);
+      }
     } catch (err) {
       setError(err.message);
     } finally {
@@ -98,8 +124,10 @@ const AdminDashboard = () => {
         throw new Error(errorData.message || 'Failed to delete product');
       }
 
-      // Remove product from state
-      setProducts(products.filter(product => product._id !== productId));
+      // Remove product from state - ensure products is an array before filtering
+      if (Array.isArray(products)) {
+        setProducts(products.filter(product => product._id !== productId));
+      }
     } catch (err) {
       setError(err.message);
     }
@@ -174,18 +202,13 @@ const AdminDashboard = () => {
                     <FaPlus className="mr-2" />
                     Add New Product
                   </Link>
-                  <Link 
-                    to="/admin/product/new-formdata"
-                    className="bg-[#48182E] text-white px-4 py-2 rounded-md flex items-center"
-                  >
-                    <FaPlus className="mr-2" />
-                    Add With FormData
-                  </Link>
                 </div>
               </div>
 
               {loading ? (
                 <div className="text-center py-4">Loading products...</div>
+              ) : !products || !Array.isArray(products) ? (
+                <div className="text-center py-4">Error: Products data is not in the expected format.</div>
               ) : products.length === 0 ? (
                 <div className="text-center py-4">No products found.</div>
               ) : (
@@ -208,7 +231,7 @@ const AdminDashboard = () => {
                             <div className="flex-shrink-0 h-10 w-10">
                               <img 
                                 className="h-10 w-10 rounded-md object-cover" 
-                                src={product.images && product.images.length > 0 ? product.images[0].url : '/placeholder.png'} 
+                                src={`http://localhost:5000${product.images && product.images.length > 0 ? product.images[0].url : '/placeholder.png'}`} 
                                 alt={product.name} 
                               />
                             </div>
@@ -219,8 +242,8 @@ const AdminDashboard = () => {
                           <td className="px-6 py-4 whitespace-nowrap">
                             <div className="text-sm text-gray-500">{product.categoryName}</div>
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <div className="text-sm text-gray-900">${product.regularPrice}</div>
+                          <td className="px-6 py-4 whitespace-nowrap flex items-center gap-3">
+                            <div className="text-sm text-gray-900 line-through">${product.regularPrice}</div>
                             {product.salePrice && (
                               <div className="text-sm text-red-500">${product.salePrice}</div>
                             )}
@@ -266,6 +289,8 @@ const AdminDashboard = () => {
 
               {loading ? (
                 <div className="text-center py-4">Loading users...</div>
+              ) : !users || !Array.isArray(users) ? (
+                <div className="text-center py-4">Error: Users data is not in the expected format.</div>
               ) : users.length === 0 ? (
                 <div className="text-center py-4">No users found.</div>
               ) : (

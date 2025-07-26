@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login Demo - Yami Jewels</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #fdf8f8;
+        }
+        h1 {
+            color: #48182E;
+            border-bottom: 2px solid #b47b48;
+            padding-bottom: 10px;
+        }
+        .card {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        pre {
+            background-color: #f5f5f5;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            font-size: 14px;
+        }
+        button {
+            background-color: #48182E;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #6b2644;
+        }
+        .note {
+            background-color: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 10px 15px;
+            margin: 15px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>Admin Login Demo</h1>
+    
+    <div class="card">
+        <h2>Admin Login Response</h2>
+        <p>This is a sample admin login response that would typically come from your backend API:</p>
+        <pre>{
+  "status": "success",
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4ODRmZjMwNDA1NjQzZjBiZmM2NWQyMyIsImlhdCI6MTc1MzU1MTk1MSwiZXhwIjoxNzU2MTQzOTUxfQ.kOXKCJkk5vvUgJ5E5HO2UpW71ek-xAgIVW0V5etK9XQ",
+  "data": {
+    "user": {
+      "_id": "6884ff30405643f0bfc65d23",
+      "name": "Admin User",
+      "email": "mayanimahek007@gmail.com",
+      "role": "admin"
+    }
+  }
+}</pre>
+    </div>
+
+    <div class="card">
+        <h2>Direct Admin Login</h2>
+        <p>Click the button below to simulate a direct admin login. This will redirect you to the admin dashboard.</p>
+        <div class="note">
+            <strong>Note:</strong> In a real application, this would typically be triggered by an API response, not a button click.
+        </div>
+        <button id="loginButton">Login as Admin</button>
+    </div>
+
+    <script>
+        document.getElementById('loginButton').addEventListener('click', function() {
+            // Redirect to the direct admin login page
+            window.location.href = '/direct-admin-login';
+        });
+    </script>
+</body>
+</html>

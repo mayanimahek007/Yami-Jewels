@@ -46,11 +46,15 @@ export const AuthProvider = ({ children }) => {
         throw new Error(data.message || 'Login failed');
       }
 
-      // Store token and user in localStorage
-      localStorage.setItem('token', data.token);
-      localStorage.setItem('user', JSON.stringify(data.user));
+      // Extract user data from the response, handling both nested and direct structures
+      const token = data.token;
+      const userDataToStore = data.data && data.data.user ? data.data.user : data.user;
       
-      setCurrentUser(data.user);
+      // Store token and user in localStorage
+      localStorage.setItem('token', token);
+      localStorage.setItem('user', JSON.stringify(userDataToStore));
+      
+      setCurrentUser(userDataToStore);
       return data;
     } catch (err) {
       setError(err.message);
@@ -60,7 +64,7 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const register = async (userData) => {
+  const register = async (userRegistrationData) => {
     setLoading(true);
     setError('');
     
@@ -70,7 +74,7 @@ export const AuthProvider = ({ children }) => {
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify(userData)
+        body: JSON.stringify(userRegistrationData)
       });
 
       const data = await response.json();
@@ -79,11 +83,15 @@ export const AuthProvider = ({ children }) => {
         throw new Error(data.message || 'Registration failed');
       }
 
-      // Store token and user in localStorage
-      localStorage.setItem('token', data.token);
-      localStorage.setItem('user', JSON.stringify(data.user));
+      // Extract user data from the response, handling both nested and direct structures
+      const token = data.token;
+      const userDataToStore = data.data && data.data.user ? data.data.user : data.user;
       
-      setCurrentUser(data.user);
+      // Store token and user in localStorage
+      localStorage.setItem('token', token);
+      localStorage.setItem('user', JSON.stringify(userDataToStore));
+      
+      setCurrentUser(userDataToStore);
       return data;
     } catch (err) {
       setError(err.message);
@@ -200,14 +208,62 @@ export const AuthProvider = ({ children }) => {
     setError('');
     
     try {
+      // Check if userData is nested inside data.user structure
+      const userToStore = userData.data && userData.data.user ? userData.data.user : userData;
+      
       // Store token and user in localStorage
       localStorage.setItem('token', token);
-      localStorage.setItem('user', JSON.stringify(userData));
+      localStorage.setItem('user', JSON.stringify(userToStore));
       
-      setCurrentUser(userData);
+      setCurrentUser(userToStore);
       return { success: true };
     } catch (err) {
       setError(err.message || 'Token login failed');
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Use useMemo to calculate isAdmin value only when currentUser changes
+  const isAdmin = React.useMemo(() => {
+    return currentUser?.role === 'admin';
+  }, [currentUser]);
+  
+  const updateProfile = async (profileData) => {
+    setLoading(true);
+    setError('');
+    
+    try {
+      const token = localStorage.getItem('token');
+      
+      if (!token) {
+        throw new Error('You must be logged in to update your profile');
+      }
+      
+      const response = await fetch('http://localhost:5000/api/users/updateProfile', {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(profileData)
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Failed to update profile');
+      }
+
+      // Update the user data in localStorage and state
+      const updatedUser = { ...currentUser, ...profileData };
+      localStorage.setItem('user', JSON.stringify(updatedUser));
+      setCurrentUser(updatedUser);
+
+      return data;
+    } catch (err) {
+      setError(err.message);
       throw err;
     } finally {
       setLoading(false);
@@ -224,8 +280,9 @@ export const AuthProvider = ({ children }) => {
     forgotPassword,
     resetPassword,
     updatePassword,
+    updateProfile,
     tokenLogin,
-    isAdmin: currentUser?.role === 'admin'
+    isAdmin
   };
 
   return (

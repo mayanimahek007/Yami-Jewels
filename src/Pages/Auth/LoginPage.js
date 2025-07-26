@@ -28,8 +28,10 @@ const LoginPage = () => {
     try {
       const data = await login(formData.email, formData.password);
       
-      // Redirect based on role
-      if (data.user && data.user.role === 'admin') {
+      // Redirect based on role - check for nested user data structure
+      const user = data.data && data.data.user ? data.data.user : data.user;
+      
+      if (user && user.role === 'admin') {
         navigate('/admin/dashboard');
       } else {
         navigate('/');
