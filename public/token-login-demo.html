@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Yami Jewels - Token Login Demo</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        h1 {
+            color: #48182E;
+            text-align: center;
+        }
+        .container {
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        pre {
+            background-color: #f0f0f0;
+            padding: 15px;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+        button {
+            background-color: #48182E;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 20px;
+        }
+        button:hover {
+            background-color: #6b2644;
+        }
+    </style>
+</head>
+<body>
+    <h1>Yami Jewels - Token Login Demo</h1>
+    
+    <div class="container">
+        <h2>Admin Login with Token</h2>
+        <p>This page demonstrates how to login with a JWT token and user data. Click the button below to simulate a login with the provided token and user data.</p>
+        
+        <h3>Token:</h3>
+        <pre id="token">eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4ODRmZjMwNDA1NjQzZjBiZmM2NWQyMyIsImlhdCI6MTc1MzU1MTk1MSwiZXhwIjoxNzU2MTQzOTUxfQ.kOXKCJkk5vvUgJ5E5HO2UpW71ek-xAgIVW0V5etK9XQ</pre>
+        
+        <h3>User Data:</h3>
+        <pre id="userData">{
+    "_id": "6884ff30405643f0bfc65d23",
+    "name": "Admin User",
+    "email": "mayanimahek007@gmail.com",
+    "role": "admin"
+}</pre>
+        
+        <button id="loginButton">Login with Token</button>
+    </div>
+    
+    <script>
+        document.getElementById('loginButton').addEventListener('click', function() {
+            const token = document.getElementById('token').textContent.trim();
+            const userData = document.getElementById('userData').textContent.trim();
+            
+            // Encode the user data to safely pass it in the URL
+            const encodedUserData = encodeURIComponent(userData);
+            
+            // Redirect to the token login page with the token and user data as query parameters
+            window.location.href = `/token-login?token=${token}&userData=${encodedUserData}`;
+        });
+    </script>
+</body>
+</html>

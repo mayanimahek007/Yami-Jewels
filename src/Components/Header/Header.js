@@ -1,14 +1,32 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect, useRef } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
 import headerLogo from "../../assets/images/headerlogo.svg";
 import { FaBars } from 'react-icons/fa6';
 import { IoClose } from 'react-icons/io5';
 import { CiHeart, CiSearch } from 'react-icons/ci';
 import { PiHandbag, PiUser } from 'react-icons/pi';
+import { RiAdminLine } from 'react-icons/ri';
+import { useAuth } from '../../context/AuthContext';
 
 const Header = () => {
     const [openMenu, setOpenMenu] = useState(false);
+    const [showAccountMenu, setShowAccountMenu] = useState(false);
     const navigate = useNavigate();
+    const { currentUser, logout, isAdmin } = useAuth();
+    const accountMenuRef = useRef(null);
+
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (accountMenuRef.current && !accountMenuRef.current.contains(event.target)) {
+                setShowAccountMenu(false);
+            }
+        };
+
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, []);
 
     const handleOpen = () => {
         setOpenMenu(true);
@@ -40,10 +58,44 @@ const Header = () => {
                                     className="pl-10 pr-3 py-1.5 rounded-md w-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-black placeholder-black text-black"
                                 />
                             </div>
-                            <div className='text-white flex items-center justify-center gap-3'>
-                                <CiHeart size={25} />
-                                <PiUser size={25} />
-                                <PiHandbag size={25} />
+                            <div className='text-white flex items-center justify-center gap-5'>
+                                <CiHeart size={25} className="cursor-pointer" />
+                                <div className="relative" ref={accountMenuRef}>
+                                    <PiUser size={25} className="cursor-pointer" onClick={() => setShowAccountMenu(!showAccountMenu)} />
+                                    <div className={`absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50 ${showAccountMenu ? 'block' : 'hidden'}`}>
+                                        {currentUser ? (
+                                            <>
+                                                {isAdmin && (
+                                                    <Link to="/admin" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center">
+                                                        <RiAdminLine className="mr-2" /> Admin Dashboard
+                                                    </Link>
+                                                )}
+                                                <Link to="/update-password" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                                    Update Password
+                                                </Link>
+                                                <button
+                                                    onClick={() => {
+                                                        logout();
+                                                        navigate('/');
+                                                    }}
+                                                    className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                                >
+                                                    Logout
+                                                </button>
+                                            </>
+                                        ) : (
+                                            <>
+                                                <Link to="/login" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                                    Login
+                                                </Link>
+                                                <Link to="/register" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                                    Register
+                                                </Link>
+                                            </>
+                                        )}
+                                    </div>
+                                </div>
+                                <PiHandbag size={25} className="cursor-pointer" />
                             </div>
                         </div>
                         <div className='flex items-center 2xl:gap-[50px] xl:gap-8 gap-5 text-white w-fit mx-auto uppercase text-base font-semibold cursor-pointer'>
@@ -93,10 +145,51 @@ const Header = () => {
                         <p className=" " onClick={handleCategoryClick}>Share With US</p>
                         <p className=" " onClick={handleCategoryClick}>Gifts</p>
                         <p className=" " onClick={handleCategoryClick}>Diamond Education</p>
-                        <div className='flex items-center gap-1'>
-                            <PiUser size={25} />
-                            <p>Log In</p>
-                        </div>
+                        {currentUser ? (
+                            <>
+                                {isAdmin && (
+                                    <div className='flex items-center gap-1 cursor-pointer' onClick={() => {
+                                        navigate('/admin');
+                                        handleClose();
+                                    }}>
+                                        <RiAdminLine size={25} />
+                                        <p>Admin Dashboard</p>
+                                    </div>
+                                )}
+                                <div className='flex items-center gap-1 cursor-pointer' onClick={() => {
+                                    navigate('/update-password');
+                                    handleClose();
+                                }}>
+                                    <PiUser size={25} />
+                                    <p>Update Password</p>
+                                </div>
+                                <div className='flex items-center gap-1 cursor-pointer' onClick={() => {
+                                    logout();
+                                    navigate('/');
+                                    handleClose();
+                                }}>
+                                    <PiUser size={25} />
+                                    <p>Logout</p>
+                                </div>
+                            </>
+                        ) : (
+                            <>
+                                <div className='flex items-center gap-1 cursor-pointer' onClick={() => {
+                                    navigate('/login');
+                                    handleClose();
+                                }}>
+                                    <PiUser size={25} />
+                                    <p>Login</p>
+                                </div>
+                                <div className='flex items-center gap-1 cursor-pointer' onClick={() => {
+                                    navigate('/register');
+                                    handleClose();
+                                }}>
+                                    <PiUser size={25} />
+                                    <p>Register</p>
+                                </div>
+                            </>
+                        )}
                     </div>
                 </div>
             </div>

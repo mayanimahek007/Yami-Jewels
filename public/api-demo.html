@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Yami Jewels - API Demo</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        h1, h2, h3 {
+            color: #48182E;
+        }
+        .container {
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        pre {
+            background-color: #f0f0f0;
+            padding: 15px;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+        button {
+            background-color: #48182E;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+        button:hover {
+            background-color: #6b2644;
+        }
+        .response {
+            background-color: #e8f4ff;
+            padding: 15px;
+            border-radius: 4px;
+            margin-top: 20px;
+            border-left: 4px solid #48182E;
+        }
+        .tabs {
+            display: flex;
+            margin-bottom: 20px;
+        }
+        .tab {
+            padding: 10px 15px;
+            cursor: pointer;
+            background-color: #f0f0f0;
+            border: 1px solid #ddd;
+            border-bottom: none;
+            border-radius: 4px 4px 0 0;
+            margin-right: 5px;
+        }
+        .tab.active {
+            background-color: #48182E;
+            color: white;
+        }
+        .tab-content {
+            display: none;
+            border: 1px solid #ddd;
+            padding: 20px;
+            border-radius: 0 4px 4px 4px;
+        }
+        .tab-content.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <h1>Yami Jewels - API Demo</h1>
+    
+    <div class="tabs">
+        <div class="tab active" onclick="openTab(event, 'login')">Login API</div>
+        <div class="tab" onclick="openTab(event, 'token')">Token Login</div>
+        <div class="tab" onclick="openTab(event, 'docs')">API Documentation</div>
+    </div>
+    
+    <div id="login" class="tab-content active">
+        <h2>Login API Demo</h2>
+        <div class="container">
+            <h3>Login Request</h3>
+            <form id="loginForm">
+                <div style="margin-bottom: 15px;">
+                    <label for="email" style="display: block; margin-bottom: 5px;">Email:</label>
+                    <input type="email" id="email" value="mayanimahek007@gmail.com" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                </div>
+                <div style="margin-bottom: 15px;">
+                    <label for="password" style="display: block; margin-bottom: 5px;">Password:</label>
+                    <input type="password" id="password" value="password123" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                </div>
+                <button type="submit">Login</button>
+            </form>
+            
+            <div id="loginResponse" class="response" style="display: none;">
+                <h3>Response:</h3>
+                <pre id="loginResponseData"></pre>
+                <button id="useTokenButton" style="display: none;">Use This Token</button>
+            </div>
+        </div>
+    </div>
+    
+    <div id="token" class="tab-content">
+        <h2>Token Login Demo</h2>
+        <div class="container">
+            <p>This demonstrates how to login with a JWT token and user data directly.</p>
+            
+            <h3>Token:</h3>
+            <textarea id="tokenInput" rows="3" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4ODRmZjMwNDA1NjQzZjBiZmM2NWQyMyIsImlhdCI6MTc1MzU1MTk1MSwiZXhwIjoxNzU2MTQzOTUxfQ.kOXKCJkk5vvUgJ5E5HO2UpW71ek-xAgIVW0V5etK9XQ</textarea>
+            
+            <h3>User Data:</h3>
+            <textarea id="userDataInput" rows="6" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">{
+    "_id": "6884ff30405643f0bfc65d23",
+    "name": "Admin User",
+    "email": "mayanimahek007@gmail.com",
+    "role": "admin"
+}</textarea>
+            
+            <div style="margin-top: 20px;">
+                <button id="tokenLoginButton">Login with Token</button>
+                <button id="openAppButton">Open App with Token</button>
+            </div>
+        </div>
+    </div>
+    
+    <div id="docs" class="tab-content">
+        <h2>API Documentation</h2>
+        
+        <div class="container">
+            <h3>Login Endpoint</h3>
+            <p><strong>URL:</strong> http://localhost:5000/api/users/login</p>
+            <p><strong>Method:</strong> POST</p>
+            <p><strong>Request Body:</strong></p>
+            <pre>{
+    "email": "user@example.com",
+    "password": "password123"
+}</pre>
+            <p><strong>Success Response:</strong></p>
+            <pre>{
+    "status": "success",
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+    "data": {
+        "user": {
+            "_id": "6884ff30405643f0bfc65d23",
+            "name": "Admin User",
+            "email": "user@example.com",
+            "role": "admin"
+        }
+    }
+}</pre>
+        </div>
+        
+        <div class="container">
+            <h3>Token Login</h3>
+            <p>For direct token login, you can use the <code>/token-login</code> route with the following query parameters:</p>
+            <ul>
+                <li><strong>token:</strong> The JWT token</li>
+                <li><strong>userData:</strong> URL-encoded JSON string of the user data</li>
+            </ul>
+            <p><strong>Example URL:</strong></p>
+            <pre>http://localhost:3000/token-login?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...&userData=%7B%22_id%22%3A%226884ff30405643f0bfc65d23%22%2C%22name%22%3A%22Admin%20User%22%2C%22email%22%3A%22user%40example.com%22%2C%22role%22%3A%22admin%22%7D</pre>
+        </div>
+    </div>
+    
+    <script>
+        // Tab functionality
+        function openTab(evt, tabName) {
+            const tabs = document.getElementsByClassName('tab');
+            for (let i = 0; i < tabs.length; i++) {
+                tabs[i].className = tabs[i].className.replace(' active', '');
+            }
+            
+            const tabContents = document.getElementsByClassName('tab-content');
+            for (let i = 0; i < tabContents.length; i++) {
+                tabContents[i].className = tabContents[i].className.replace(' active', '');
+            }
+            
+            document.getElementById(tabName).className += ' active';
+            evt.currentTarget.className += ' active';
+        }
+        
+        // Login form submission
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            
+            try {
+                const response = await fetch('http://localhost:5000/api/users/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ email, password })
+                });
+                
+                const data = await response.json();
+                
+                // Display response
+                document.getElementById('loginResponse').style.display = 'block';
+                document.getElementById('loginResponseData').textContent = JSON.stringify(data, null, 2);
+                
+                // Show the "Use This Token" button if login was successful
+                if (data.token && data.data && data.data.user) {
+                    document.getElementById('useTokenButton').style.display = 'inline-block';
+                    
+                    // Set the token and user data in the token tab
+                    document.getElementById('tokenInput').value = data.token;
+                    document.getElementById('userDataInput').value = JSON.stringify(data.data.user, null, 4);
+                }
+            } catch (error) {
+                console.error('Login error:', error);
+                document.getElementById('loginResponse').style.display = 'block';
+                document.getElementById('loginResponseData').textContent = 'Error: ' + error.message;
+            }
+        });
+        
+        // Use token button
+        document.getElementById('useTokenButton').addEventListener('click', function() {
+            // Switch to the token tab
+            openTab({ currentTarget: document.querySelectorAll('.tab')[1] }, 'token');
+        });
+        
+        // Token login button
+        document.getElementById('tokenLoginButton').addEventListener('click', function() {
+            const token = document.getElementById('tokenInput').value.trim();
+            const userData = document.getElementById('userDataInput').value.trim();
+            
+            if (!token || !userData) {
+                alert('Please provide both token and user data');
+                return;
+            }
+            
+            try {
+                // Parse the user data to validate it's proper JSON
+                const parsedUserData = JSON.parse(userData);
+                
+                // Store in localStorage (simulating the login)
+                localStorage.setItem('token', token);
+                localStorage.setItem('user', JSON.stringify(parsedUserData));
+                
+                alert('Login successful! Token and user data stored in localStorage.');
+            } catch (error) {
+                alert('Error: Invalid JSON in user data');
+                console.error('Error parsing user data:', error);
+            }
+        });
+        
+        // Open app with token button
+        document.getElementById('openAppButton').addEventListener('click', function() {
+            const token = document.getElementById('tokenInput').value.trim();
+            const userData = document.getElementById('userDataInput').value.trim();
+            
+            if (!token || !userData) {
+                alert('Please provide both token and user data');
+                return;
+            }
+            
+            try {
+                // Parse the user data to validate it's proper JSON
+                JSON.parse(userData);
+                
+                // Encode the user data for URL
+                const encodedUserData = encodeURIComponent(userData);
+                
+                // Redirect to the token login page
+                window.location.href = `/token-login?token=${token}&userData=${encodedUserData}`;
+            } catch (error) {
+                alert('Error: Invalid JSON in user data');
+                console.error('Error parsing user data:', error);
+            }
+        });
+    </script>
+</body>
+</html>
