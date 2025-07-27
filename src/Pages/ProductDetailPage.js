@@ -11,7 +11,7 @@ import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
 import './ProductDetailPage.css';
 
-import { getProductById, toggleWishlist, removeFromWishlist, getUserWishlist } from '../services/productService';
+import { getProductById, toggleWishlist, removeFromWishlist, getUserWishlist, getProductsByCategory } from '../services/productService';
 
 // Fallback products for related products section if API fails
 const fallbackProducts = [
@@ -113,7 +113,8 @@ const ProductDetailPage = () => {
   const { id } = useParams();
   const { currentUser } = useAuth();
   const navigate = useNavigate();
-  
+  const [relatedProductsLoading, setRelatedProductsLoading] = useState(false);
+const [relatedProductsError, setRelatedProductsError] = useState(null);
   const [product, setProduct] = useState(null);
   const [relatedProducts, setRelatedProducts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -188,6 +189,43 @@ const ProductDetailPage = () => {
     fetchProductData();
   }, [id, currentUser]);
   
+  useEffect(() => {
+  const fetchRelatedProducts = async () => {
+    if (!product || !product.categoryName) return;
+    
+    try {
+      setRelatedProductsLoading(true);
+      setRelatedProductsError(null);
+      
+      // Call your API endpoint for related products
+const response = await getProductsByCategory(product.categoryName);
+      
+    // In your fetchRelatedProducts function
+if (response.data && response.data.status === 'success') {
+  // Filter out the current product and ensure products have required fields
+  const filteredProducts = response.data.products
+    .filter(p => p._id !== product._id)
+    .map(p => ({
+      ...p,
+      regularPrice: p.regularPrice || 0, // Default to 0 if missing
+      salePrice: p.salePrice || null     // Default to null if missing
+    }));
+  
+  setRelatedProducts(filteredProducts);
+}
+    } catch (err) {
+      console.error('Error fetching related products:', err);
+      setRelatedProductsError('Failed to load related products');
+      // Fallback to your existing fallback products if API fails
+      setRelatedProducts(fallbackProducts.filter(p => p.id !== parseInt(id)));
+    } finally {
+      setRelatedProductsLoading(false);
+    }
+  };
+
+  fetchRelatedProducts();
+}, [product, id]);
+
   // Refresh wishlist status from server
   const refreshWishlistStatus = async () => {
     if (!currentUser || !product) return;
@@ -321,9 +359,19 @@ const ProductDetailPage = () => {
   };
 
   // Format price with currency symbol
-  const formatPrice = (price) => {
-    return `₹${price.toFixed(2)}`;
-  };
+// Format price with currency symbol and handle undefined/NaN cases
+const formatPrice = (price) => {
+  // Check if price is undefined, null, or not a number
+  if (price === undefined || price === null || isNaN(price)) {
+    return '₹0.00'; // Return a default value
+  }
+  
+  // Convert to number if it's a string
+  const numericPrice = typeof price === 'string' ? parseFloat(price) : price;
+  
+  // Format the price with 2 decimal places
+  return `₹${numericPrice.toFixed(2)}`;
+};
   
   // Get color swatch for metal color
   const getColorSwatch = (color) => {
@@ -781,66 +829,97 @@ const ProductDetailPage = () => {
         </div>
         
         {/* Similar Products Section */}
-        <div className="mt-16">
-          <h2 className="text-3xl text-[#48182E] font-serif font-semibold text-gray-900 mb-6 text-center">Related Product</h2>
-          <Slider
-            dots={true}
-            infinite={true}
-            speed={500}
-            slidesToShow={4}
-            slidesToScroll={1}
-            autoplay={true}
-            autoplaySpeed={3000}
-            responsive={[
-              {
-                breakpoint: 1024,
-                settings: {
-                  slidesToShow: 3,
-                  slidesToScroll: 1,
-                },
-              },
-              {
-                breakpoint: 768,
-                settings: {
-                  slidesToShow: 2,
-                  slidesToScroll: 1,
-                },
-              },
-              {
-                breakpoint: 480,
-                settings: {
-                  slidesToShow: 1,
-                  slidesToScroll: 1,
-                },
-              },
-            ]}
-            className="similar-products-slider"
-          >
-            {relatedProducts.slice(0, 8).map((relatedProduct) => (
-                <div key={relatedProduct.id || relatedProduct._id} className="px-2">
-                  <Link to={`/product/${relatedProduct._id || relatedProduct.id}`} className="group block">
-                    <div className="relative bg-[#b47b48] rounded-2xl shadow p-1 flex flex-col items-center">
-                      <img
-                        src={relatedProduct.images && relatedProduct.images[0]?.url 
-                          ? `http://localhost:5000${relatedProduct.images[0].url}` 
-                          : relatedProduct.images?.[0]}
-                        alt={relatedProduct.name}
-                        className="w-full h-64 object-cover rounded-xl group-hover:opacity-90 transition"
-                      />
-                    </div>
-                    <div className="w-full flex justify-between text-center mt-2">
-                      <h3 className="text-base font-medium text-gray-800 font-montserrat">{relatedProduct.name}</h3>
-                      <h3 className="text-base font-medium text-gray-800 font-montserrat">
-                        {relatedProduct.salePrice 
-                          ? formatPrice(relatedProduct.salePrice)
-                          : relatedProduct.price || formatPrice(relatedProduct.regularPrice)}
-                      </h3>
-                    </div>
-                  </Link>
-                </div>
-              ))}
-          </Slider>
+     {/* Similar Products Section */}
+<div className="mt-16">
+  <h2 className="text-3xl text-[#48182E] font-serif font-semibold text-gray-900 mb-6 text-center">
+    Related Products
+  </h2>
+  
+  {relatedProductsError && (
+    <div className="text-center text-red-500 mb-4">
+      {relatedProductsError}
+    </div>
+  )}
+  
+  {relatedProductsLoading ? (
+    <div className="flex justify-center items-center h-40">
+      <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-[#48182E]"></div>
+    </div>
+  ) : relatedProducts.length > 0 ? (
+    <Slider
+      dots={true}
+      infinite={true}
+      speed={500}
+      slidesToShow={Math.min(4, relatedProducts.length)}
+      slidesToScroll={1}
+      autoplay={true}
+      autoplaySpeed={3000}
+      responsive={[
+        {
+          breakpoint: 1024,
+          settings: {
+            slidesToShow: Math.min(3, relatedProducts.length),
+            slidesToScroll: 1,
+          },
+        },
+        {
+          breakpoint: 768,
+          settings: {
+            slidesToShow: Math.min(2, relatedProducts.length),
+            slidesToScroll: 1,
+          },
+        },
+        {
+          breakpoint: 480,
+          settings: {
+            slidesToShow: 1,
+            slidesToScroll: 1,
+          },
+        },
+      ]}
+      className="similar-products-slider"
+    >
+      {relatedProducts.map((relatedProduct) => (
+        <div key={relatedProduct._id} className="px-2">
+          <Link to={`/product/${relatedProduct._id}`} className="group block">
+            <div className="relative bg-[#b47b48] rounded-2xl shadow p-1 flex flex-col items-center">
+              <img
+                src={`http://localhost:5000${relatedProduct.images[0]?.url}`}
+                alt={relatedProduct.name}
+                className="w-full h-64 object-cover rounded-xl group-hover:opacity-90 transition"
+              />
+            </div>
+            <div className="w-full flex justify-between text-center mt-2">
+              <h3 className="text-base font-medium text-gray-800 font-montserrat">
+                {relatedProduct.name}
+              </h3>
+              <h3 className="text-base font-medium text-gray-800 font-montserrat">
+              {relatedProduct.regularPrice ? (
+  relatedProduct.salePrice && relatedProduct.salePrice < relatedProduct.regularPrice ? (
+    <>
+      <span className="text-[#48182E]">{formatPrice(relatedProduct.salePrice)}</span>
+      <span className="text-gray-500 line-through ml-1 text-sm">
+        {formatPrice(relatedProduct.regularPrice)}
+      </span>
+    </>
+  ) : (
+    formatPrice(relatedProduct.regularPrice)
+  )
+) : (
+  'Price not available'
+)}
+              </h3>
+            </div>
+          </Link>
         </div>
+      ))}
+    </Slider>
+  ) : (
+    <div className="text-center text-gray-500 py-8">
+      No related products found
+    </div>
+  )}
+</div>
       </div>
     </div>
   );

@@ -107,7 +107,7 @@ const Header = () => {
                                         )}
                                     </div>
                                 </div>
-                                <PiHandbag size={25} className="cursor-pointer" />
+                                {/* <PiHandbag size={25} className="cursor-pointer" /> */}
                             </div>
                         </div>
                         <div className='flex items-center 2xl:gap-[50px] xl:gap-8 gap-5 text-white w-fit mx-auto uppercase text-base font-semibold cursor-pointer'>

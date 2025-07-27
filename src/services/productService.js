@@ -123,6 +123,34 @@ export const getWishlist = async () => {
   }
 };
 
+// Get products by category name
+export const getProductsByCategory = async (categoryName) => {
+  try {
+    const response = await fetch(`${API_URL}/category/${categoryName}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || 'Failed to fetch products by category');
+    }
+
+    const data = await response.json();
+    
+    // Check the response structure
+    if (data && data.status === 'success' && data.data && data.data.products) {
+      return data.data.products;
+    }
+    
+    throw new Error('Unexpected API response structure');
+  } catch (error) {
+    console.error(`Error fetching products for category ${categoryName}:`, error);
+    throw error;
+  }
+};
 
 export const getUserWishlist = async () => {
   try {
