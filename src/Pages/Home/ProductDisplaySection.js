@@ -52,7 +52,7 @@ const ProductDisplaySection = () => {
   const [isOrderModalOpen, setIsOrderModalOpen] = useState(false);
   const { currentUser } = useAuth();
   const navigate = useNavigate();
-  
+
   useEffect(() => {
     const fetchProducts = async () => {
       try {
@@ -74,22 +74,22 @@ const ProductDisplaySection = () => {
     };
     fetchProducts();
   }, [activeTab]);
-  
+
   // WhatsApp quick order function
   const handleQuickOrder = (product) => {
     setSelectedProduct(product);
     setIsOrderModalOpen(true);
   };
-  
+
   // Confirm order and proceed to WhatsApp
   const confirmOrder = () => {
     // Close modal
     setIsOrderModalOpen(false);
-    
+
     if (selectedProduct) {
       // Generate WhatsApp URL with order details using config
       const whatsappUrl = whatsappConfig.generateOrderUrl(selectedProduct, 1); // Default quantity 1
-      
+
       // Open WhatsApp in a new tab
       window.open(whatsappUrl, '_blank');
     }
@@ -106,7 +106,7 @@ const ProductDisplaySection = () => {
     try {
       // Check if product is already in wishlist
       const isWishlisted = wishlistedProducts.includes(productId);
-      
+
       if (isWishlisted) {
         // If already in wishlist, remove it
         await removeFromWishlist(productId);
@@ -114,7 +114,7 @@ const ProductDisplaySection = () => {
         // If not in wishlist, add it
         await toggleWishlist(productId);
       }
-      
+
       // Update the local state to reflect the change
       setWishlistedProducts(prev => {
         if (prev.includes(productId)) {
@@ -131,7 +131,7 @@ const ProductDisplaySection = () => {
   return (
     <section className="w-full py-16 bg-[#fdf8f8]">
       {/* WhatsApp Order Modal */}
-      <WhatsAppOrderModal 
+      <WhatsAppOrderModal
         isOpen={isOrderModalOpen}
         onClose={() => setIsOrderModalOpen(false)}
         product={selectedProduct || {}}
@@ -195,23 +195,14 @@ const ProductDisplaySection = () => {
                   />
                 </div>
               </Link>
-              <div className="w-full flex justify-between items-center mt-2">
-                <Link to={`/product/${product._id || product.id}`} className="block">
-                  <h3 className="text-base font-medium text-gray-800 font-playfair hover:text-[#48182E] transition">
-                    {product.name}
-                  </h3>
-                </Link>
-                <div className="flex items-center">
-                  <h3 className="text-base font-medium text-gray-800 font-playfair">
-                    {product.salePrice && product.salePrice < product.regularPrice ? (
-                      <>
-                        ₹{product.salePrice.toFixed(2)}
-                        <span className="ml-2 text-sm text-gray-500 line-through">₹{product.regularPrice.toFixed(2)}</span>
-                      </>
-                    ) : (
-                      <>₹{(product.regularPrice || product.price || 0).toFixed(2)}</>
-                    )}
-                  </h3>
+              <div className="w-full flex justify-between items-start mt-2 flex-col">
+                <div className="flex items-center justify-between w-full">
+                  <Link to={`/product/${product._id || product.id}`} className="block">
+                    <h3 className="text-base font-medium text-gray-800 font-montserrat hover:text-[#48182E] transition truncate max-w-[160px]">
+
+                      {product.name}
+                    </h3>
+                  </Link>
                   <div className="flex ml-2">
                     <button
                       onClick={(e) => {
@@ -240,6 +231,20 @@ const ProductDisplaySection = () => {
                       <FaWhatsapp size={18} />
                     </button>
                   </div>
+                </div>
+
+                <div className="flex items-center">
+                  <h3 className="text-base font-medium text-gray-800 font-playfair">
+                    {product.salePrice && product.salePrice < product.regularPrice ? (
+                      <>
+                        ₹{product.salePrice.toFixed(2)}
+                        <span className="ml-2 text-sm text-gray-500 line-through">₹{product.regularPrice.toFixed(2)}</span>
+                      </>
+                    ) : (
+                      <>₹{(product.regularPrice || product.price || 0).toFixed(2)}</>
+                    )}
+                  </h3>
+
                 </div>
               </div>
             </div>

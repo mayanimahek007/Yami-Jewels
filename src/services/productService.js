@@ -124,6 +124,7 @@ export const getWishlist = async () => {
 };
 
 // Get products by category name
+// Get products by category name
 export const getProductsByCategory = async (categoryName) => {
   try {
     const response = await fetch(`${API_URL}/category/${categoryName}`, {
@@ -140,7 +141,7 @@ export const getProductsByCategory = async (categoryName) => {
 
     const data = await response.json();
     
-    // Check the response structure
+    // Return just the products array
     if (data && data.status === 'success' && data.data && data.data.products) {
       return data.data.products;
     }

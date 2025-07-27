@@ -246,22 +246,13 @@ const ProductPage = () => {
                 </div>
               </Link>
 
-              <div className="w-full flex justify-between text-center mt-2">
+              <div className="w-full flex justify-between text-start mt-2 flex-col">
+                <div className="flex items-center justify-between">
                 <Link to={`/product/${product._id}`} className="block">
                   <h3 className="text-base font-medium text-gray-800 font-montserrat hover:text-[#48182E] transition">{product.name}</h3>
                 </Link>
-                <div className="flex items-center">
-                  <div className="text-right">
-                    {product.salePrice < product.regularPrice ? (
-                      <>
-                        <span className="text-base font-medium text-gray-800 font-montserrat">${product.salePrice.toFixed(2)}</span>
-                        <span className="ml-2 text-sm text-gray-500 line-through">${product.regularPrice.toFixed(2)}</span>
-                      </>
-                    ) : (
-                      <span className="text-base font-medium text-gray-800 font-montserrat">${product.regularPrice.toFixed(2)}</span>
-                    )}
-                  </div>
-                  <div className="flex ml-2">
+
+                 <div className="flex ml-2">
                     <button
                       onClick={(e) => {
                         e.preventDefault();
@@ -285,6 +276,19 @@ const ProductPage = () => {
                       <FaWhatsapp size={18} />
                     </button>
                   </div>
+                  </div>
+                <div className="flex items-center">
+                  <div className="text-right">
+                    {product.salePrice < product.regularPrice ? (
+                      <>
+                        <span className="text-base font-medium text-gray-800 font-montserrat">${product.salePrice.toFixed(2)}</span>
+                        <span className="ml-2 text-sm text-gray-500 line-through">${product.regularPrice.toFixed(2)}</span>
+                      </>
+                    ) : (
+                      <span className="text-base font-medium text-gray-800 font-montserrat">${product.regularPrice.toFixed(2)}</span>
+                    )}
+                  </div>
+                 
                 </div>
               </div>
             </div>
