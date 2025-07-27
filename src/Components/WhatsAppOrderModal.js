@@ -25,14 +25,21 @@ const WhatsAppOrderModal = ({ isOpen, onClose, product, quantity, onConfirm }) =
           <div className="flex items-start mb-4">
             <div className="bg-[#b47b48] rounded-md p-1 mr-4">
               <img 
-                src={product.images ? product.images[0] : product.img} 
-                alt={product.name} 
+                src={product.image ? (product.image.startsWith('http') ? product.image : `http://localhost:5000${product.image}`) : (product.images && product.images[0]?.url ? `http://localhost:5000${product.images[0].url}` : product.img)}
+                alt={product.name}
                 className="w-20 h-20 object-cover rounded"
               />
             </div>
             <div>
               <h4 className="font-medium text-gray-900">{product.name}</h4>
-              <p className="text-gray-600">{product.price}</p>
+              {product.salePrice && product.salePrice < product.regularPrice ? (
+                <div>
+                  <span className="text-[#48182E] font-semibold">₹{product.salePrice}</span>
+                  <span className="ml-2 text-gray-500 line-through">₹{product.regularPrice}</span>
+                </div>
+              ) : (
+                <span className="text-gray-800 font-semibold">₹{product.regularPrice || product.price}</span>
+              )}
               <p className="text-gray-500 text-sm mt-1">Quantity: {quantity}</p>
             </div>
           </div>

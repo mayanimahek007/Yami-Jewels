@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { HiMiniHeart } from 'react-icons/hi2';
 import { FaRegHeart, FaWhatsapp } from 'react-icons/fa';
@@ -15,21 +15,42 @@ const ProductPage = () => {
   const [isOrderModalOpen, setIsOrderModalOpen] = useState(false);
   const { currentUser } = useAuth();
   const navigate = useNavigate();
+  const wishlistCheckedRef = useRef(false);
+  const wishlistCheckTimeoutRef = useRef(null);
 
   useEffect(() => {
     fetchProducts();
   }, []);
   
-  // Check user's wishlist when user logs in
+  // Check user's wishlist when user logs in or when products are loaded
   useEffect(() => {
-    if (currentUser && products.length > 0) {
-      checkWishlistStatus();
+    if (currentUser && products.length > 0 && !wishlistCheckedRef.current) {
+      // Clear any existing timeout
+      if (wishlistCheckTimeoutRef.current) {
+        clearTimeout(wishlistCheckTimeoutRef.current);
+      }
+      
+      // Debounce the wishlist check
+      wishlistCheckTimeoutRef.current = setTimeout(() => {
+        wishlistCheckedRef.current = true;
+        checkWishlistStatus();
+      }, 100); // 100ms delay
     }
-  }, [currentUser, products]);
+  }, [currentUser, products.length]);
+
+  // Reset wishlist checked ref when user changes
+  useEffect(() => {
+    wishlistCheckedRef.current = false;
+    // Clear any pending timeout
+    if (wishlistCheckTimeoutRef.current) {
+      clearTimeout(wishlistCheckTimeoutRef.current);
+    }
+  }, [currentUser]);
 
   const fetchProducts = async () => {
     setLoading(true);
     setError('');
+    wishlistCheckedRef.current = false; // Reset the ref when fetching new products
     try {
       const response = await getAllProducts();
       setProducts(response.data.products || []);
@@ -52,14 +73,40 @@ const ProductPage = () => {
     
     try {
       const wishlistData = await getUserWishlist();
-      if (wishlistData && wishlistData.status === 'success') {
-        const wishlistProductIds = wishlistData.data.products.map(product => product._id);
+      console.log('Wishlist data received in ProductPage:', wishlistData);
+      
+      // Handle different possible response structures
+      let products = [];
+      if (wishlistData && wishlistData.status === 'success' && wishlistData.data && wishlistData.data.products) {
+        products = wishlistData.data.products;
+      } else if (wishlistData && wishlistData.status === 'success' && wishlistData.data && wishlistData.data.wishlist) {
+        // Extract products from wishlist items
+        products = wishlistData.data.wishlist.map(item => item.product);
+      } else if (wishlistData && wishlistData.products) {
+        products = wishlistData.products;
+      } else if (wishlistData && Array.isArray(wishlistData)) {
+        products = wishlistData;
+      }
+      
+      if (products.length > 0) {
+        const wishlistProductIds = products.map(product => product._id);
+        console.log('Wishlist product IDs:', wishlistProductIds);
         
         // Update products with wishlist status
         setProducts(prevProducts => 
           prevProducts.map(product => ({
             ...product,
             isWishlisted: wishlistProductIds.includes(product._id)
+          }))
+        );
+        console.log('Products wishlist status updated');
+      } else {
+        console.log('No products found in wishlist or wishlist is empty');
+        // Set all products as not wishlisted
+        setProducts(prevProducts => 
+          prevProducts.map(product => ({
+            ...product,
+            isWishlisted: false
           }))
         );
       }
@@ -80,12 +127,16 @@ const ProductPage = () => {
       // Find the product to determine if it's already wishlisted
       const product = products.find(p => p._id === productId);
       console.log(`Toggling wishlist for product ${productId}`, product);
+      console.log('Current wishlist state:', product?.isWishlisted);
+      
       if (product) {
         if (product.isWishlisted) {
           // If already in wishlist, remove it
+          console.log('Removing from wishlist...');
           await removeFromWishlist(productId);
         } else {
           // If not in wishlist, add it
+          console.log('Adding to wishlist...');
           await toggleWishlist(productId);
         }
         
@@ -96,9 +147,30 @@ const ProductPage = () => {
           }
           return p;
         }));
+        console.log('Wishlist state updated successfully');
       }
     } catch (err) {
       console.error('Error toggling wishlist:', err);
+      
+      // If the error indicates the product is already in wishlist, update local state
+      if (err.message && err.message.includes('already in wishlist')) {
+        console.log('Product is already in wishlist on server, updating local state');
+        setProducts(products.map(p => {
+          if (p._id === productId) {
+            return { ...p, isWishlisted: true };
+          }
+          return p;
+        }));
+      } else if (err.message && err.message.includes('not in wishlist') || err.message.includes('not found in wishlist')) {
+        console.log('Product is not in wishlist on server, updating local state');
+        setProducts(products.map(p => {
+          if (p._id === productId) {
+            return { ...p, isWishlisted: false };
+          }
+          return p;
+        }));
+      }
+      // Don't update state for other errors
     }
   };
   

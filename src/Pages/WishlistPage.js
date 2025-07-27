@@ -13,18 +13,21 @@ const WishlistPage = () => {
   const [error, setError] = useState('');
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [isOrderModalOpen, setIsOrderModalOpen] = useState(false);
-  const { currentUser } = useAuth();
+  const { currentUser, loading: authLoading } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Redirect to login if user is not authenticated
-    if (!currentUser) {
+    // Redirect to login if user is not authenticated and auth is not loading
+    if (!authLoading && !currentUser) {
       navigate('/login');
       return;
     }
     
-    fetchWishlist();
-  }, [currentUser, navigate]);
+    // Only fetch wishlist if user is authenticated and auth is not loading
+    if (!authLoading && currentUser) {
+      fetchWishlist();
+    }
+  }, [authLoading, currentUser, navigate]);
 
   const fetchWishlist = async () => {
     setLoading(true);
@@ -32,7 +35,25 @@ const WishlistPage = () => {
     try {
       // Use the new getUserWishlist function that calls the /api/products/wishlist/me endpoint
       const response = await getUserWishlist();
-      setWishlistItems(response.data.products || []);
+      console.log('Wishlist response:', response);
+      
+      // Handle different possible response structures
+      let products = [];
+      if (response && response.status === 'success' && response.data && response.data.products) {
+        products = response.data.products;
+      } else if (response && response.status === 'success' && response.data && response.data.wishlist) {
+        // Extract products from wishlist items
+        products = response.data.wishlist.map(item => item.product);
+      } else if (response && response.products) {
+        products = response.products;
+      } else if (response && Array.isArray(response)) {
+        products = response;
+      } else if (response && response.data && Array.isArray(response.data)) {
+        products = response.data;
+      }
+      
+      console.log('Extracted products:', products);
+      setWishlistItems(products);
     } catch (err) {
       console.error('Error fetching wishlist:', err);
       setError('Failed to load wishlist. Please try again later.');
@@ -93,7 +114,7 @@ const WishlistPage = () => {
             </div>
           )}
 
-          {loading ? (
+          {loading || authLoading ? (
             <div className="flex justify-center items-center h-64 w-full">
               <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#48182E]"></div>
             </div>
@@ -117,8 +138,10 @@ const WishlistPage = () => {
                   <Link to={`/product/${product._id}`} className="block">
                     <div className="relative bg-[#b47b48] rounded-2xl shadow p-1 flex flex-col items-center group">
                       <img
-                        src={`http://localhost:5000${product.images[0]?.url}`}
-                        alt={product.images[0]?.alt || product.name}
+                        src={product.images && product.images[0]?.url 
+                          ? `http://localhost:5000${product.images[0].url}` 
+                          : '/placeholder-image.jpg'}
+                        alt={product.images && product.images[0]?.alt || product.name}
                         className="w-full h-64 object-cover rounded-xl group-hover:opacity-90 transition duration-300"
                       />
                     </div>
@@ -130,13 +153,13 @@ const WishlistPage = () => {
                     </Link>
                     <div className="flex items-center">
                       <div className="text-right">
-                        {product.salePrice < product.regularPrice ? (
+                        {product.salePrice && product.salePrice < product.regularPrice ? (
                           <>
-                            <span className="text-base font-medium text-gray-800 font-montserrat">${product.salePrice.toFixed(2)}</span>
-                            <span className="ml-2 text-sm text-gray-500 line-through">${product.regularPrice.toFixed(2)}</span>
+                            <span className="text-base font-medium text-gray-800 font-montserrat">₹{product.salePrice.toFixed(2)}</span>
+                            <span className="ml-2 text-sm text-gray-500 line-through">₹{product.regularPrice.toFixed(2)}</span>
                           </>
                         ) : (
-                          <span className="text-base font-medium text-gray-800 font-montserrat">${product.regularPrice.toFixed(2)}</span>
+                          <span className="text-base font-medium text-gray-800 font-montserrat">₹{product.regularPrice.toFixed(2)}</span>
                         )}
                       </div>
                       <div className="flex ml-2">

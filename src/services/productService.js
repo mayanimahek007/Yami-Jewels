@@ -69,11 +69,26 @@ export const removeFromWishlist = async (productId) => {
     });
 
     if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.message || 'Failed to remove from wishlist');
+      // Try to parse error response, but handle empty responses
+      let errorMessage = 'Failed to remove from wishlist';
+      try {
+        const errorData = await response.json();
+        errorMessage = errorData.message || errorMessage;
+      } catch (parseError) {
+        // If response is empty or not JSON, use default message
+        console.log('Empty or non-JSON error response');
+      }
+      throw new Error(errorMessage);
     }
 
-    return await response.json();
+    // Check if response has content before trying to parse JSON
+    const contentType = response.headers.get('content-type');
+    if (contentType && contentType.includes('application/json')) {
+      return await response.json();
+    } else {
+      // Return a success response object for empty responses
+      return { status: 'success', message: 'Product removed from wishlist' };
+    }
   } catch (error) {
     console.error(`Error removing product ${productId} from wishlist:`, error);
     throw error;

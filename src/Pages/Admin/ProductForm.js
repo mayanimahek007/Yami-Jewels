@@ -7,13 +7,39 @@ const ProductForm = () => {
   const isEditMode = Boolean(id);
   const navigate = useNavigate();
   
+  // Predefined metal variations
+  const metalTypes = [
+    'Platinum',
+    'Silver',
+    'Gold'
+  ];
+  
+  const metalColors = [
+    'Yellow Gold',
+    'White Gold',
+    'Rose Gold'
+  ];
+  
+  const karatOptions = [
+    'PT950',
+    '925',
+    '9K',
+    '10K',
+    '14K',
+    '18K',
+    '22K'
+  ];
+  
   const [formData, setFormData] = useState({
     name: '',
+    sku: '',
     categoryName: '',
     size: '',
     stock: '',
     regularPrice: '',
     salePrice: '',
+    discount: 0,
+    bestSeller: false,
     description: '',
     metalVariations: [
       {
@@ -69,11 +95,14 @@ const fetchProductData = async () => {
     // Format the data for the form
     setFormData({
       name: data.name || '',
+      sku: data.sku || '',
       categoryName: data.categoryName || '',
       size: data.size || '',
       stock: data.stock || '',
       regularPrice: data.regularPrice || '',
       salePrice: data.salePrice || '',
+      discount: data.discount || 0,
+      bestSeller: data.bestSeller || false,
       description: data.description || '',
       metalVariations: data.metalVariations && data.metalVariations.length > 0 
         ? data.metalVariations.map(v => ({
@@ -132,6 +161,20 @@ useEffect(() => {
       ...updatedVariations[index],
       [field]: value
     };
+    
+    // Auto-set color based on metal type
+    if (field === 'type' && value) {
+      if (value === 'Gold') {
+        // Default to Yellow Gold for Gold
+        updatedVariations[index].color = 'Yellow Gold';
+      } else if (value === 'Platinum') {
+        // Platinum is typically white
+        updatedVariations[index].color = 'White Gold';
+      } else if (value === 'Silver') {
+        // Silver is typically white
+        updatedVariations[index].color = 'White Gold';
+      }
+    }
     
     setFormData({
       ...formData,
@@ -250,12 +293,15 @@ useEffect(() => {
       
       // Add basic product info
       formDataObj.append('name', formData.name);
+      formDataObj.append('sku', formData.sku);
       formDataObj.append('categoryName', formData.categoryName);
       formDataObj.append('size', formData.size);
       formDataObj.append('stock', formData.stock);
       formDataObj.append('regularPrice', formData.regularPrice);
       formDataObj.append('salePrice', formData.salePrice);
       formDataObj.append('description', formData.description);
+      formDataObj.append('discount', formData.discount);
+      formDataObj.append('bestSeller', formData.bestSeller);
       
       // Add metal variations
       formData.metalVariations.forEach((variation, index) => {
@@ -372,6 +418,19 @@ useEffect(() => {
                 </div>
                 
                 <div>
+                  <label htmlFor="sku" className="block text-sm font-medium text-gray-700">SKU</label>
+                  <input
+                    type="text"
+                    id="sku"
+                    name="sku"
+                    value={formData.sku}
+                    onChange={handleChange}
+                    placeholder="Enter product SKU"
+                    className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-[#48182E] focus:border-[#48182E]"
+                  />
+                </div>
+                
+                <div>
                   <label htmlFor="categoryName" className="block text-sm font-medium text-gray-700">Category</label>
                   <select
                     id="categoryName"
@@ -448,6 +507,31 @@ useEffect(() => {
                 </div>
                 
                 <div>
+                  <label htmlFor="discount" className="block text-sm font-medium text-gray-700">Discount (%)</label>
+                  <input
+                    type="number"
+                    id="discount"
+                    name="discount"
+                    value={formData.discount}
+                    onChange={handleChange}
+                    min="0"
+                    max="100"
+                    className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-[#48182E] focus:border-[#48182E]"
+                  />
+                </div>
+                <div className="flex items-center">
+                  <input
+                    type="checkbox"
+                    id="bestSeller"
+                    name="bestSeller"
+                    checked={formData.bestSeller}
+                    onChange={e => setFormData({ ...formData, bestSeller: e.target.checked })}
+                    className="h-4 w-4 text-[#48182E] border-gray-300 rounded focus:ring-[#48182E]"
+                  />
+                  <label htmlFor="bestSeller" className="ml-2 block text-sm font-medium text-gray-700">Best Seller</label>
+                </div>
+                
+                <div>
                   <label htmlFor="description" className="block text-sm font-medium text-gray-700">Description</label>
                   <textarea
                     id="description"
@@ -473,6 +557,10 @@ useEffect(() => {
                   </button>
                 </div>
                 
+                <p className="text-sm text-gray-600 mb-4">
+                  Add different metal variations for this product. Each variation can have different pricing.
+                </p>
+                
                 {formData.metalVariations.map((variation, index) => (
                   <div key={index} className="p-4 border rounded-md relative">
                     {formData.metalVariations.length > 1 && (
@@ -485,35 +573,58 @@ useEffect(() => {
                       </button>
                     )}
                     
+                    <div className="mb-3">
+                      <span className="text-sm font-medium text-gray-700">
+                        Variation {index + 1}
+                      </span>
+                      {variation.type && (
+                        <span className="ml-2 text-sm text-gray-500">
+                          ({variation.karat} {variation.type} {variation.color && `- ${variation.color}`})
+                        </span>
+                      )}
+                    </div>
+                    
                     <div className="grid grid-cols-2 gap-4">
                       <div>
                         <label className="block text-sm font-medium text-gray-700">Metal Type</label>
-                        <input
-                          type="text"
+                        <select
                           value={variation.type}
                           onChange={(e) => handleMetalVariationChange(index, 'type', e.target.value)}
                           className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-[#48182E] focus:border-[#48182E]"
-                        />
+                        >
+                          <option value="">Select Metal Type</option>
+                          {metalTypes.map((type) => (
+                            <option key={type} value={type}>{type}</option>
+                          ))}
+                        </select>
                       </div>
                       
                       <div>
                         <label className="block text-sm font-medium text-gray-700">Color</label>
-                        <input
-                          type="text"
+                        <select
                           value={variation.color}
                           onChange={(e) => handleMetalVariationChange(index, 'color', e.target.value)}
                           className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-[#48182E] focus:border-[#48182E]"
-                        />
+                        >
+                          <option value="">Select Color</option>
+                          {metalColors.map((color) => (
+                            <option key={color} value={color}>{color}</option>
+                          ))}
+                        </select>
                       </div>
                       
                       <div>
                         <label className="block text-sm font-medium text-gray-700">Karat</label>
-                        <input
-                          type="text"
+                        <select
                           value={variation.karat}
                           onChange={(e) => handleMetalVariationChange(index, 'karat', e.target.value)}
                           className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-[#48182E] focus:border-[#48182E]"
-                        />
+                        >
+                          <option value="">Select Karat</option>
+                          {karatOptions.map((karat) => (
+                            <option key={karat} value={karat}>{karat}</option>
+                          ))}
+                        </select>
                       </div>
                     </div>
                     
