@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { FaUsers, FaBox, FaPlus, FaEdit, FaTrash } from 'react-icons/fa';
+import { useAuth } from '../../context/AuthContext';
 
 const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState('products');
@@ -9,6 +10,7 @@ const AdminDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const navigate = useNavigate();
+  const { logout } = useAuth();
 
   useEffect(() => {
     // Check if user is logged in and is admin
@@ -143,8 +145,7 @@ const AdminDashboard = () => {
               <Link to="/" className="hover:underline">View Store</Link>
               <button 
                 onClick={() => {
-                  localStorage.removeItem('token');
-                  localStorage.removeItem('user');
+                  logout();
                   navigate('/login');
                 }}
                 className="hover:underline"

@@ -111,10 +111,48 @@ const ProductDetailPage = () => {
           .map(p => ({
             ...p,
             regularPrice: p.regularPrice || 0, // Default to 0 if missing
-            salePrice: p.salePrice || null     // Default to null if missing
+            salePrice: p.salePrice || null,    // Default to null if missing
+            isWishlisted: false                // Default wishlist status
           }));
 
         setRelatedProducts(filteredProducts);
+
+        // If user is logged in, check wishlist status for related products
+        if (currentUser && filteredProducts.length > 0) {
+          try {
+            const wishlistData = await getUserWishlist();
+
+            // Handle different possible response structures
+            let wishlistProducts = [];
+            if (wishlistData && wishlistData.status === 'success' && wishlistData.data && wishlistData.data.products) {
+              wishlistProducts = wishlistData.data.products;
+            } else if (wishlistData && wishlistData.status === 'success' && wishlistData.data && wishlistData.data.wishlist) {
+              // Extract products from wishlist items
+              wishlistProducts = wishlistData.data.wishlist.map(item => item.product);
+            } else if (wishlistData && wishlistData.products) {
+              wishlistProducts = wishlistData.products;
+            } else if (wishlistData && Array.isArray(wishlistData)) {
+              wishlistProducts = wishlistData;
+            }
+
+            if (wishlistProducts.length > 0) {
+              // Extract product IDs from wishlist
+              const wishlistProductIds = wishlistProducts.map(product => product._id);
+
+              // Update related products with wishlist status
+              setRelatedProducts(prevRelatedProducts =>
+                prevRelatedProducts.map(relatedProduct => ({
+                  ...relatedProduct,
+                  isWishlisted: wishlistProductIds.includes(relatedProduct._id)
+                }))
+              );
+              console.log('Related products wishlist status set on initial load');
+            }
+          } catch (wishlistErr) {
+            console.error('Error fetching wishlist for related products:', wishlistErr);
+            // Keep the default isWishlisted: false for related products
+          }
+        }
       } catch (err) {
         console.error('Error fetching related products:', err);
         setRelatedProductsError('Failed to load related products');
@@ -126,39 +164,82 @@ const ProductDetailPage = () => {
     };
 
     fetchRelatedProducts();
-  }, [product, id]);
+  }, [product, id, currentUser]);
 
   // Refresh wishlist status from server
   const refreshWishlistStatus = async () => {
-    if (!currentUser || !product) return;
+    console.log('refreshWishlistStatus called');
+
+    if (!currentUser) {
+      console.log('No user logged in, skipping wishlist refresh');
+      return;
+    }
+
+    if (!product) {
+      console.log('No product data available, skipping wishlist refresh');
+      return;
+    }
 
     try {
+      console.log('Fetching user wishlist data...');
       const wishlistData = await getUserWishlist();
-      console.log('Refreshing wishlist status:', wishlistData);
+      console.log('Refreshing wishlist status, received data:', wishlistData);
 
       // Handle different possible response structures
       let products = [];
       if (wishlistData && wishlistData.status === 'success' && wishlistData.data && wishlistData.data.products) {
+        console.log('Found products in wishlistData.data.products');
         products = wishlistData.data.products;
       } else if (wishlistData && wishlistData.status === 'success' && wishlistData.data && wishlistData.data.wishlist) {
+        console.log('Found products in wishlistData.data.wishlist');
         // Extract products from wishlist items
         products = wishlistData.data.wishlist.map(item => item.product);
       } else if (wishlistData && wishlistData.products) {
+        console.log('Found products in wishlistData.products');
         products = wishlistData.products;
       } else if (wishlistData && Array.isArray(wishlistData)) {
+        console.log('Found products in wishlistData array');
         products = wishlistData;
       }
 
+      console.log('Extracted products from wishlist:', products.length);
+
       if (products.length > 0) {
+        // Extract product IDs from wishlist
+        const wishlistProductIds = products.map(product => product._id);
+        console.log('Wishlist product IDs:', wishlistProductIds);
+
         // Check if current product is in the user's wishlist
-        const isInWishlist = products.some(
-          wishlistProduct => wishlistProduct._id === product._id
-        );
+        const isInWishlist = wishlistProductIds.includes(product._id);
+        console.log(`Current product ${product._id} in wishlist:`, isInWishlist);
+
         setIsWishlisted(isInWishlist);
-        console.log('Wishlist status refreshed:', isInWishlist);
+        console.log('Main product wishlist status refreshed:', isInWishlist);
+
+        // Update related products wishlist status
+        if (relatedProducts.length > 0) {
+          setRelatedProducts(prevRelatedProducts =>
+            prevRelatedProducts.map(relatedProduct => ({
+              ...relatedProduct,
+              isWishlisted: wishlistProductIds.includes(relatedProduct._id)
+            }))
+          );
+          console.log('Related products wishlist status updated');
+        }
       } else {
         console.log('No products found in wishlist, setting to false');
         setIsWishlisted(false);
+
+        // Set all related products as not wishlisted
+        if (relatedProducts.length > 0) {
+          setRelatedProducts(prevRelatedProducts =>
+            prevRelatedProducts.map(relatedProduct => ({
+              ...relatedProduct,
+              isWishlisted: false
+            }))
+          );
+          console.log('Related products marked as not wishlisted');
+        }
       }
     } catch (err) {
       console.error('Error refreshing wishlist status:', err);
@@ -166,48 +247,138 @@ const ProductDetailPage = () => {
   };
 
   // Handle wishlist toggle
-  const handleToggleWishlist = async () => {
+  const handleToggleWishlist = async (productId) => {
+    console.log('handleToggleWishlist called with productId:', productId);
+
     if (!currentUser) {
+      console.log('No user logged in, redirecting to login page');
       navigate('/login');
       return;
     }
 
-    console.log('Current wishlist state:', isWishlisted);
-    console.log('Product ID:', product._id);
+    // If no productId is provided, use the main product's ID
+    const targetProductId = productId || (product ? product._id : null);
+    if (!targetProductId) {
+      console.error('No target product ID available');
+      return;
+    }
+
+    // Determine if we're toggling the main product or a related product
+    const isMainProduct = !productId || (product && productId === product._id);
+    console.log('Is main product:', isMainProduct);
+
+    // Get the current wishlist state of the target product
+    let currentWishlistState;
+    if (isMainProduct) {
+      currentWishlistState = isWishlisted;
+      console.log('Main product current wishlist state:', currentWishlistState);
+    } else {
+      // Find the related product
+      const relatedProduct = relatedProducts.find(p => p._id === productId);
+      if (!relatedProduct) {
+        console.error('Related product not found in relatedProducts array');
+        return;
+      }
+      currentWishlistState = relatedProduct.isWishlisted;
+      console.log('Related product current wishlist state:', currentWishlistState);
+    }
+
+    console.log(`Current wishlist state for product ${targetProductId}:`, currentWishlistState);
+
+    // Optimistically update UI first
+    if (isMainProduct) {
+      console.log(`Setting main product wishlist state to: ${!currentWishlistState}`);
+      setIsWishlisted(!currentWishlistState);
+    } else {
+      console.log(`Updating related product ${targetProductId} wishlist state to: ${!currentWishlistState}`);
+      setRelatedProducts(prevRelatedProducts =>
+        prevRelatedProducts.map(p => {
+          if (p._id === targetProductId) {
+            return { ...p, isWishlisted: !currentWishlistState };
+          }
+          return p;
+        })
+      );
+    }
+    console.log(`Wishlist state optimistically updated to: ${!currentWishlistState} for product ${targetProductId}`);
 
     try {
-      let response;
-      if (isWishlisted) {
+      if (currentWishlistState) {
         // If already in wishlist, remove it
-        console.log('Removing from wishlist...');
-        response = await removeFromWishlist(product._id);
+        console.log(`Removing product ${targetProductId} from wishlist...`);
+        const response = await removeFromWishlist(targetProductId);
+        console.log('Remove from wishlist response:', response);
       } else {
         // If not in wishlist, add it
-        console.log('Adding to wishlist...');
-        response = await toggleWishlist(product._id);
+        console.log(`Adding product ${targetProductId} to wishlist...`);
+        const response = await toggleWishlist(targetProductId);
+        console.log('Add to wishlist response:', response);
       }
+      console.log('Wishlist API call successful');
 
-      // Update state regardless of response format - if no error was thrown, the operation was successful
-      setIsWishlisted(!isWishlisted);
-      console.log('Wishlist toggled successfully:', response);
-      console.log('New wishlist state:', !isWishlisted);
+      // After successful API call, refresh wishlist status to ensure consistency
+      // This will update both main product and related products
+      console.log('Refreshing wishlist status...');
+      await refreshWishlistStatus();
     } catch (err) {
-      console.error('Error toggling wishlist:', err);
+      console.error(`Error toggling wishlist for product ${targetProductId}:`, err);
 
-      // If the error indicates the product is already in wishlist, update local state
-      if (err.message && err.message.includes('already in wishlist')) {
-        console.log('Product is already in wishlist on server, updating local state');
-        setIsWishlisted(true);
-      } else if (err.message && err.message.includes('not in wishlist') || err.message.includes('not found in wishlist')) {
-        console.log('Product is not in wishlist on server, updating local state');
-        setIsWishlisted(false);
+      // Show error message to user
+      alert('Failed to update wishlist. Please try again.');
+
+      // Revert the optimistic update if the API call fails
+      console.log('Reverting optimistic UI update due to error');
+      if (isMainProduct) {
+        setIsWishlisted(currentWishlistState);
       } else {
-        // For other errors, refresh the wishlist status from server
-        console.log('Unknown error, refreshing wishlist status from server');
-        refreshWishlistStatus();
+        setRelatedProducts(prevRelatedProducts =>
+          prevRelatedProducts.map(p => {
+            if (p._id === targetProductId) {
+              return { ...p, isWishlisted: currentWishlistState };
+            }
+            return p;
+          })
+        );
       }
-      // Don't update state for other errors
+
+      // If the error has specific messages, we can handle them
+      if (err.message) {
+        if (err.message.includes('already in wishlist')) {
+          console.log(`Product ${targetProductId} is already in wishlist on server`);
+          if (isMainProduct) {
+            setIsWishlisted(true);
+          } else {
+            setRelatedProducts(prevRelatedProducts =>
+              prevRelatedProducts.map(p => {
+                if (p._id === targetProductId) {
+                  return { ...p, isWishlisted: true };
+                }
+                return p;
+              })
+            );
+          }
+        } else if (err.message.includes('not in wishlist') || err.message.includes('not found in wishlist')) {
+          console.log(`Product ${targetProductId} is not in wishlist on server`);
+          if (isMainProduct) {
+            setIsWishlisted(false);
+          } else {
+            setRelatedProducts(prevRelatedProducts =>
+              prevRelatedProducts.map(p => {
+                if (p._id === targetProductId) {
+                  return { ...p, isWishlisted: false };
+                }
+                return p;
+              })
+            );
+          }
+        } else {
+          // For other errors, refresh the wishlist status from server
+          console.log('Unknown error, refreshing wishlist status from server');
+          refreshWishlistStatus();
+        }
+      }
     }
+    console.log(`Completed wishlist toggle operation for product ${targetProductId}`);
   };
 
   const handleQuickOrder = (product) => {
@@ -397,464 +568,462 @@ const ProductDetailPage = () => {
     }
   }, [product]);
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-[#fdf8f8] flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-16 h-16 border-4 border-[#48182E] border-t-transparent rounded-full animate-spin mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading product details...</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (error || !product) {
-    return (
-      <div className="min-h-screen bg-[#fdf8f8] flex items-center justify-center">
-        <div className="text-center max-w-md mx-auto p-6 bg-white rounded-lg shadow-md">
-          <h2 className="text-2xl font-semibold text-red-600 mb-3">Error</h2>
-          <p className="text-gray-700 mb-4">{error || 'Product not found'}</p>
-          <Link to="/product" className="inline-block px-6 py-2 bg-[#48182E] text-white rounded-md hover:bg-[#5a2a40] transition">
-            Back to Products
-          </Link>
-        </div>
-      </div>
-    );
-  }
-
+  // Render the component with loading, error, or product details
   return (
-    <div className="min-h-screen bg-[#fdf8f8] py-10 px-4 md:px-8">
-      {/* WhatsApp Order Modal */}
-      <WhatsAppOrderModal
-        isOpen={isOrderModalOpen}
-        onClose={() => setIsOrderModalOpen(false)}
-        product={product}
-        quantity={quantity}
-        onConfirm={confirmOrder}
-      />
+    <>
+      {loading ? (
+        <div className="min-h-screen bg-[#fdf8f8] flex items-center justify-center">
+          <div className="text-center">
+            <div className="w-16 h-16 border-4 border-[#48182E] border-t-transparent rounded-full animate-spin mx-auto"></div>
+            <p className="mt-4 text-gray-600">Loading product details...</p>
+          </div>
+        </div>
+      ) : error || !product ? (
+        <div className="min-h-screen bg-[#fdf8f8] flex items-center justify-center">
+          <div className="text-center max-w-md mx-auto p-6 bg-white rounded-lg shadow-md">
+            <h2 className="text-2xl font-semibold text-red-600 mb-3">Error</h2>
+            <p className="text-gray-700 mb-4">{error || 'Product not found'}</p>
+            <Link to="/product" className="inline-block px-6 py-2 bg-[#48182E] text-white rounded-md hover:bg-[#5a2a40] transition">
+              Back to Products
+            </Link>
+          </div>
+        </div>
+      ) : (
+        <div className="min-h-screen bg-[#fdf8f8] py-10 px-4 md:px-8">
+          {/* WhatsApp Order Modal */}
+          <WhatsAppOrderModal
+            isOpen={isOrderModalOpen}
+            onClose={() => setIsOrderModalOpen(false)}
+            product={product}
+            quantity={quantity}
+            onConfirm={confirmOrder}
+          />
 
-      <div className="max-w-7xl mx-auto">
-        {/* Back button */}
-        {/* <Link to="/product" className="inline-flex items-center text-gray-700 hover:text-[#48182E] mb-6">
+          <div className="max-w-7xl mx-auto">
+            {/* Back button */}
+            {/* <Link to="/product" className="inline-flex items-center text-gray-700 hover:text-[#48182E] mb-6">
           <IoMdArrowBack className="mr-2" /> Back to Products
         </Link> */}
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-          {/* Left column - Product images */}
-          <div className="space-y-4">
-            <div
-              className="bg-[#b47b48] p-1 rounded-2xl shadow-md relative"
-              onTouchStart={handleTouchStart}
-              onTouchMove={handleTouchMove}
-              onTouchEnd={handleTouchEnd}
-              onWheel={handleWheel} // Add wheel event listener
-            >
-              {isShowingVideo ? (
-                <video
-                  src={`http://localhost:5000${combinedMedia[currentImageIndex]?.url}`}
-                  controls
-                  className="w-full h-[400px] md:h-[500px] object-cover rounded-xl"
-                  poster={product.images && product.images[0]?.url ? `http://localhost:5000${product.images[0].url}` : ''}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+              {/* Left column - Product images */}
+              <div className="space-y-4">
+                <div
+                  className="bg-[#b47b48] p-1 rounded-2xl shadow-md relative"
+                  onTouchStart={handleTouchStart}
+                  onTouchMove={handleTouchMove}
+                  onTouchEnd={handleTouchEnd}
+                  onWheel={handleWheel} // Add wheel event listener
                 >
-                  Your browser does not support the video tag.
-                </video>
-              ) : (
-                <img
-                  src={`http://localhost:5000${combinedMedia[currentImageIndex]?.url}`}
-                  alt={combinedMedia[currentImageIndex]?.alt || product.name}
-                  className="w-full h-[400px] md:h-[500px] object-cover rounded-xl"
-                />
-              )}
-
-              {/* Navigation Arrows */}
-              {combinedMedia.length > 1 && (
-                <>
-                  {currentImageIndex > 0 && (
-                    <button
-                      onClick={() => handleMediaSelect(currentImageIndex - 1)}
-                      className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white bg-opacity-80 hover:bg-opacity-100 rounded-full p-2 shadow-lg transition-all duration-200"
+                  {isShowingVideo ? (
+                    <video
+                      src={`http://localhost:5000${combinedMedia[currentImageIndex]?.url}`}
+                      controls
+                      className="w-full h-[400px] md:h-[500px] object-cover rounded-xl"
+                      poster={product.images && product.images[0]?.url ? `http://localhost:5000${product.images[0].url}` : ''}
                     >
-                      <svg className="w-6 h-6 text-gray-800" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
-                      </svg>
-                    </button>
-                  )}
-
-                  {currentImageIndex < combinedMedia.length - 1 && (
-                    <button
-                      onClick={() => handleMediaSelect(currentImageIndex + 1)}
-                      className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white bg-opacity-80 hover:bg-opacity-100 rounded-full p-2 shadow-lg transition-all duration-200"
-                    >
-                      <svg className="w-6 h-6 text-gray-800" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
-                      </svg>
-                    </button>
-                  )}
-                </>
-              )}
-            </div>
-
-            <div className="flex space-x-3 overflow-x-auto pb-2">
-              {combinedMedia.map((media, index) => (
-                <button
-                  key={index}
-                  onClick={() => handleMediaSelect(index)}
-                  className={`bg-[#b47b48] p-0.5 rounded-lg flex-shrink-0 ${currentImageIndex === index ? 'ring-2 ring-[#48182E]' : ''}`}
-                >
-                  {media.type === 'image' ? (
-                    <img
-                      src={`http://localhost:5000${media.url}`}
-                      alt={media.alt || `${product.name} view ${index + 1}`}
-                      className="w-20 h-20 object-cover rounded-md"
-                    />
+                      Your browser does not support the video tag.
+                    </video>
                   ) : (
-                    <div className="relative w-20 h-20">
-                      <img
-                        src={product.images && product.images[0]?.url ? `http://localhost:5000${product.images[0].url}` : '/placeholder-image.jpg'}
-                        alt="Video Thumbnail"
-                        className="w-20 h-20 object-cover rounded-md"
-                      />
-                      <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-30 rounded-md">
-                        <div className="w-8 h-8 bg-white bg-opacity-80 rounded-full flex items-center justify-center">
-                          <svg className="w-4 h-4 text-gray-800 ml-0.5" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M8 5v14l11-7z" />
-                          </svg>
-                        </div>
-                      </div>
-                    </div>
+                    <img
+                      src={`http://localhost:5000${combinedMedia[currentImageIndex]?.url}`}
+                      alt={combinedMedia[currentImageIndex]?.alt || product.name}
+                      className="w-full h-[400px] md:h-[500px] object-cover rounded-xl"
+                    />
                   )}
-                </button>
-              ))}
-            </div>
-          </div>
 
-          {/* Right column - Product details */}
-          <div className="space-y-6">
-            <div>
-              <div className="flex justify-between items-start">
-                <h1 className="text-3xl font-serif font-semibold text-gray-900">{product.name}</h1>
-                <div className="flex items-center gap-3">
-                  <button
-                    onClick={handleToggleWishlist}
-                    className="text-2xl text-[#48182E] hover:scale-110 transition"
-                  >
-                    {isWishlisted ? <HiMiniHeart size={20} /> : <FaRegHeart size={20} />}
-                  </button>
-                  <button
-                    onClick={() => {
-                      const url = window.location.href;
-                      if (navigator.share) {
-                        navigator.share({ title: product.name, url });
-                      } else {
-                        navigator.clipboard.writeText(url);
-                        alert('Product link copied to clipboard!');
-                      }
-                    }}
-                    className="text-2xl text-[#48182E] hover:scale-110 transition"
-                    title="Share"
-                  >
-                    <FaShareAlt size={20} />
-                  </button>
+                  {/* Navigation Arrows */}
+                  {combinedMedia.length > 1 && (
+                    <>
+                      {currentImageIndex > 0 && (
+                        <button
+                          onClick={() => handleMediaSelect(currentImageIndex - 1)}
+                          className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white bg-opacity-80 hover:bg-opacity-100 rounded-full p-2 shadow-lg transition-all duration-200"
+                        >
+                          <svg className="w-6 h-6 text-gray-800" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
+                          </svg>
+                        </button>
+                      )}
+
+                      {currentImageIndex < combinedMedia.length - 1 && (
+                        <button
+                          onClick={() => handleMediaSelect(currentImageIndex + 1)}
+                          className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white bg-opacity-80 hover:bg-opacity-100 rounded-full p-2 shadow-lg transition-all duration-200"
+                        >
+                          <svg className="w-6 h-6 text-gray-800" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
+                          </svg>
+                        </button>
+                      )}
+                    </>
+                  )}
+                </div>
+
+                <div className="flex space-x-3 overflow-x-auto pb-2">
+                  {combinedMedia.map((media, index) => (
+                    <button
+                      key={index}
+                      onClick={() => handleMediaSelect(index)}
+                      className={`bg-[#b47b48] p-0.5 rounded-lg flex-shrink-0 ${currentImageIndex === index ? 'ring-2 ring-[#48182E]' : ''}`}
+                    >
+                      {media.type === 'image' ? (
+                        <img
+                          src={`http://localhost:5000${media.url}`}
+                          alt={media.alt || `${product.name} view ${index + 1}`}
+                          className="w-20 h-20 object-cover rounded-md"
+                        />
+                      ) : (
+                        <div className="relative w-20 h-20">
+                          <img
+                            src={product.images && product.images[0]?.url ? `http://localhost:5000${product.images[0].url}` : '/placeholder-image.jpg'}
+                            alt="Video Thumbnail"
+                            className="w-20 h-20 object-cover rounded-md"
+                          />
+                          <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-30 rounded-md">
+                            <div className="w-8 h-8 bg-white bg-opacity-80 rounded-full flex items-center justify-center">
+                              <svg className="w-4 h-4 text-gray-800 ml-0.5" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M8 5v14l11-7z" />
+                              </svg>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </button>
+                  ))}
                 </div>
               </div>
-              <p className="text-2xl font-medium text-gray-800 mt-1">
-                {selectedMetalVariation && selectedMetalVariation.regularPrice ? (
-                  <>
-                    {selectedMetalVariation.salePrice && selectedMetalVariation.salePrice < selectedMetalVariation.regularPrice ? (
+
+              {/* Right column - Product details */}
+              <div className="space-y-6">
+                <div>
+                  <div className="flex justify-between items-start">
+                    <h1 className="text-3xl font-serif font-semibold text-gray-900">{product.name}</h1>
+                    <div className="flex items-center gap-3">
+                      <button
+                        onClick={() => handleToggleWishlist(product._id)}
+                        className="text-2xl text-[#48182E] hover:scale-110 transition"
+                        title={isWishlisted ? "Remove from wishlist" : "Add to wishlist"}
+                      >
+                        {isWishlisted ? <HiMiniHeart size={20} className="fill-current text-[#48182E]" /> : <FaRegHeart size={20} />}
+                      </button>
+                      <button
+                        onClick={() => {
+                          const url = window.location.href;
+                          if (navigator.share) {
+                            navigator.share({ title: product.name, url });
+                          } else {
+                            navigator.clipboard.writeText(url);
+                            alert('Product link copied to clipboard!');
+                          }
+                        }}
+                        className="text-2xl text-[#48182E] hover:scale-110 transition"
+                        title="Share"
+                      >
+                        <FaShareAlt size={20} />
+                      </button>
+                    </div>
+                  </div>
+                  <p className="text-2xl font-medium text-gray-800 mt-1">
+                    {selectedMetalVariation && selectedMetalVariation.regularPrice ? (
                       <>
-                        <span className="text-[#48182E]">{formatPrice(selectedMetalVariation.salePrice)}</span>
-                        <span className="text-gray-500 line-through ml-2 text-lg">{formatPrice(selectedMetalVariation.regularPrice)}</span>
+                        {selectedMetalVariation.salePrice && selectedMetalVariation.salePrice < selectedMetalVariation.regularPrice ? (
+                          <>
+                            <span className="text-[#48182E]">{formatPrice(selectedMetalVariation.salePrice)}</span>
+                            <span className="text-gray-500 line-through ml-2 text-lg">{formatPrice(selectedMetalVariation.regularPrice)}</span>
+                          </>
+                        ) : (
+                          <span>{formatPrice(selectedMetalVariation.regularPrice)}</span>
+                        )}
+                      </>
+                    ) : product.salePrice ? (
+                      <>
+                        <span className="text-red-600">{formatPrice(product.salePrice)}</span>
+                        <span className="text-gray-500 line-through ml-2 text-lg">{formatPrice(product.regularPrice)}</span>
                       </>
                     ) : (
-                      <span>{formatPrice(selectedMetalVariation.regularPrice)}</span>
+                      formatPrice(product.regularPrice)
                     )}
-                  </>
-                ) : product.salePrice ? (
-                  <>
-                    <span className="text-red-600">{formatPrice(product.salePrice)}</span>
-                    <span className="text-gray-500 line-through ml-2 text-lg">{formatPrice(product.regularPrice)}</span>
-                  </>
-                ) : (
-                  formatPrice(product.regularPrice)
-                )}
-              </p>
+                  </p>
 
-              <div className="flex items-center mt-2">
-                <div className="flex mr-2">
-                  {renderStars(product.rating)}
-                </div>
-                <span className="text-sm text-gray-600">
-                  {product.rating} ({product.reviews} reviews)
-                </span>
-              </div>
-            </div>
-
-            <div className="bg-white bg-opacity-50 rounded-lg p-4">
-              <div className="flex items-center mb-2">
-                <IoDiamond className="text-[#48182E] mr-2" />
-                <span className="font-medium">Product Details</span>
-              </div>
-              <p className="text-gray-700 mb-4">{product.description}</p>
-              <ul className="space-y-2">
-                <li className="text-sm text-gray-600 flex items-start">
-                  <span className="inline-block w-2 h-2 bg-[#b47b48] rounded-full mt-1.5 mr-2"></span>
-                  Category: {product.categoryName}
-                </li>
-                {product.sku && (
-                  <li className="text-sm text-gray-600 flex items-start">
-                    <span className="inline-block w-2 h-2 bg-[#b47b48] rounded-full mt-1.5 mr-2"></span>
-                    SKU: {product.sku}
-                  </li>
-                )}
-                {product.size && (
-                  <li className="text-sm text-gray-600 flex items-start">
-                    <span className="inline-block w-2 h-2 bg-[#b47b48] rounded-full mt-1.5 mr-2"></span>
-                    Size: {product.size}
-                  </li>
-                )}
-                {product.metalVariations && product.metalVariations.length > 0 && (
-                  <li className="text-sm text-gray-600 flex items-start">
-                    <span className="inline-block w-2 h-2 bg-[#b47b48] rounded-full mt-1.5 mr-2"></span>
-                    <div className="flex-1">
-                      {/* Color Selection */}
-                      <div className="mb-4">
-                        <div className="flex items-center mb-2">
-                          <span className="text-gray-500 mr-2">Color :</span>
-                          <span className="font-medium">
-                            {selectedMetalVariation?.color || 'Select Color'}
-                          </span>
-                        </div>
-                        <div className="flex space-x-3">
-                          {Array.from(new Set(product.metalVariations.map(v => v.color))).map((color) => (
-                            <button
-                              key={color}
-                              onClick={() => {
-                                const variationWithColor = product.metalVariations.find(v => v.color === color);
-                                if (variationWithColor) {
-                                  setSelectedMetalVariation(variationWithColor);
-                                }
-                              }}
-                              className={`${getColorSwatch(color)} ${selectedMetalVariation?.color === color
-                                ? 'ring-2 ring-gray-400 ring-offset-1'
-                                : ''
-                                }`}
-                            />
-                          ))}
-                        </div>
-                      </div>
-
-                      {/* Karat Selection */}
-                      <div>
-                        <div className="flex items-center mb-2">
-                          <span className="text-gray-500 mr-2">Jewelry type :</span>
-                          <span className="font-medium">
-                            {selectedMetalVariation?.karat || 'Select Karat'}
-                          </span>
-                        </div>
-                        <div className="flex space-x-2">
-                          {Array.from(new Set(product.metalVariations.map(v => v.karat))).map((karat) => (
-                            <button
-                              key={karat}
-                              onClick={() => {
-                                const variationWithKarat = product.metalVariations.find(v => v.karat === karat);
-                                if (variationWithKarat) {
-                                  setSelectedMetalVariation(variationWithKarat);
-                                }
-                              }}
-                              className={`px-4 py-2 rounded-full text-sm font-medium transition ${selectedMetalVariation?.karat === karat
-                                ? 'bg-[#48182E] text-white border border-[#48182E]'
-                                : 'bg-white text-gray-700 border border-gray-300 hover:border-gray-400'
-                                }`}
-                            >
-                              {karat}
-                            </button>
-                          ))}
-                        </div>
-                      </div>
+                  <div className="flex items-center mt-2">
+                    <div className="flex mr-2">
+                      {renderStars(product.rating)}
                     </div>
-                  </li>
-                )}
-                {/* {product.stock !== undefined && (
+                    <span className="text-sm text-gray-600">
+                      {product.rating} ({product.reviews} reviews)
+                    </span>
+                  </div>
+                </div>
+
+                <div className="bg-white bg-opacity-50 rounded-lg p-4">
+                  <div className="flex items-center mb-2">
+                    <IoDiamond className="text-[#48182E] mr-2" />
+                    <span className="font-medium">Product Details</span>
+                  </div>
+                  <p className="text-gray-700 mb-4">{product.description}</p>
+                  <ul className="space-y-2">
+                    <li className="text-sm text-gray-600 flex items-start">
+                      <span className="inline-block w-2 h-2 bg-[#b47b48] rounded-full mt-1.5 mr-2"></span>
+                      Category: {product.categoryName}
+                    </li>
+                    {product.sku && (
+                      <li className="text-sm text-gray-600 flex items-start">
+                        <span className="inline-block w-2 h-2 bg-[#b47b48] rounded-full mt-1.5 mr-2"></span>
+                        SKU: {product.sku}
+                      </li>
+                    )}
+                    {product.size && (
+                      <li className="text-sm text-gray-600 flex items-start">
+                        <span className="inline-block w-2 h-2 bg-[#b47b48] rounded-full mt-1.5 mr-2"></span>
+                        Size: {product.size}
+                      </li>
+                    )}
+                    {product.metalVariations && product.metalVariations.length > 0 && (
+                      <li className="text-sm text-gray-600 flex items-start">
+                        <span className="inline-block w-2 h-2 bg-[#b47b48] rounded-full mt-1.5 mr-2"></span>
+                        <div className="flex-1">
+                          {/* Color Selection */}
+                          <div className="mb-4">
+                            <div className="flex items-center mb-2">
+                              <span className="text-gray-500 mr-2">Color :</span>
+                              <span className="font-medium">
+                                {selectedMetalVariation?.color || 'Select Color'}
+                              </span>
+                            </div>
+                            <div className="flex space-x-3">
+                              {Array.from(new Set(product.metalVariations.map(v => v.color))).map((color) => (
+                                <button
+                                  key={color}
+                                  onClick={() => {
+                                    const variationWithColor = product.metalVariations.find(v => v.color === color);
+                                    if (variationWithColor) {
+                                      setSelectedMetalVariation(variationWithColor);
+                                    }
+                                  }}
+                                  className={`${getColorSwatch(color)} ${selectedMetalVariation?.color === color
+                                    ? 'ring-2 ring-gray-400 ring-offset-1'
+                                    : ''
+                                    }`}
+                                />
+                              ))}
+                            </div>
+                          </div>
+
+                          {/* Karat Selection */}
+                          <div>
+                            <div className="flex items-center mb-2">
+                              <span className="text-gray-500 mr-2">Jewelry type :</span>
+                              <span className="font-medium">
+                                {selectedMetalVariation?.karat || 'Select Karat'}
+                              </span>
+                            </div>
+                            <div className="flex space-x-2">
+                              {Array.from(new Set(product.metalVariations.map(v => v.karat))).map((karat) => (
+                                <button
+                                  key={karat}
+                                  onClick={() => {
+                                    const variationWithKarat = product.metalVariations.find(v => v.karat === karat);
+                                    if (variationWithKarat) {
+                                      setSelectedMetalVariation(variationWithKarat);
+                                    }
+                                  }}
+                                  className={`px-4 py-2 rounded-full text-sm font-medium transition ${selectedMetalVariation?.karat === karat
+                                    ? 'bg-[#48182E] text-white border border-[#48182E]'
+                                    : 'bg-white text-gray-700 border border-gray-300 hover:border-gray-400'
+                                    }`}
+                                >
+                                  {karat}
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+                        </div>
+                      </li>
+                    )}
+                    {/* {product.stock !== undefined && (
                   <li className="text-sm text-gray-600 flex items-start">
                     <span className="inline-block w-2 h-2 bg-[#b47b48] rounded-full mt-1.5 mr-2"></span>
                     Stock: {product.stock} units
                   </li>
                 )} */}
-              </ul>
-            </div>
+                  </ul>
+                </div>
 
-            <div className="space-y-4">
-              <div className="flex items-center">
-                <span className="text-gray-700 mr-4">Quantity:</span>
-                <div className="flex items-center border border-gray-300 rounded-md">
-                  <button
-                    onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                    className="px-3 py-1 text-gray-600 hover:bg-gray-100"
-                  >
-                    -
-                  </button>
-                  <span className="px-4 py-1 border-x border-gray-300">{quantity}</span>
-                  <button
-                    onClick={() => setQuantity(quantity + 1)}
-                    className="px-3 py-1 text-gray-600 hover:bg-gray-100"
-                  >
-                    +
-                  </button>
+                <div className="space-y-4">
+                  <div className="flex items-center">
+                    <span className="text-gray-700 mr-4">Quantity:</span>
+                    <div className="flex items-center border border-gray-300 rounded-md">
+                      <button
+                        onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                        className="px-3 py-1 text-gray-600 hover:bg-gray-100"
+                      >
+                        -
+                      </button>
+                      <span className="px-4 py-1 border-x border-gray-300">{quantity}</span>
+                      <button
+                        onClick={() => setQuantity(quantity + 1)}
+                        className="px-3 py-1 text-gray-600 hover:bg-gray-100"
+                      >
+                        +
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center">
+                    <span className="text-gray-700 mr-4">Availability:</span>
+                    <span className={`text-sm font-medium ${product.stock > 0 ? 'text-green-600' : 'text-red-600'}`}>
+                      {product.stock > 0 ? 'In Stock' : 'Out of Stock'}
+                    </span>
+                  </div>
+
+                  <div className="pt-4 space-y-3">
+                    <button
+                      onClick={handleWhatsAppOrder}
+                      className={`w-full py-3 px-6 rounded-md flex items-center justify-center text-white font-medium transition ${product.stock > 0 ? 'bg-[#48182E] hover:bg-[#5a2a40]' : 'bg-gray-400 cursor-not-allowed'}`}
+                      disabled={product.stock <= 0}
+                    >
+                      <FaShoppingCart className="mr-2" />
+                      Order on WhatsApp
+                    </button>
+
+                    <button
+                      onClick={handleWhatsAppChat}
+                      className={`w-full py-3 px-6 rounded-md flex items-center justify-center text-white font-medium transition ${product.stock > 0 ? 'bg-[#25D366] hover:bg-[#128C7E]' : 'bg-gray-400 cursor-not-allowed'}`}
+                    >
+                      <FaWhatsapp className="mr-2" size={20} />
+                      Chat with Us
+                    </button>
+                  </div>
                 </div>
               </div>
+            </div>
 
-              <div className="flex items-center">
-                <span className="text-gray-700 mr-4">Availability:</span>
-                <span className={`text-sm font-medium ${product.stock > 0 ? 'text-green-600' : 'text-red-600'}`}>
-                  {product.stock > 0 ? 'In Stock' : 'Out of Stock'}
-                </span>
-              </div>
+            {/* Similar Products Section */}
+            {/* Similar Products Section */}
+            <div className="mt-16">
+              <h2 className="text-3xl text-[#48182E] font-serif font-semibold text-gray-900 mb-6 text-center">
+                Related Products
+              </h2>
 
-              <div className="pt-4 space-y-3">
-                <button
-                  onClick={handleWhatsAppOrder}
-                  className={`w-full py-3 px-6 rounded-md flex items-center justify-center text-white font-medium transition ${product.stock > 0 ? 'bg-[#48182E] hover:bg-[#5a2a40]' : 'bg-gray-400 cursor-not-allowed'}`}
-                  disabled={product.stock <= 0}
+              {relatedProductsError && (
+                <div className="text-center text-red-500 mb-4">
+                  {relatedProductsError}
+                </div>
+              )}
+
+              {relatedProductsLoading ? (
+                <div className="flex justify-center items-center h-40">
+                  <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-[#48182E]"></div>
+                </div>
+              ) : relatedProducts.length > 0 ? (
+                <Slider
+                  dots={true}
+                  infinite={true}
+                  speed={500}
+                  slidesToShow={Math.min(4, relatedProducts.length)}
+                  slidesToScroll={1}
+                  autoplay={true}
+                  autoplaySpeed={3000}
+                  responsive={[
+                    {
+                      breakpoint: 1024,
+                      settings: {
+                        slidesToShow: Math.min(3, relatedProducts.length),
+                        slidesToScroll: 1,
+                      },
+                    },
+                    {
+                      breakpoint: 768,
+                      settings: {
+                        slidesToShow: Math.min(2, relatedProducts.length),
+                        slidesToScroll: 1,
+                      },
+                    },
+                    {
+                      breakpoint: 480,
+                      settings: {
+                        slidesToShow: 1,
+                        slidesToScroll: 1,
+                      },
+                    },
+                  ]}
+                  className="similar-products-slider"
                 >
-                  <FaShoppingCart className="mr-2" />
-                  Order on WhatsApp
-                </button>
+                  {relatedProducts.map((relatedProduct) => (
+                    <div key={relatedProduct._id} className="px-2">
+                      <Link to={`/product/${relatedProduct._id}`} className="group block">
+                        <div className="relative bg-[#b47b48] rounded-2xl shadow p-1 flex flex-col items-center">
+                          <img
+                            src={`http://localhost:5000${relatedProduct.images[0]?.url}`}
+                            alt={relatedProduct.name}
+                            className="w-full h-64 object-cover rounded-xl group-hover:opacity-90 transition"
+                          />
+                        </div>
+                        <div className="w-full flex justify-between text-start mt-2 flex-col">
 
-                <button
-                  onClick={handleWhatsAppChat}
-                  className={`w-full py-3 px-6 rounded-md flex items-center justify-center text-white font-medium transition ${product.stock > 0 ? 'bg-[#25D366] hover:bg-[#128C7E]' : 'bg-gray-400 cursor-not-allowed'}`}
-                >
-                  <FaWhatsapp className="mr-2" size={20} />
-                  Chat with Us
-                </button>
-              </div>
+                          <div className="flex items-center justify-between">
+                            <h3 className="text-base font-medium text-gray-800 font-montserrat hover:text-[#48182E] transition truncate max-w-[160px]">
+                              {relatedProduct.name}</h3>
+
+                            <div className="flex ml-2">
+                              <button
+                                onClick={(e) => {
+                                  e.preventDefault();
+                                  e.stopPropagation();
+                                  handleToggleWishlist(relatedProduct._id);
+                                  console.log(`Toggled wishlist for product ${relatedProduct._id}`);
+                                }}
+                                className="text-[#48182E] hover:scale-110 transition mr-2"
+                              >
+                                {relatedProduct.isWishlisted ? <HiMiniHeart size={18} /> : <FaRegHeart size={18} />}
+                              </button>
+                              <button
+                                onClick={(e) => {
+                                  e.preventDefault();
+                                  e.stopPropagation();
+                                  handleQuickOrder(relatedProduct);
+                                }}
+                                className="text-[#25D366] hover:scale-110 transition"
+                                title="Quick Order via WhatsApp"
+                              >
+                                <FaWhatsapp size={18} />
+                              </button>
+                            </div>
+                          </div>
+
+
+                          <h3 className="text-base font-medium text-gray-800 font-montserrat">
+                            {relatedProduct.regularPrice ? (
+                              relatedProduct.salePrice && relatedProduct.salePrice < relatedProduct.regularPrice ? (
+                                <>
+                                  <span className="text-[#48182E]">{formatPrice(relatedProduct.salePrice)}</span>
+                                  <span className="text-gray-500 line-through ml-1 text-sm">
+                                    {formatPrice(relatedProduct.regularPrice)}
+                                  </span>
+                                </>
+                              ) : (
+                                formatPrice(relatedProduct.regularPrice)
+                              )
+                            ) : (
+                              'Price not available'
+                            )}
+                          </h3>
+                        </div>
+                      </Link>
+                    </div>
+                  ))}
+                </Slider>
+              ) : (
+                <div className="text-center text-gray-500 py-8">
+                  No related products found
+                </div>
+              )}
             </div>
           </div>
         </div>
-
-        {/* Similar Products Section */}
-        {/* Similar Products Section */}
-        <div className="mt-16">
-          <h2 className="text-3xl text-[#48182E] font-serif font-semibold text-gray-900 mb-6 text-center">
-            Related Products
-          </h2>
-
-          {relatedProductsError && (
-            <div className="text-center text-red-500 mb-4">
-              {relatedProductsError}
-            </div>
-          )}
-
-          {relatedProductsLoading ? (
-            <div className="flex justify-center items-center h-40">
-              <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-[#48182E]"></div>
-            </div>
-          ) : relatedProducts.length > 0 ? (
-            <Slider
-              dots={true}
-              infinite={true}
-              speed={500}
-              slidesToShow={Math.min(4, relatedProducts.length)}
-              slidesToScroll={1}
-              autoplay={true}
-              autoplaySpeed={3000}
-              responsive={[
-                {
-                  breakpoint: 1024,
-                  settings: {
-                    slidesToShow: Math.min(3, relatedProducts.length),
-                    slidesToScroll: 1,
-                  },
-                },
-                {
-                  breakpoint: 768,
-                  settings: {
-                    slidesToShow: Math.min(2, relatedProducts.length),
-                    slidesToScroll: 1,
-                  },
-                },
-                {
-                  breakpoint: 480,
-                  settings: {
-                    slidesToShow: 1,
-                    slidesToScroll: 1,
-                  },
-                },
-              ]}
-              className="similar-products-slider"
-            >
-              {relatedProducts.map((relatedProduct) => (
-                <div key={relatedProduct._id} className="px-2">
-                  <Link to={`/product/${relatedProduct._id}`} className="group block">
-                    <div className="relative bg-[#b47b48] rounded-2xl shadow p-1 flex flex-col items-center">
-                      <img
-                        src={`http://localhost:5000${relatedProduct.images[0]?.url}`}
-                        alt={relatedProduct.name}
-                        className="w-full h-64 object-cover rounded-xl group-hover:opacity-90 transition"
-                      />
-                    </div>
-                    <div className="w-full flex justify-between text-start mt-2 flex-col">
-
-                      <div className="flex items-center justify-between">
-                      <h3 className="text-base font-medium text-gray-800 font-montserrat hover:text-[#48182E] transition truncate max-w-[160px]">
-{relatedProduct.name}</h3>
-
-                        <div className="flex ml-2">
-                          <button
-                            onClick={(e) => {
-                              e.preventDefault();
-                              e.stopPropagation();
-                              handleToggleWishlist(product._id);
-                              console.log(`Toggled wishlist for product ${product._id}`);
-                            }}
-                            className="text-[#48182E] hover:scale-110 transition mr-2"
-                          >
-                            {product.isWishlisted ? <HiMiniHeart size={18} /> : <FaRegHeart size={18} />}
-                          </button>
-                          <button
-                            onClick={(e) => {
-                              e.preventDefault();
-                              e.stopPropagation();
-                              handleQuickOrder(product);
-                            }}
-                            className="text-[#25D366] hover:scale-110 transition"
-                            title="Quick Order via WhatsApp"
-                          >
-                            <FaWhatsapp size={18} />
-                          </button>
-                        </div>
-                      </div>
-
-
-                      <h3 className="text-base font-medium text-gray-800 font-montserrat">
-                        {relatedProduct.regularPrice ? (
-                          relatedProduct.salePrice && relatedProduct.salePrice < relatedProduct.regularPrice ? (
-                            <>
-                              <span className="text-[#48182E]">{formatPrice(relatedProduct.salePrice)}</span>
-                              <span className="text-gray-500 line-through ml-1 text-sm">
-                                {formatPrice(relatedProduct.regularPrice)}
-                              </span>
-                            </>
-                          ) : (
-                            formatPrice(relatedProduct.regularPrice)
-                          )
-                        ) : (
-                          'Price not available'
-                        )}
-                      </h3>
-                    </div>
-                  </Link>
-                </div>
-              ))}
-            </Slider>
-          ) : (
-            <div className="text-center text-gray-500 py-8">
-              No related products found
-            </div>
-          )}
-        </div>
-      </div>
-    </div>
+      )}
+    </>
   );
 };
 

@@ -69,22 +69,30 @@ const ProductPage = () => {
   
   // Check which products are in user's wishlist
   const checkWishlistStatus = async () => {
-    if (!currentUser) return;
+    if (!currentUser) {
+      console.log('No user logged in, skipping wishlist check');
+      return;
+    }
     
     try {
+      console.log('Fetching user wishlist data...');
       const wishlistData = await getUserWishlist();
       console.log('Wishlist data received in ProductPage:', wishlistData);
       
       // Handle different possible response structures
       let products = [];
       if (wishlistData && wishlistData.status === 'success' && wishlistData.data && wishlistData.data.products) {
+        console.log('Found products in wishlistData.data.products');
         products = wishlistData.data.products;
       } else if (wishlistData && wishlistData.status === 'success' && wishlistData.data && wishlistData.data.wishlist) {
         // Extract products from wishlist items
+        console.log('Found products in wishlistData.data.wishlist');
         products = wishlistData.data.wishlist.map(item => item.product);
       } else if (wishlistData && wishlistData.products) {
+        console.log('Found products in wishlistData.products');
         products = wishlistData.products;
       } else if (wishlistData && Array.isArray(wishlistData)) {
+        console.log('Wishlist data is an array');
         products = wishlistData;
       }
       
@@ -93,22 +101,26 @@ const ProductPage = () => {
         console.log('Wishlist product IDs:', wishlistProductIds);
         
         // Update products with wishlist status
-        setProducts(prevProducts => 
-          prevProducts.map(product => ({
+        setProducts(prevProducts => {
+          const updatedProducts = prevProducts.map(product => ({
             ...product,
             isWishlisted: wishlistProductIds.includes(product._id)
-          }))
-        );
+          }));
+          console.log('Updated products with wishlist status:', 
+            updatedProducts.filter(p => p.isWishlisted).map(p => p.name));
+          return updatedProducts;
+        });
         console.log('Products wishlist status updated');
       } else {
         console.log('No products found in wishlist or wishlist is empty');
         // Set all products as not wishlisted
-        setProducts(prevProducts => 
-          prevProducts.map(product => ({
+        setProducts(prevProducts => {
+          console.log('Setting all products as not wishlisted');
+          return prevProducts.map(product => ({
             ...product,
             isWishlisted: false
-          }))
-        );
+          }));
+        });
       }
     } catch (err) {
       console.error('Error checking wishlist status:', err);
@@ -123,54 +135,77 @@ const ProductPage = () => {
       return;
     }
 
+    // Find the product to determine if it's already wishlisted
+    const product = products.find(p => p._id === productId);
+    if (!product) {
+      console.error(`Product with ID ${productId} not found in products array`);
+      return;
+    }
+    
+    // Store the current wishlist state
+    const isWishlisted = product.isWishlisted;
+    console.log(`Toggling wishlist for product ${productId}`, product);
+    console.log('Current wishlist state:', isWishlisted);
+    
+    // Optimistically update UI first
+    setProducts(prevProducts => prevProducts.map(p => {
+      if (p._id === productId) {
+        return { ...p, isWishlisted: !isWishlisted };
+      }
+      return p;
+    }));
+    console.log('Wishlist state optimistically updated');
+    
     try {
-      // Find the product to determine if it's already wishlisted
-      const product = products.find(p => p._id === productId);
-      console.log(`Toggling wishlist for product ${productId}`, product);
-      console.log('Current wishlist state:', product?.isWishlisted);
-      
-      if (product) {
-        if (product.isWishlisted) {
-          // If already in wishlist, remove it
-          console.log('Removing from wishlist...');
-          await removeFromWishlist(productId);
-        } else {
-          // If not in wishlist, add it
-          console.log('Adding to wishlist...');
-          await toggleWishlist(productId);
-        }
-        
-        // Update the local state to reflect the change
-        setProducts(products.map(p => {
-          if (p._id === productId) {
-            return { ...p, isWishlisted: !p.isWishlisted };
-          }
-          return p;
-        }));
-        console.log('Wishlist state updated successfully');
+      if (isWishlisted) {
+        // If already in wishlist, remove it
+        console.log(`Removing product ${productId} from wishlist...`);
+        await removeFromWishlist(productId);
+      } else {
+        // If not in wishlist, add it
+        console.log(`Adding product ${productId} to wishlist...`);
+        await toggleWishlist(productId);
       }
+      console.log(`Wishlist API call successful for product ${productId}`);
+      
+      // After successful API call, refresh wishlist status to ensure consistency
+      checkWishlistStatus();
     } catch (err) {
-      console.error('Error toggling wishlist:', err);
+      console.error(`Error toggling wishlist for product ${productId}:`, err);
       
-      // If the error indicates the product is already in wishlist, update local state
-      if (err.message && err.message.includes('already in wishlist')) {
-        console.log('Product is already in wishlist on server, updating local state');
-        setProducts(products.map(p => {
-          if (p._id === productId) {
-            return { ...p, isWishlisted: true };
-          }
-          return p;
-        }));
-      } else if (err.message && err.message.includes('not in wishlist') || err.message.includes('not found in wishlist')) {
-        console.log('Product is not in wishlist on server, updating local state');
-        setProducts(products.map(p => {
-          if (p._id === productId) {
-            return { ...p, isWishlisted: false };
-          }
-          return p;
-        }));
+      // Revert the optimistic update if the API call fails
+      setProducts(prevProducts => prevProducts.map(p => {
+        if (p._id === productId) {
+          return { ...p, isWishlisted: isWishlisted };
+        }
+        return p;
+      }));
+      console.log(`Reverted optimistic update due to error for product ${productId}`);
+      
+      // If the error has specific messages, we can handle them
+      if (err.message) {
+        if (err.message.includes('already in wishlist')) {
+          console.log(`Product ${productId} is already in wishlist on server`);
+          setProducts(prevProducts => prevProducts.map(p => {
+            if (p._id === productId) {
+              return { ...p, isWishlisted: true };
+            }
+            return p;
+          }));
+        } else if (err.message.includes('not in wishlist') || err.message.includes('not found in wishlist')) {
+          console.log(`Product ${productId} is not in wishlist on server`);
+          setProducts(prevProducts => prevProducts.map(p => {
+            if (p._id === productId) {
+              return { ...p, isWishlisted: false };
+            }
+            return p;
+          }));
+        } else {
+          // For other errors, refresh the wishlist status from server
+          console.log('Unknown error, refreshing wishlist status from server');
+          checkWishlistStatus();
+        }
       }
-      // Don't update state for other errors
     }
   };
   
@@ -257,12 +292,15 @@ const ProductPage = () => {
                       onClick={(e) => {
                         e.preventDefault();
                         e.stopPropagation();
+                        console.log(`Like button clicked for product ${product._id}`);
                         handleToggleWishlist(product._id);
-                        console.log(`Toggled wishlist for product ${product._id}`);
                       }}
                       className="text-[#48182E] hover:scale-110 transition mr-2"
+                      title={product.isWishlisted ? "Remove from wishlist" : "Add to wishlist"}
                     >
-                      {product.isWishlisted ? <HiMiniHeart size={18} /> : <FaRegHeart size={18} />}
+                      {product.isWishlisted ? 
+                        <HiMiniHeart size={18} className="text-[#48182E] fill-current" /> : 
+                        <FaRegHeart size={18} />}
                     </button>
                     <button
                       onClick={(e) => {

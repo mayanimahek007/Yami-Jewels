@@ -7,7 +7,7 @@ import { HiMiniHeart } from 'react-icons/hi2';
 import { FaRegHeart, FaWhatsapp } from 'react-icons/fa';
 import whatsappConfig from '../../config/whatsapp.config';
 import WhatsAppOrderModal from '../../Components/WhatsAppOrderModal';
-import { toggleWishlist, removeFromWishlist } from '../../services/productService';
+import { toggleWishlist, removeFromWishlist, getUserWishlist } from '../../services/productService';
 import { useAuth } from '../../context/AuthContext';
 
 const apiEndpoints = {
@@ -75,6 +75,61 @@ const ProductDisplaySection = () => {
     fetchProducts();
   }, [activeTab]);
 
+  // Fetch user's wishlist when component mounts or user changes
+  useEffect(() => {
+    const fetchWishlist = async () => {
+      if (!currentUser) {
+        setWishlistedProducts([]);
+        console.log('No user logged in, clearing wishlist state');
+        return;
+      }
+
+      try {
+        console.log('Fetching user wishlist data...');
+        const wishlistData = await getUserWishlist();
+        console.log('Wishlist data received:', wishlistData);
+        
+        // Handle different possible response structures
+        let products = [];
+        if (wishlistData && wishlistData.status === 'success' && wishlistData.data && wishlistData.data.products) {
+          console.log('Found products in wishlistData.data.products');
+          products = wishlistData.data.products;
+        } else if (wishlistData && wishlistData.status === 'success' && wishlistData.data && wishlistData.data.wishlist) {
+          // Extract products from wishlist items
+          console.log('Found products in wishlistData.data.wishlist');
+          products = wishlistData.data.wishlist.map(item => item.product);
+        } else if (wishlistData && wishlistData.products) {
+          console.log('Found products in wishlistData.products');
+          products = wishlistData.products;
+        } else if (wishlistData && Array.isArray(wishlistData)) {
+          console.log('Wishlist data is an array');
+          products = wishlistData;
+        }
+
+        if (products.length > 0) {
+          // Extract product IDs from wishlist
+          const wishlistProductIds = products.map(product => product._id);
+          console.log('Extracted wishlist product IDs:', wishlistProductIds);
+          setWishlistedProducts(wishlistProductIds);
+        } else {
+          console.log('No products found in wishlist, setting empty array');
+          setWishlistedProducts([]);
+        }
+      } catch (err) {
+        console.error('Error fetching wishlist:', err);
+        setWishlistedProducts([]);
+      }
+    };
+
+    fetchWishlist();
+    
+    // Set up interval to refresh wishlist status periodically
+    const refreshInterval = setInterval(fetchWishlist, 30000); // Refresh every 30 seconds
+    
+    // Clean up interval on component unmount
+    return () => clearInterval(refreshInterval);
+  }, [currentUser]);
+
   // WhatsApp quick order function
   const handleQuickOrder = (product) => {
     setSelectedProduct(product);
@@ -103,28 +158,61 @@ const ProductDisplaySection = () => {
       return;
     }
 
+    // Check if product is already in wishlist
+    const isWishlisted = wishlistedProducts.includes(productId);
+    console.log(`Toggling wishlist for product ${productId}. Current state: ${isWishlisted ? 'wishlisted' : 'not wishlisted'}`);
+    
     try {
-      // Check if product is already in wishlist
-      const isWishlisted = wishlistedProducts.includes(productId);
-
-      if (isWishlisted) {
-        // If already in wishlist, remove it
-        await removeFromWishlist(productId);
-      } else {
-        // If not in wishlist, add it
-        await toggleWishlist(productId);
-      }
-
-      // Update the local state to reflect the change
+      // Optimistically update UI first
       setWishlistedProducts(prev => {
-        if (prev.includes(productId)) {
+        if (isWishlisted) {
+          console.log(`Optimistically removing product ${productId} from wishlist`);
           return prev.filter(id => id !== productId);
         } else {
+          console.log(`Optimistically adding product ${productId} to wishlist`);
           return [...prev, productId];
         }
       });
+
+      if (isWishlisted) {
+        // If already in wishlist, remove it
+        console.log(`Calling API to remove product ${productId} from wishlist`);
+        await removeFromWishlist(productId);
+      } else {
+        // If not in wishlist, add it
+        console.log(`Calling API to add product ${productId} to wishlist`);
+        await toggleWishlist(productId);
+      }
+      console.log(`Wishlist API call successful for product ${productId}`);
     } catch (err) {
-      console.error('Error toggling wishlist:', err);
+      console.error(`Error toggling wishlist for product ${productId}:`, err);
+      
+      // Revert the optimistic update if the API call fails
+      setWishlistedProducts(prev => {
+        if (isWishlisted) {
+          console.log(`Reverting optimistic update - adding product ${productId} back to wishlist`);
+          return [...prev, productId];
+        } else {
+          console.log(`Reverting optimistic update - removing product ${productId} from wishlist`);
+          return prev.filter(id => id !== productId);
+        }
+      });
+      
+      // If the error has specific messages, we can handle them
+      if (err.message) {
+        if (err.message.includes('already in wishlist')) {
+          console.log(`Product ${productId} is already in wishlist on server`);
+          setWishlistedProducts(prev => {
+            if (!prev.includes(productId)) {
+              return [...prev, productId];
+            }
+            return prev;
+          });
+        } else if (err.message.includes('not in wishlist') || err.message.includes('not found in wishlist')) {
+          console.log(`Product ${productId} is not in wishlist on server`);
+          setWishlistedProducts(prev => prev.filter(id => id !== productId));
+        }
+      }
     }
   };
 
@@ -208,11 +296,16 @@ const ProductDisplaySection = () => {
                       onClick={(e) => {
                         e.preventDefault();
                         e.stopPropagation();
-                        handleToggleWishlist(product._id || product.id);
+                        const productId = product._id || product.id;
+                        console.log(`Like button clicked for product ${productId}`);
+                        handleToggleWishlist(productId);
                       }}
                       className="text-[#48182E] hover:scale-110 transition mr-2"
+                      title={wishlistedProducts.includes(product._id || product.id) ? "Remove from wishlist" : "Add to wishlist"}
                     >
-                      {wishlistedProducts.includes(product._id || product.id) ? <HiMiniHeart size={18} /> : <FaRegHeart size={18} />}
+                      {wishlistedProducts.includes(product._id || product.id) ? 
+                        <HiMiniHeart size={18} className="text-[#48182E] fill-current" /> : 
+                        <FaRegHeart size={18} />}
                     </button>
                     <button
                       onClick={(e) => {

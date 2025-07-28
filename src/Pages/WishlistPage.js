@@ -63,12 +63,24 @@ const WishlistPage = () => {
   };
 
   const handleRemoveFromWishlist = async (productId) => {
+    // Store the current wishlist items for potential rollback
+    const originalWishlistItems = [...wishlistItems];
+    
+    // Optimistically update UI first
+    setWishlistItems(wishlistItems.filter(item => item._id !== productId));
+    console.log('Wishlist item optimistically removed from UI');
+    
     try {
+      // Make the API call to remove from wishlist
       await removeFromWishlist(productId);
-      // Remove the item from the local state
-      setWishlistItems(wishlistItems.filter(item => item._id !== productId));
+      console.log('Item successfully removed from wishlist on server');
     } catch (err) {
       console.error('Error removing from wishlist:', err);
+      
+      // Revert the optimistic update if the API call fails
+      setWishlistItems(originalWishlistItems);
+      console.log('Reverted optimistic update due to error');
+      
       setError('Failed to remove item from wishlist. Please try again.');
     }
   };
