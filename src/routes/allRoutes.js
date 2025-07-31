@@ -17,6 +17,7 @@ import DirectAdminLogin from "../Pages/Auth/DirectAdminLogin";
 import AdminDashboard from "../Pages/Admin/AdminDashboard";
 import ProductForm from "../Pages/Admin/ProductForm";
 import AdminRegisterPage from "../Pages/Admin/AdminRegisterPage";
+import CustomJewels from "../Pages/CustomeJewels";
 
 export const publicRoutes = [
     { path: "/", component: <Home /> },
@@ -31,6 +32,7 @@ export const publicRoutes = [
     { path: "/update-password", component: <UpdatePasswordPage /> },
     { path: "/token-login", component: <TokenLoginPage /> },
     { path: "/direct-admin-login", component: <DirectAdminLogin /> },
+    {path: "/custom-jewellery", component: <CustomJewels />}, // Assuming this is a custom route for jewellery
 ];
 
 export const adminRoutes = [

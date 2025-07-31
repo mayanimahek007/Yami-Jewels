@@ -48,7 +48,7 @@ const Header = () => {
                     <div className='xl:block hidden'>
                         <div className='flex items-center justify-between h-full'>
                             <div>
-                                <img src={headerLogo} alt='...' className='h-[92px] w-[178px] cursor-pointer' onClick={()=>navigate('/')}/>
+                                <img src={headerLogo} alt='...' className='h-[92px] w-[178px] cursor-pointer' onClick={() => navigate('/')} />
                             </div>
                             <div className="relative w-96">
                                 <CiSearch size={20} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-black" />
@@ -114,9 +114,8 @@ const Header = () => {
                             <p onClick={handleCategoryClick}>Engagement</p>
                             <p onClick={handleCategoryClick}>Wedding</p>
                             <p onClick={handleCategoryClick}>Jewelary</p>
-                            <p onClick={handleCategoryClick}>Share With US</p>
                             <p onClick={handleCategoryClick}>Gifts</p>
-                            <p onClick={handleCategoryClick}>Diamond Education</p>
+                            <p onClick={() => navigate('/custom-jewellery')}>Custom Jewellery</p>
                         </div>
                     </div>
                     <div className='xl:hidden block'>
@@ -160,9 +159,9 @@ const Header = () => {
                         <p className=" " onClick={handleCategoryClick}>Engagement</p>
                         <p className=" " onClick={handleCategoryClick}>Wedding</p>
                         <p className=" " onClick={handleCategoryClick}>Jewelary</p>
-                        <p className=" " onClick={handleCategoryClick}>Share With US</p>
                         <p className=" " onClick={handleCategoryClick}>Gifts</p>
-                        <p className=" " onClick={handleCategoryClick}>Diamond Education</p>
+                        <p onClick={() => navigate('/custom-jewellery')}>Custom Jewellery</p>
+
                         {currentUser ? (
                             <>
                                 {isAdmin && (

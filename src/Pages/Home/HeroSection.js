@@ -1,5 +1,5 @@
 import React from 'react';
-import bannerImg from '../../assets/images/banner.svg'; // Save your attached banner as luxury-banner.jpg in assets/images
+import bannerImg from '../../assets/images/banner1.svg'; // Save your attached banner as luxury-banner.jpg in assets/images
 
 const HeroSection = () => {
   return (

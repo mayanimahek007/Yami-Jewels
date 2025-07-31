@@ -3,7 +3,7 @@
   align-items: center;
   justify-content: center;
   gap: 48px;
-  padding: 10px 0 20px 0; /* Updated for equal top and bottom space */
+  padding: 60px 0 20px 0; /* Updated for equal top and bottom space */
   background: #fdf8f8;
   flex-wrap: wrap;
 }
