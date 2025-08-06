@@ -43,7 +43,7 @@ const Header = () => {
 
     return (
         <>
-            <div className='bg-[#48182E]  sticky top-0 z-20' >
+            <div className='bg-[#48182E]  sticky top-0 z-50' >
                 <div className='container sm:px-10 px-5 h-full pb-5' >
                     <div className='xl:block hidden'>
                         <div className='flex items-center justify-between h-full'>
@@ -121,7 +121,7 @@ const Header = () => {
                     <div className='xl:hidden block'>
                         <div className='flex items-center justify-between h-full'>
                             <FaBars className='text-white w-6 h-6' onClick={() => handleOpen()} />
-                            <img src={headerLogo} alt='...' className='sm:w-40 w-32 h-24 object-cover cursor-pointer' />
+                            <img src={headerLogo} alt='...' className='sm:w-40 h-20 object-cover cursor-pointer' onClick={navigate('/')}/>
                             <div className='text-white flex items-center justify-center gap-3'>
                                 {currentUser ? (
                                     <Link to="/wishlist">
@@ -133,7 +133,7 @@ const Header = () => {
                                 <PiHandbag size={25} />
                             </div>
                         </div>
-                        <div className="relative w-full ">
+                        <div className="relative w-full mt-3 xl:mt-0">
                             <CiSearch size={20} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-black" />
                             <input
                                 type="text"
@@ -147,10 +147,10 @@ const Header = () => {
 
             {/* sidebar mobile screen */}
             {openMenu && (<div className='fixed inset-0 bg-[#0000004D] lg:hidden  backdrop-blur-sm cursor-pointer z-10' onClick={() => handleClose()}></div>)}
-            <div className={`fixed top-0 left-0 h-full bg-[#3a0f21f2] shadow-lg transform transition-transform duration-500 ease-in-out lg:hidden sm:w-96 w-72 z-20 overflow-y-auto ${openMenu ? "translate-x-0" : "-translate-x-full"}`}>
+            <div className={`fixed top-0 left-0 h-full bg-[#48182E] shadow-lg transform transition-transform duration-500 ease-in-out lg:hidden sm:w-96 w-72 z-50 overflow-y-auto ${openMenu ? "translate-x-0" : "-translate-x-full"}`}>
                 <div className='p-6'>
                     <div className='mb-6 flex items-center justify-between'>
-                        <img src={headerLogo} alt='...' className='sm:w-40 w-32 h-24 object-cover cursor-pointer' onClick={() => {
+                        <img src={headerLogo} alt='...' className='sm:w-40 h-24 object-cover cursor-pointer' onClick={() => {
                             handleClose();
                         }} />
                         <IoClose className='w-7 h-7 text-white' onClick={() => handleClose()} />

@@ -9,6 +9,8 @@ import whatsappConfig from '../../config/whatsapp.config';
 import WhatsAppOrderModal from '../../Components/WhatsAppOrderModal';
 import { toggleWishlist, removeFromWishlist, getUserWishlist } from '../../services/productService';
 import { useAuth } from '../../context/AuthContext';
+import { BiSolidOffer } from 'react-icons/bi';
+import { FaMedal } from 'react-icons/fa6';
 
 const apiEndpoints = {
   'ON SALE': 'http://localhost:5000/api/products/on-sale',
@@ -17,7 +19,7 @@ const apiEndpoints = {
 };
 
 const sliderSettings = {
-  dots: true,
+  dots: false,
   infinite: true,
   speed: 500,
   slidesToShow: 4,
@@ -30,18 +32,14 @@ const sliderSettings = {
     {
       breakpoint: 768,
       settings: { slidesToShow: 2 },
-    },
-    {
-      breakpoint: 480,
-      settings: { slidesToShow: 1 },
-    },
+    }
   ],
 };
 
 const tabList = [
-  { label: 'ON SALE', icon: '⚙️' },
-  { label: 'BEST SELLER', icon: '🏅' },
-  { label: 'TOP RATED', icon: '🎖️' },
+  { label: 'ON SALE', icon: <BiSolidOffer color='#B98453' /> },
+  { label: 'BEST SELLER', icon: <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 384 512" color="#175C65" class="" height="24" width="24" xmlns="http://www.w3.org/2000/svg" style={{color: "#B98453"}}><path d="M173.8 5.5c11-7.3 25.4-7.3 36.4 0L228 17.2c6 3.9 13 5.8 20.1 5.4l21.3-1.3c13.2-.8 25.6 6.4 31.5 18.2l9.6 19.1c3.2 6.4 8.4 11.5 14.7 14.7L344.5 83c11.8 5.9 19 18.3 18.2 31.5l-1.3 21.3c-.4 7.1 1.5 14.2 5.4 20.1l11.8 17.8c7.3 11 7.3 25.4 0 36.4L366.8 228c-3.9 6-5.8 13-5.4 20.1l1.3 21.3c.8 13.2-6.4 25.6-18.2 31.5l-19.1 9.6c-6.4 3.2-11.5 8.4-14.7 14.7L301 344.5c-5.9 11.8-18.3 19-31.5 18.2l-21.3-1.3c-7.1-.4-14.2 1.5-20.1 5.4l-17.8 11.8c-11 7.3-25.4 7.3-36.4 0L156 366.8c-6-3.9-13-5.8-20.1-5.4l-21.3 1.3c-13.2 .8-25.6-6.4-31.5-18.2l-9.6-19.1c-3.2-6.4-8.4-11.5-14.7-14.7L39.5 301c-11.8-5.9-19-18.3-18.2-31.5l1.3-21.3c.4-7.1-1.5-14.2-5.4-20.1L5.5 210.2c-7.3-11-7.3-25.4 0-36.4L17.2 156c3.9-6 5.8-13 5.4-20.1l-1.3-21.3c-.8-13.2 6.4-25.6 18.2-31.5l19.1-9.6C65 70.2 70.2 65 73.4 58.6L83 39.5c5.9-11.8 18.3-19 31.5-18.2l21.3 1.3c7.1 .4 14.2-1.5 20.1-5.4L173.8 5.5zM272 192a80 80 0 1 0 -160 0 80 80 0 1 0 160 0zM1.3 441.8L44.4 339.3c.2 .1 .3 .2 .4 .4l9.6 19.1c11.7 23.2 36 37.3 62 35.8l21.3-1.3c.2 0 .5 0 .7 .2l17.8 11.8c5.1 3.3 10.5 5.9 16.1 7.7l-37.6 89.3c-2.3 5.5-7.4 9.2-13.3 9.7s-11.6-2.2-14.8-7.2L74.4 455.5l-56.1 8.3c-5.7 .8-11.4-1.5-15-6s-4.3-10.7-2.1-16zm248 60.4L211.7 413c5.6-1.8 11-4.3 16.1-7.7l17.8-11.8c.2-.1 .4-.2 .7-.2l21.3 1.3c26 1.5 50.3-12.6 62-35.8l9.6-19.1c.1-.2 .2-.3 .4-.4l43.2 102.5c2.2 5.3 1.4 11.4-2.1 16s-9.3 6.9-15 6l-56.1-8.3-32.2 49.2c-3.2 5-8.9 7.7-14.8 7.2s-11-4.3-13.3-9.7z"></path></svg> },
+  { label: 'TOP RATED', icon: <FaMedal color='#B98453' /> },
 ];
 
 const ProductDisplaySection = () => {
@@ -88,7 +86,7 @@ const ProductDisplaySection = () => {
         console.log('Fetching user wishlist data...');
         const wishlistData = await getUserWishlist();
         console.log('Wishlist data received:', wishlistData);
-        
+
         // Handle different possible response structures
         let products = [];
         if (wishlistData && wishlistData.status === 'success' && wishlistData.data && wishlistData.data.products) {
@@ -122,10 +120,10 @@ const ProductDisplaySection = () => {
     };
 
     fetchWishlist();
-    
+
     // Set up interval to refresh wishlist status periodically
     const refreshInterval = setInterval(fetchWishlist, 30000); // Refresh every 30 seconds
-    
+
     // Clean up interval on component unmount
     return () => clearInterval(refreshInterval);
   }, [currentUser]);
@@ -161,7 +159,7 @@ const ProductDisplaySection = () => {
     // Check if product is already in wishlist
     const isWishlisted = wishlistedProducts.includes(productId);
     console.log(`Toggling wishlist for product ${productId}. Current state: ${isWishlisted ? 'wishlisted' : 'not wishlisted'}`);
-    
+
     try {
       // Optimistically update UI first
       setWishlistedProducts(prev => {
@@ -186,7 +184,7 @@ const ProductDisplaySection = () => {
       console.log(`Wishlist API call successful for product ${productId}`);
     } catch (err) {
       console.error(`Error toggling wishlist for product ${productId}:`, err);
-      
+
       // Revert the optimistic update if the API call fails
       setWishlistedProducts(prev => {
         if (isWishlisted) {
@@ -197,7 +195,7 @@ const ProductDisplaySection = () => {
           return prev.filter(id => id !== productId);
         }
       });
-      
+
       // If the error has specific messages, we can handle them
       if (err.message) {
         if (err.message.includes('already in wishlist')) {
@@ -217,7 +215,7 @@ const ProductDisplaySection = () => {
   };
 
   return (
-    <section className="w-full py-16 bg-[#fdf8f8]">
+    <section className="w-full py-0 lg:py-16 bg-[#fdf8f8]">
       {/* WhatsApp Order Modal */}
       <WhatsAppOrderModal
         isOpen={isOrderModalOpen}
@@ -227,10 +225,11 @@ const ProductDisplaySection = () => {
         onConfirm={confirmOrder}
       />
       <div className="max-w-7xl mx-auto px-4">
-        <h2 className="text-4xl font-bold text-center text-[#48182E] mb-2 font-playfair">
-          Trending Collection
+        <h2 className="text-2xl sm:text-4xl font-bold text-center text-[#48182E] mb-2 font-playfair">
+          {/* Trending Collection */}
+          Yami Collection
         </h2>
-        <p className="text-lg text-center text-gray-700 mb-4">
+        <p className="text-sm sm:text-lg text-center text-gray-700 mb-4">
           The Latest looks, Crafted to Perfection
         </p>
         <div className="flex justify-center items-center mb-6">
@@ -249,7 +248,7 @@ const ProductDisplaySection = () => {
             >
               <span className="text-2xl">{tab.icon}</span>
               <span
-                className={`font-semibold text-sm mt-1 ${activeTab === tab.label
+                className={`font-semibold text-[12px] sm:text-sm mt-1 ${activeTab === tab.label
                   ? 'text-[#b47b48] border-b-2 border-[#b47b48]'
                   : 'text-[#0a3c47]'
                   }`}
@@ -264,7 +263,7 @@ const ProductDisplaySection = () => {
         <div className="flex items-center justify-end px-2 mb-6">
           <Link
             to="/product"
-            className="text-white text-base font-medium flex items-center gap-1 bg-[#b98453] px-4 py-2 rounded-full shadow"
+            className="text-white text-[10px] sm:text-base font-medium flex items-center gap-1 bg-[#b98453] px-4 py-2 rounded-full shadow"
           >
             View All <span>→</span>
           </Link>
@@ -279,14 +278,14 @@ const ProductDisplaySection = () => {
                   <img
                     src={product.images && product.images[0]?.url ? `http://localhost:5000${product.images[0].url}` : product.img}
                     alt={product.name}
-                    className="w-full h-64 object-cover rounded-xl group-hover:opacity-90 transition duration-300"
+                    className="w-full h-36 sm:h-[300px] object-cover rounded-xl group-hover:opacity-90 transition duration-300"
                   />
                 </div>
               </Link>
               <div className="w-full flex justify-between items-start mt-2 flex-col">
                 <div className="flex items-center justify-between w-full">
                   <Link to={`/product/${product._id || product.id}`} className="block">
-                    <h3 className="text-base font-medium text-gray-800 font-montserrat hover:text-[#48182E] transition truncate max-w-[160px]">
+                    <h3 className="text-[11px] sm:text-base font-medium text-gray-800 font-montserrat hover:text-[#48182E] transition truncate max-w-[160px]">
 
                       {product.name}
                     </h3>
@@ -303,9 +302,9 @@ const ProductDisplaySection = () => {
                       className="text-[#48182E] hover:scale-110 transition mr-2"
                       title={wishlistedProducts.includes(product._id || product.id) ? "Remove from wishlist" : "Add to wishlist"}
                     >
-                      {wishlistedProducts.includes(product._id || product.id) ? 
-                        <HiMiniHeart size={18} className="text-[#48182E] fill-current" /> : 
-                        <FaRegHeart size={18} />}
+                      {wishlistedProducts.includes(product._id || product.id) ?
+                        <HiMiniHeart size={18} className="text-[#48182E] fill-current" /> :
+                        <FaRegHeart size={18} className='' />}
                     </button>
                     <button
                       onClick={(e) => {
@@ -327,11 +326,11 @@ const ProductDisplaySection = () => {
                 </div>
 
                 <div className="flex items-center">
-                  <h3 className="text-base font-medium text-gray-800 font-playfair">
+                  <h3 className="text-[11px] sm:text-base font-medium text-gray-800 font-playfair">
                     {product.salePrice && product.salePrice < product.regularPrice ? (
                       <>
                         ₹{product.salePrice.toFixed(2)}
-                        <span className="ml-2 text-sm text-gray-500 line-through">₹{product.regularPrice.toFixed(2)}</span>
+                        <span className="ml-2 text-gray-500 line-through">₹{product.regularPrice.toFixed(2)}</span>
                       </>
                     ) : (
                       <>₹{(product.regularPrice || product.price || 0).toFixed(2)}</>

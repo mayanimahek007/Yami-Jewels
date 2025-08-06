@@ -18,10 +18,7 @@ const RegisterPage = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData({
-      ...formData,
-      [name]: value
-    });
+    setFormData(prev => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async (e) => {
@@ -32,23 +29,15 @@ const RegisterPage = () => {
     try {
       const response = await fetch('http://localhost:5000/api/users/register', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData)
       });
 
       const data = await response.json();
+      if (!response.ok) throw new Error(data.message || 'Registration failed');
 
-      if (!response.ok) {
-        throw new Error(data.message || 'Registration failed');
-      }
-
-      // Store token in localStorage
       localStorage.setItem('token', data.token);
       localStorage.setItem('user', JSON.stringify(data.user));
-
-      // Redirect to home page after successful registration
       navigate('/');
     } catch (err) {
       setError(err.message);
@@ -58,119 +47,110 @@ const RegisterPage = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8 bg-white p-8 rounded-lg shadow-md">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#f9f4f4] to-[#fbeef2] px-4 py-12">
+      <div className="w-full max-w-md bg-white p-8 rounded-2xl shadow-xl">
         <div className="text-center">
-          <img
-            className="mx-auto h-20 w-auto"
-            src={headerLogo}
-            alt="Yami Jewels"
-          />
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">Create your account</h2>
-          <p className="mt-2 text-center text-sm text-gray-600">
+          {/* <img src={headerLogo} alt="Yami Jewels" className="h-16 mx-auto" /> */}
+          <h2 className="text-3xl font-bold text-gray-900">Create your account</h2>
+          <p className="text-sm text-gray-600 mt-2 ">
             Or{' '}
-            <Link to="/login" className="font-medium text-[#48182E] hover:text-[#6b2644]">
+            <Link to="/login" className="text-[#48182E] font-medium hover:text-[#6b2644]">
               sign in to existing account
             </Link>
           </p>
         </div>
-
+<hr className='mt-4 mb-4'/>
         {error && (
-          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
-            <span className="block sm:inline">{error}</span>
+          <div className="mb-4 bg-red-100 border border-red-400 text-red-700 px-4 py-2 rounded text-sm">
+            {error}
           </div>
         )}
 
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-          <div className="rounded-md shadow-sm -space-y-px">
-            <div>
-              <label htmlFor="name" className="sr-only">Full Name</label>
-              <input
-                id="name"
-                name="name"
-                type="text"
-                autoComplete="name"
-                required
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-[#48182E] focus:border-[#48182E] focus:z-10 sm:text-sm"
-                placeholder="Full Name"
-                value={formData.name}
-                onChange={handleChange}
-              />
-            </div>
-            <div>
-              <label htmlFor="email" className="sr-only">Email address</label>
-              <input
-                id="email"
-                name="email"
-                type="email"
-                autoComplete="email"
-                required
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-[#48182E] focus:border-[#48182E] focus:z-10 sm:text-sm"
-                placeholder="Email address"
-                value={formData.email}
-                onChange={handleChange}
-              />
-            </div>
-            <div className="relative">
-              <label htmlFor="password" className="sr-only">Password</label>
-              <input
-                id="password"
-                name="password"
-                type={showPassword ? "text" : "password"}
-                autoComplete="new-password"
-                required
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-[#48182E] focus:border-[#48182E] focus:z-10 sm:text-sm"
-                placeholder="Password"
-                value={formData.password}
-                onChange={handleChange}
-              />
-              <button
-                type="button"
-                className="absolute inset-y-0 right-0 pr-3 flex items-center text-sm leading-5"
-                onClick={() => setShowPassword(!showPassword)}
-              >
-                {showPassword ? <PiEyeSlashLight className="h-5 w-5 text-gray-500" /> : <PiEyeLight className="h-5 w-5 text-gray-500" />}
-              </button>
-            </div>
-            <div>
-              <label htmlFor="phone" className="sr-only">Phone Number</label>
-              <input
-                id="phone"
-                name="phone"
-                type="tel"
-                autoComplete="tel"
-                required
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-[#48182E] focus:border-[#48182E] focus:z-10 sm:text-sm"
-                placeholder="Phone Number"
-                value={formData.phone}
-                onChange={handleChange}
-              />
-            </div>
-            <div>
-              <label htmlFor="address" className="sr-only">Address</label>
-              <input
-                id="address"
-                name="address"
-                type="text"
-                autoComplete="street-address"
-                required
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-[#48182E] focus:border-[#48182E] focus:z-10 sm:text-sm"
-                placeholder="Address"
-                value={formData.address}
-                onChange={handleChange}
-              />
-            </div>
+        <form onSubmit={handleSubmit} className="space-y-5">
+          <div>
+            <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
+            <input
+              id="name"
+              name="name"
+              type="text"
+              required
+              value={formData.name}
+              onChange={handleChange}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#48182E] focus:outline-none"
+              placeholder="Enter your full name"
+            />
           </div>
 
           <div>
+            <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
+            <input
+              id="email"
+              name="email"
+              type="email"
+              required
+              value={formData.email}
+              onChange={handleChange}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#48182E] focus:outline-none"
+              placeholder="Enter your email"
+            />
+          </div>
+
+          <div className="relative">
+            <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">Password</label>
+            <input
+              id="password"
+              name="password"
+              type={showPassword ? 'text' : 'password'}
+              required
+              value={formData.password}
+              onChange={handleChange}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#48182E] focus:outline-none"
+              placeholder="Create a password"
+            />
             <button
-              type="submit"
-              disabled={loading}
-              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-[#48182E] hover:bg-[#6b2644] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#48182E] disabled:opacity-50 disabled:cursor-not-allowed"
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute top-[38px] right-3 text-gray-500 hover:text-gray-700"
             >
-              {loading ? 'Creating Account...' : 'Create Account'}
+              {showPassword ? <PiEyeSlashLight size={20} /> : <PiEyeLight size={20} />}
             </button>
           </div>
+
+          <div>
+            <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
+            <input
+              id="phone"
+              name="phone"
+              type="tel"
+              required
+              value={formData.phone}
+              onChange={handleChange}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#48182E] focus:outline-none"
+              placeholder="Enter your phone number"
+            />
+          </div>
+
+          <div>
+            <label htmlFor="address" className="block text-sm font-medium text-gray-700 mb-1">Address</label>
+            <input
+              id="address"
+              name="address"
+              type="text"
+              required
+              value={formData.address}
+              onChange={handleChange}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#48182E] focus:outline-none"
+              placeholder="Enter your address"
+            />
+          </div>
+
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full bg-[#48182E] hover:bg-[#6b2644] text-white font-semibold py-2 rounded-lg transition duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {loading ? 'Creating Account...' : 'Create Account'}
+          </button>
         </form>
       </div>
     </div>

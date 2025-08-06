@@ -56,7 +56,7 @@ const testimonials = [
 ];
 
 const sliderSettings = {
-  dots: true,
+  dots: false,
   infinite: true,
   speed: 500,
   slidesToShow: 3,
@@ -75,6 +75,13 @@ const sliderSettings = {
     {
       breakpoint: 768,
       settings: {
+        slidesToShow: 2,
+        slidesToScroll: 1,
+      },
+    },
+    {
+      breakpoint: 480,
+      settings: {
         slidesToShow: 1,
         slidesToScroll: 1,
       },
@@ -84,13 +91,13 @@ const sliderSettings = {
 
 const ClientTestimonial = () => {
   return (
-    <section className="client-testimonial bg-[#fdf8f8] from-amber-50 to-rose-50 py-0">
+    <section className="client-testimonial bg-[#fdf8f8] from-amber-50 to-rose-50 py-4 pb-4">
       <div className="container mx-auto px-4">
-        <h2 className="text-3xl md:text-4xl text-center font-serif text-amber-800 mb-12">What Our Clients Say</h2>
+        <h2 className="text-2xl sm:text-3xl md:text-4xl text-center font-serif text-amber-800 mb-0">What Our Clients Say</h2>
         
         <Slider {...sliderSettings} className="testimonial-slider">
           {testimonials.map((testimonial) => (
-            <div key={testimonial.id} className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300 flex flex-col h-full mx-2 my-4">
+            <div key={testimonial.id} className="bg-white h-[330px] rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300 flex flex-col h-full mx-2 my-4">
               <div className="p-6 flex flex-col h-full">
                 <div className="flex items-center mb-4">
                   <img 

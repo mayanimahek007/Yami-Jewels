@@ -3,6 +3,7 @@ import Slider from 'react-slick';
 import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
 import './FeaturedCollection.css';
+
 import pear from '../../assets/images/pear.png';
 import heart from '../../assets/images/heart.png';
 import marquise from '../../assets/images/marquise.png';
@@ -15,39 +16,51 @@ import emerald from '../../assets/images/Emerald.png';
 import cushion from '../../assets/images/cushion.png';
 
 const items = [
-  { id: 1, name: 'Pear', img: pear},
-  { id: 2, name: 'Emerald', img: emerald},
-  { id: 3, name: 'Heart', img: heart},
-  { id: 3, name: 'Marquise', img: marquise },
-  { id: 4, name: 'Oval', img: oval},
-  { id: 5, name: 'Princess', img: princess},
-  { id: 6, name: 'Round', img: round},
-  { id: 7, name: 'Square', img: square},
-  { id: 9, name: 'Radiant', img: radiant},
-  { id: 10, name: 'Cushion', img: cushion},
+  { id: 1, name: 'Pear', img: pear },
+  { id: 2, name: 'Emerald', img: emerald },
+  { id: 3, name: 'Heart', img: heart },
+  { id: 4, name: 'Marquise', img: marquise },
+  { id: 5, name: 'Oval', img: oval },
+  { id: 6, name: 'Princess', img: princess },
+  { id: 7, name: 'Round', img: round },
+  { id: 8, name: 'Square', img: square },
+  { id: 9, name: 'Radiant', img: radiant },
+  { id: 10, name: 'Cushion', img: cushion },
 ];
 
 const sliderSettings = {
-  dots: true,
+  dots: false,
   infinite: true,
   speed: 500,
   slidesToShow: 6,
   slidesToScroll: 1,
-  autoplay: true,
+  // autoplay: true,
   autoplaySpeed: 2500,
   responsive: [
     {
-      breakpoint: 900,
+      breakpoint: 1280,
       settings: {
-        slidesToShow: 2,
+        slidesToShow: 5,
       },
     },
     {
-      breakpoint: 600,
+      breakpoint: 1024,
       settings: {
-        slidesToShow: 1,
+        slidesToShow: 4,
       },
     },
+    {
+      breakpoint: 768,
+      settings: {
+        slidesToShow: 3,
+      },
+    },
+    {
+      breakpoint: 480,
+      settings: {
+        slidesToShow: 2,
+      },
+    }
   ],
 };
 
@@ -69,4 +82,4 @@ const FeaturedCollection = () => {
   );
 };
 
-export default FeaturedCollection; 
+export default FeaturedCollection;

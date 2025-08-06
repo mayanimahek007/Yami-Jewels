@@ -24,7 +24,7 @@ const Home = () => {
             <Unique />
             <GiftingSection />
             <CreativeShowcase />
-            <NewArrivalsSection />
+            {/* <NewArrivalsSection /> */}
             <ClientTestimonial />
             {/* <RadiantRefinementSection /> */}
 
