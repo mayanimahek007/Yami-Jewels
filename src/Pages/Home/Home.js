@@ -10,12 +10,14 @@ import HeroSection from './HeroSection';
 import ProductDisplaySection from './ProductDisplaySection';
 import Unique from './Unique';
 import ClientTestimonial from './ClientTestimonial';
+import EditorialShowcase800 from './EditorialShowcase800';
 
 const Home = () => {
     return (
         <>
             <HeroSection />
             <EditorialShowcase />
+            <EditorialShowcase800 />
             <NewArrivalsPage />
 
             <ChooseTypeSection />

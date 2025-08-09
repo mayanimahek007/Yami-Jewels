@@ -8,33 +8,35 @@ import img5 from "../../assets/images/earring.jpg";
 
 const EditorialShowcase = () => {
   return (
-   <div className="editorial-showcase">
-  <div className="editorial-grid">
-    <img src={img1} alt="Style 1" className="editorial-img rounded-1" />
+    <div className="editorial-showcase_mn">
+    <div className="editorial-showcase">
+      <div className="editorial-grid">
+        <img src={img1} alt="Style 1" className="editorial-img rounded-1" />
 
-    <div className="flex flex-col gap-3">
-      <img src={img2} alt="Style 2" className="editorial-img1 rounded-2" />
-      <img src={img3} alt="Style 3" className="editorial-img2 rounded-3" />
+        <div className="flex flex-col gap-3">
+          <img src={img2} alt="Style 2" className="editorial-img1 rounded-2" />
+          <img src={img3} alt="Style 3" className="editorial-img2 rounded-3" />
+        </div>
+      </div>
+
+      <div className="editorial-content">
+        <span className="editorial-label">NEW LOOKING 23</span>
+        <h2 className="editorial-title">Professional Sophistication With Our Jewelry Embrace</h2>
+        <p className="editorial-description">
+          Discover curated, elegant jewelry handmade with expert detail and a modern touch. Each piece is crafted to
+          highlight your unique style and sophistication.
+        </p>
+        <div className="editorial-buttons">
+          <button className="btn dark">View Details</button>
+          <button className="btn light">Play Video</button>
+        </div>
+      </div>
+
+      <div className="editorial-side">
+        <img src={img5} alt="Style 5" className="editorial-img rounded-side" />
+      </div>
     </div>
-  </div>
-
-  <div className="editorial-content">
-    <span className="editorial-label">NEW LOOKING 23</span>
-    <h2 className="editorial-title">Professional Sophistication With Our Jewelry Embrace</h2>
-    <p className="editorial-description">
-      Discover curated, elegant jewelry handmade with expert detail and a modern touch. Each piece is crafted to
-      highlight your unique style and sophistication.
-    </p>
-    <div className="editorial-buttons">
-      <button className="btn dark">View Details</button>
-      <button className="btn light">Play Video</button>
     </div>
-  </div>
-
-  <div className="editorial-side">
-    <img src={img5} alt="Style 5" className="editorial-img rounded-side" />
-  </div>
-</div>
 
   );
 };

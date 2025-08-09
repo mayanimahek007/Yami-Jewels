@@ -11,7 +11,7 @@ const categories = [
 
 const NewArrivalsPage = () => {
   return (
-    <div className="min-h-screen bg-[#fdf8f8] flex flex-col items-center pt-10 newArrib_pag">
+    <div className="min-h-screen bg-[#fdf8f8] flex flex-col items-center pt-0 newArrib_pag">
       <div className="w-full flex flex-col items-center justify-center relative">
         {/* Banner */}
         <img
@@ -41,11 +41,11 @@ const NewArrivalsPage = () => {
         {/* Categories Grid (overlapping 40% inside banner) */}
         <div className="absolute left-1/2 bottom-0 translate-y-[60%] -translate-x-1/2 w-full max-w-[1100px] px-4 z-20 new_arrvls_crd">
           {/* <div className="w-full flex justify-center"> */}
-            <div className="flex w-full max-w-[1100px] justify-between px-0 sm:px-8 gap-4 saxsa_Dcdxc">
+            <div className="flex w-full max-w-[1100px] justify-between px-0 sm:px-8 gap-2 md:gap-4 saxsa_Dcdxc">
               {categories.map((cat) => (
                 <div
                   key={cat.name}
-                  className="w-1/3 sdcsdcsd bg-[#fdf8f8] rounded-2xl p-2 flex flex-col items-center"
+                  className="w-1/3 sdcsdcsd bg-[#fdf8f8] rounded-2xl p-1 md:p-2 flex flex-col items-center"
                 >
                   <div className="relative w-full aspect-square overflow-hidden rounded-2xl shadow-md transition-transform">
                     <img
@@ -54,11 +54,7 @@ const NewArrivalsPage = () => {
                       className="absolute inset-0 w-full h-full object-cover z-0"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-[#00000070] to-transparent z-10" />
-                    <div className="relative z-20 h-full flex items-end p-4">
-                      <h2 className="text-white font-playfair text-xs sm:text-lg font-semibold">
-                        {cat.name}
-                      </h2>
-                    </div>
+                  
                   </div>
                 </div>
               ))}

@@ -57,7 +57,7 @@ const Footer = () => (
         <ul className="space-y-2 text-sm">
           <li className='flex align-center'><span className="mr-2"><IoCall color='white' /></span>+91 9016905077</li>
           <li className='flex align-center'><span className="mr-2"><IoMdMail color='white' />
-          </span>care@yamijewels.com</li>
+          </span>yamijewels@gmail.com</li>
           <li className='flex align-center'><span className="mr-2"><MdLocationOn color='white' />
           </span>301, 3rd Floor Ganesh Bhuvan Apartment, Main Road Varachha, Surat - 395006, Gujarat, India</li>
         </ul>

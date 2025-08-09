@@ -79,3 +79,11 @@ input.w-button {
     height: 600px;
   }
 }
+
+@media (min-width:768px) and (max-width:1152px) {
+  .secing_zcsdc{
+    transform: translate(20px, 40px);
+    width: 190px;
+    height: 190px;
+  }
+}
