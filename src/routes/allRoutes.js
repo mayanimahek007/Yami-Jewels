@@ -16,6 +16,7 @@ import DirectAdminLogin from "../Pages/Auth/DirectAdminLogin";
 // Admin Pages
 import AdminDashboard from "../Pages/Admin/AdminDashboard";
 import ProductForm from "../Pages/Admin/ProductForm";
+import DiamondForm from "../Pages/Admin/DiamondForm";
 import AdminRegisterPage from "../Pages/Admin/AdminRegisterPage";
 import CustomJewels from "../Pages/CustomeJewels";
 import TermsAndConditions from "../Pages/TermsAndConditions";
@@ -25,9 +26,11 @@ import Blogs from "../Pages/Blogs";
 import BlogDetail from "../Pages/BlogDetail";
 import AboutUs from "../Pages/AboutUs";
 import ContactUs from "../Pages/ContactUs";
+import DiamondPage from "../Pages/DiamondPage";
 
 export const publicRoutes = [
     { path: "/", component: <Home /> },
+    { path: "/diamond", component: <DiamondPage /> },
     { path: "/product", component: <ProductPage /> },
     { path: "/product/:id", component: <ProductDetailPage /> },
     { path: "/login", component: <LoginPage /> },
@@ -54,6 +57,8 @@ export const adminRoutes = [
     { path: "/", component: <AdminDashboard /> },
     { path: "/admin", component: <AdminDashboard /> },
     { path: "/admin/product/new", component: <ProductForm /> },
+    { path: "/admin/diamond/new", component: <DiamondForm /> },
     { path: "/admin/product/edit/:id", component: <ProductForm /> },
+    { path: "/admin/diamond/edit/:id", component: <DiamondForm /> },
     { path: "/admin/register", component: <AdminRegisterPage /> },
 ];

@@ -11,6 +11,7 @@ import { useAuth } from '../../context/AuthContext';
 const Header = () => {
     const [openMenu, setOpenMenu] = useState(false);
     const [showAccountMenu, setShowAccountMenu] = useState(false);
+    const [searchQuery, setSearchQuery] = useState('');
     const navigate = useNavigate();
     const { currentUser, logout, isAdmin } = useAuth();
     const accountMenuRef = useRef(null);
@@ -41,6 +42,28 @@ const Header = () => {
         handleClose();
     };
 
+    const handleSearch = (e) => {
+        e.preventDefault();
+        if (searchQuery.trim()) {
+            navigate(`/product?search=${encodeURIComponent(searchQuery.trim())}`);
+            setSearchQuery('');
+            handleClose();
+        }
+    };
+
+    const handleSearchInputChange = (e) => {
+        const query = e.target.value;
+        setSearchQuery(query);
+        
+        // Real-time search - navigate as user types
+        if (query.trim()) {
+            navigate(`/product?search=${encodeURIComponent(query.trim())}`);
+        } else {
+            // If empty, go to product page without search
+            navigate('/product');
+        }
+    };
+
     return (
         <>
             <div className='bg-[#48182E]  sticky top-0 z-50' >
@@ -50,14 +73,16 @@ const Header = () => {
                             <div>
                                 <img src={headerLogo} alt='...' className='h-[92px] w-[178px] cursor-pointer' onClick={() => navigate('/')} />
                             </div>
-                            <div className="relative w-96">
+                            <form onSubmit={handleSearch} className="relative w-96">
                                 <CiSearch size={20} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-black" />
                                 <input
                                     type="text"
                                     placeholder="Search..."
+                                    value={searchQuery}
+                                    onChange={handleSearchInputChange}
                                     className="pl-10 pr-3 py-1.5 rounded-md w-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-black placeholder-black text-black"
                                 />
-                            </div>
+                            </form>
                             <div className='text-white flex items-center justify-center gap-5'>
                                 {currentUser ? (
                                     <Link to="/wishlist">
@@ -111,17 +136,18 @@ const Header = () => {
                             </div>
                         </div>
                         <div className='flex items-center 2xl:gap-[50px] xl:gap-8 gap-5 text-white w-fit mx-auto uppercase text-base font-semibold cursor-pointer'>
-                            <p onClick={handleCategoryClick}>Engagement</p>
-                            <p onClick={handleCategoryClick}>Wedding</p>
-                            <p onClick={handleCategoryClick}>Jewelary</p>
-                            <p onClick={handleCategoryClick}>Gifts</p>
-                            <p onClick={() => navigate('/custom-jewellery')}>Custom Jewellery</p>
+                        <p onClick={handleCategoryClick}>Engagement</p>
+                        <p onClick={handleCategoryClick}>Wedding</p>
+                        <p onClick={handleCategoryClick}>Jewelary</p>
+                        <p onClick={handleCategoryClick}>Gifts</p>
+                        <p onClick={() => navigate('/diamond')}>Diamond</p>
+                        <p onClick={() => navigate('/custom-jewellery')}>Custom Jewellery</p>
                         </div>
                     </div>
                     <div className='xl:hidden block'>
                         <div className='flex items-center justify-between h-full'>
                             <FaBars className='text-white w-6 h-6' onClick={() => handleOpen()} />
-                            <img src={headerLogo} alt='...' className='sm:w-40 h-20 object-cover cursor-pointer' onClick={navigate('/')}/>
+                            <img src={headerLogo} alt='...' className='sm:w-40 h-20 object-cover cursor-pointer' onClick={() => navigate('/')}/>
                             <div className='text-white flex items-center justify-center gap-3'>
                                 {currentUser ? (
                                     <Link to="/wishlist">
@@ -133,14 +159,16 @@ const Header = () => {
                                 <PiHandbag size={25} />
                             </div>
                         </div>
-                        <div className="relative w-full mt-3 xl:mt-0">
+                        <form onSubmit={handleSearch} className="relative w-full mt-3 xl:mt-0">
                             <CiSearch size={20} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-black" />
                             <input
                                 type="text"
                                 placeholder="Search..."
+                                value={searchQuery}
+                                onChange={handleSearchInputChange}
                                 className="pl-10 pr-3 py-1.5 rounded-md w-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-black placeholder-black text-black"
                             />
-                        </div>
+                        </form>
                     </div>
                 </div>
             </div>

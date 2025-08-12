@@ -1,5 +1,6 @@
-import React, { useState, useRef } from "react";
-import custom from '../assets/images/custome.svg'; // Update with your actual banner image path
+import React, { useState, useRef, useEffect } from "react";
+import custom from "../assets/images/Custom.svg";
+
 const CustomJewels = () => {
   const [formData, setFormData] = useState({
     name: "",
@@ -12,7 +13,9 @@ const CustomJewels = () => {
     description: "",
   });
 
-  const fileInputRef = useRef(null); // 👈 Ref for the file input
+  const fileInputRef = useRef(null);
+  const fadeRefs = useRef([]);
+  const [visible, setVisible] = useState([]);
 
   const handleChange = (e) => {
     const { name, value, files } = e.target;
@@ -24,9 +27,7 @@ const CustomJewels = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-
     const whatsappNumber = "919099975424";
-
     const message = `
 *New Custom Jewellery Request*
 
@@ -38,18 +39,14 @@ const CustomJewels = () => {
 *Metal Type:* ${formData.metalType}
 *Description:* ${formData.description}
     `;
-
     const encodedMessage = encodeURIComponent(message.trim());
     const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodedMessage}`;
-
     window.open(whatsappUrl, "_blank");
 
-    // Clear file input manually
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
     }
 
-    // Reset form state
     setFormData({
       name: "",
       mobile: "",
@@ -62,12 +59,45 @@ const CustomJewels = () => {
     });
   };
 
+  // Intersection Observer for fade-in
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            const index = fadeRefs.current.indexOf(entry.target);
+            if (index !== -1) {
+              setVisible((prev) => {
+                const newVisible = [...prev];
+                newVisible[index] = true;
+                return newVisible;
+              });
+              observer.unobserve(entry.target);
+            }
+          }
+        });
+      },
+      { threshold: 0.1 }
+    );
+
+    fadeRefs.current.forEach((ref) => {
+      if (ref) observer.observe(ref);
+    });
+
+    return () => observer.disconnect();
+  }, []);
+
   return (
     <div className="bg-white text-gray-800 min-h-screen">
       {/* Banner */}
-      <div className="w-full">
+      <div
+        ref={(el) => (fadeRefs.current[0] = el)}
+        className={`transition-all duration-700 ease-out transform ${
+          visible[0] ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
+        }`}
+      >
         <img
-        src={custom}
+          src={custom}
           alt="Custom Jewellery"
           className="w-full object-cover"
         />
@@ -75,9 +105,13 @@ const CustomJewels = () => {
 
       {/* Form Section */}
       <div className="bg-gray-50 py-12">
-        <div className="max-w-3xl mx-auto px-4">
-          <h2 className="text-2xl font-bold text-center mb-2">
-            Designed by You, Crafted by Us
+        <div
+          ref={(el) => (fadeRefs.current[1] = el)}
+          className={`max-w-3xl mx-auto px-4 transition-all duration-700 ease-out transform ${
+            visible[1] ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
+          }`}
+        >
+    <h2 className="text-2xl font-bold text-center mb-2">            Designed by You, Crafted by Us
           </h2>
           <p className="text-center text-gray-600 mb-8">
             Create a unique piece of jewellery that reflects your personal style.
@@ -85,105 +119,143 @@ const CustomJewels = () => {
 
           <form
             onSubmit={handleSubmit}
-            className="space-y-6 bg-white p-6 rounded-xl shadow-md"
+            ref={(el) => (fadeRefs.current[2] = el)}
+            className={`space-y-6 bg-white p-8 rounded-2xl shadow-lg border border-[#e2c17c]/30 transition-all duration-700 ease-out transform ${
+              visible[2] ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
+            }`}
           >
             {/* Name & Mobile */}
-            <div className="grid sm:grid-cols-2 gap-4">
-              <input
-                type="text"
-                name="name"
-                placeholder="Name*"
-                required
-                value={formData.name}
-                onChange={handleChange}
-                className="w-full px-4 py-2 border rounded"
-              />
-              <input
-                type="text"
-                name="mobile"
-                placeholder="Mobile Number*"
-                required
-                value={formData.mobile}
-                onChange={handleChange}
-                className="w-full px-4 py-2 border rounded"
-              />
+            <div className="grid sm:grid-cols-2 gap-6">
+              <div>
+                <label className="block text-sm mb-2 text-gray-700">
+                  Name*
+                </label>
+                <input
+                  type="text"
+                  name="name"
+                  required
+                  value={formData.name}
+                  onChange={handleChange}
+                  className="w-full px-4 py-2 rounded-lg border focus:ring-2 focus:ring-[#e2c17c] focus:border-[#e2c17c] outline-none transition"
+                />
+              </div>
+              <div>
+                <label className="block text-sm mb-2 text-gray-700">
+                  Mobile Number*
+                </label>
+                <input
+                  type="text"
+                  name="mobile"
+                  required
+                  value={formData.mobile}
+                  onChange={handleChange}
+                  className="w-full px-4 py-2 rounded-lg border focus:ring-2 focus:ring-[#e2c17c] focus:border-[#e2c17c] outline-none transition"
+                />
+              </div>
             </div>
 
             {/* Email */}
-            <input
-              type="email"
-              name="email"
-              placeholder="Email Address*"
-              required
-              value={formData.email}
-              onChange={handleChange}
-              className="w-full px-4 py-2 border rounded"
-            />
-
-            {/* Type Dropdown */}
-            <select
-              name="type"
-              value={formData.type}
-              onChange={handleChange}
-              required
-              className="w-full px-4 py-2 border rounded"
-            >
-              <option value="">Choose Type</option>
-              <option value="Ring">Ring</option>
-              <option value="Necklace">Necklace</option>
-              <option value="Bracelet">Bracelet</option>
-              <option value="Other">Other</option>
-            </select>
-
-            {/* Budget & Metal Type */}
-            <div className="grid sm:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm mb-2 text-gray-700">
+                Email Address*
+              </label>
               <input
-                type="number"
-                name="budget"
-                placeholder="Total Budget"
-                value={formData.budget}
+                type="email"
+                name="email"
+                required
+                value={formData.email}
                 onChange={handleChange}
-                className="w-full px-4 py-2 border rounded"
-              />
-              <input
-                type="text"
-                name="metalType"
-                placeholder="Metal Type"
-                value={formData.metalType}
-                onChange={handleChange}
-                className="w-full px-4 py-2 border rounded"
+                className="w-full px-4 py-2 rounded-lg border focus:ring-2 focus:ring-[#e2c17c] focus:border-[#e2c17c] outline-none transition"
               />
             </div>
 
+            {/* Type */}
+            <div>
+              <label className="block text-sm mb-2 text-gray-700">
+                Jewellery Type*
+              </label>
+              <select
+                name="type"
+                value={formData.type}
+                onChange={handleChange}
+                required
+                className="w-full px-4 py-2 rounded-lg border bg-white focus:ring-2 focus:ring-[#e2c17c] focus:border-[#e2c17c] outline-none transition"
+              >
+                <option value="">Choose Type</option>
+                <option value="Ring">Ring</option>
+                <option value="Necklace">Necklace</option>
+                <option value="Bracelet">Bracelet</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+
+            {/* Budget & Metal Type */}
+            <div className="grid sm:grid-cols-2 gap-6">
+              <div>
+                <label className="block text-sm mb-2 text-gray-700">
+                  Total Budget
+                </label>
+                <input
+                  type="number"
+                  name="budget"
+                  value={formData.budget}
+                  onChange={handleChange}
+                  className="w-full px-4 py-2 rounded-lg border focus:ring-2 focus:ring-[#e2c17c] focus:border-[#e2c17c] outline-none transition"
+                />
+              </div>
+              <div>
+                <label className="block text-sm mb-2 text-gray-700">
+                  Metal Type
+                </label>
+                <input
+                  type="text"
+                  name="metalType"
+                  value={formData.metalType}
+                  onChange={handleChange}
+                  className="w-full px-4 py-2 rounded-lg border focus:ring-2 focus:ring-[#e2c17c] focus:border-[#e2c17c] outline-none transition"
+                />
+              </div>
+            </div>
+
             {/* File Upload */}
-            <input
-              type="file"
-              name="file"
-              onChange={handleChange}
-              ref={fileInputRef} // 👈 attach ref
-              accept=".pdf,.jpg,.png,.jpeg,.doc,.docx"
+            <div>
+              <label className="block text-sm mb-2 text-gray-700">
+                Upload Reference File
+              </label>
+              <input
+                type="file"
+                name="file"
+                onChange={handleChange}
+                ref={fileInputRef}
+                accept=".pdf,.jpg,.png,.jpeg,.doc,.docx"
               className="w-full"
-            />
-            <p className="text-sm text-gray-500">
-              Allowed types: pdf, jpg, png, jpeg, doc, docx.
-            </p>
+              />
+              <p className="text-xs text-gray-500 mt-1">
+                Allowed types: pdf, jpg, png, jpeg, doc, docx.
+              </p>
+            </div>
 
             {/* Description */}
-            <textarea
-              name="description"
-              placeholder="Please describe your idea..."
-              value={formData.description}
-              onChange={handleChange}
-              rows="5"
-              className="w-full px-4 py-2 border rounded"
-            ></textarea>
+            <div>
+              <label className="block text-sm mb-2 text-gray-700">
+                Description
+              </label>
+              <textarea
+                name="description"
+                placeholder="Please describe your idea..."
+                value={formData.description}
+                onChange={handleChange}
+                rows="5"
+                className="w-full px-4 py-2 rounded-lg border focus:ring-2 focus:ring-[#e2c17c] focus:border-[#e2c17c] outline-none transition"
+              ></textarea>
+            </div>
 
-            {/* Submit Button */}
+            {/* Submit */}
             <button
               type="submit"
-              className="w-full bg-black text-white py-2 px-4 rounded hover:bg-gray-800 transition"
+              className="w-full py-3 rounded-lg text-white bg-gradient-to-r from-[#e2c17c] to-[#bfa14a] hover:opacity-90 transition-transform transform hover:scale-[1.02]"
             >
-              Submit
+              Submit Request
             </button>
           </form>
         </div>

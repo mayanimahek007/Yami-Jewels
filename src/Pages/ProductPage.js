@@ -2,17 +2,20 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { HiMiniHeart } from 'react-icons/hi2';
 import { FaRegHeart, FaWhatsapp } from 'react-icons/fa';
-import shopbanner from '../assets/images/bg.webp';
+import shopbanner from '../assets/images/Product5.svg';
 import whatsappConfig from '../config/whatsapp.config';
 import WhatsAppOrderModal from '../Components/WhatsAppOrderModal';
 import { getAllProducts, toggleWishlist, removeFromWishlist, getUserWishlist } from '../services/productService';
 import { useAuth } from '../context/AuthContext';
+
 const ProductPage = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [isOrderModalOpen, setIsOrderModalOpen] = useState(false);
+  const [hoveredProductId, setHoveredProductId] = useState(null); // ✅ Track hovered product
+
   const { currentUser } = useAuth();
   const navigate = useNavigate();
   const wishlistCheckedRef = useRef(false);
@@ -21,27 +24,21 @@ const ProductPage = () => {
   useEffect(() => {
     fetchProducts();
   }, []);
-  
-  // Check user's wishlist when user logs in or when products are loaded
+
   useEffect(() => {
     if (currentUser && products.length > 0 && !wishlistCheckedRef.current) {
-      // Clear any existing timeout
       if (wishlistCheckTimeoutRef.current) {
         clearTimeout(wishlistCheckTimeoutRef.current);
       }
-      
-      // Debounce the wishlist check
       wishlistCheckTimeoutRef.current = setTimeout(() => {
         wishlistCheckedRef.current = true;
         checkWishlistStatus();
-      }, 100); // 100ms delay
+      }, 100);
     }
   }, [currentUser, products.length]);
 
-  // Reset wishlist checked ref when user changes
   useEffect(() => {
     wishlistCheckedRef.current = false;
-    // Clear any pending timeout
     if (wishlistCheckTimeoutRef.current) {
       clearTimeout(wishlistCheckTimeoutRef.current);
     }
@@ -50,12 +47,11 @@ const ProductPage = () => {
   const fetchProducts = async () => {
     setLoading(true);
     setError('');
-    wishlistCheckedRef.current = false; // Reset the ref when fetching new products
+    wishlistCheckedRef.current = false;
     try {
       const response = await getAllProducts();
       setProducts(response.data.products || []);
-      
-      // If user is logged in, check wishlist status
+
       if (currentUser) {
         checkWishlistStatus();
       }
@@ -66,274 +62,207 @@ const ProductPage = () => {
       setLoading(false);
     }
   };
-  
-  // Check which products are in user's wishlist
+
   const checkWishlistStatus = async () => {
-    if (!currentUser) {
-      console.log('No user logged in, skipping wishlist check');
-      return;
-    }
-    
+    if (!currentUser) return;
+
     try {
-      console.log('Fetching user wishlist data...');
       const wishlistData = await getUserWishlist();
-      console.log('Wishlist data received in ProductPage:', wishlistData);
-      
-      // Handle different possible response structures
-      let products = [];
-      if (wishlistData && wishlistData.status === 'success' && wishlistData.data && wishlistData.data.products) {
-        console.log('Found products in wishlistData.data.products');
-        products = wishlistData.data.products;
-      } else if (wishlistData && wishlistData.status === 'success' && wishlistData.data && wishlistData.data.wishlist) {
-        // Extract products from wishlist items
-        console.log('Found products in wishlistData.data.wishlist');
-        products = wishlistData.data.wishlist.map(item => item.product);
-      } else if (wishlistData && wishlistData.products) {
-        console.log('Found products in wishlistData.products');
-        products = wishlistData.products;
-      } else if (wishlistData && Array.isArray(wishlistData)) {
-        console.log('Wishlist data is an array');
-        products = wishlistData;
+      let wishlistProducts = [];
+
+      if (wishlistData?.status === 'success' && wishlistData?.data?.products) {
+        wishlistProducts = wishlistData.data.products;
+      } else if (wishlistData?.status === 'success' && wishlistData?.data?.wishlist) {
+        wishlistProducts = wishlistData.data.wishlist.map(item => item.product);
+      } else if (wishlistData?.products) {
+        wishlistProducts = wishlistData.products;
+      } else if (Array.isArray(wishlistData)) {
+        wishlistProducts = wishlistData;
       }
-      
-      if (products.length > 0) {
-        const wishlistProductIds = products.map(product => product._id);
-        console.log('Wishlist product IDs:', wishlistProductIds);
-        
-        // Update products with wishlist status
-        setProducts(prevProducts => {
-          const updatedProducts = prevProducts.map(product => ({
+
+      if (wishlistProducts.length > 0) {
+        const wishlistIds = wishlistProducts.map(product => product._id);
+        setProducts(prev =>
+          prev.map(product => ({
             ...product,
-            isWishlisted: wishlistProductIds.includes(product._id)
-          }));
-          console.log('Updated products with wishlist status:', 
-            updatedProducts.filter(p => p.isWishlisted).map(p => p.name));
-          return updatedProducts;
-        });
-        console.log('Products wishlist status updated');
+            isWishlisted: wishlistIds.includes(product._id)
+          }))
+        );
       } else {
-        console.log('No products found in wishlist or wishlist is empty');
-        // Set all products as not wishlisted
-        setProducts(prevProducts => {
-          console.log('Setting all products as not wishlisted');
-          return prevProducts.map(product => ({
-            ...product,
-            isWishlisted: false
-          }));
-        });
+        setProducts(prev => prev.map(product => ({ ...product, isWishlisted: false })));
       }
     } catch (err) {
       console.error('Error checking wishlist status:', err);
-      // Don't update UI on error
     }
   };
 
   const handleToggleWishlist = async (productId) => {
     if (!currentUser) {
-      // Redirect to login if user is not authenticated
       navigate('/login');
       return;
     }
 
-    // Find the product to determine if it's already wishlisted
     const product = products.find(p => p._id === productId);
-    if (!product) {
-      console.error(`Product with ID ${productId} not found in products array`);
-      return;
-    }
-    
-    // Store the current wishlist state
+    if (!product) return;
+
     const isWishlisted = product.isWishlisted;
-    console.log(`Toggling wishlist for product ${productId}`, product);
-    console.log('Current wishlist state:', isWishlisted);
-    
-    // Optimistically update UI first
-    setProducts(prevProducts => prevProducts.map(p => {
-      if (p._id === productId) {
-        return { ...p, isWishlisted: !isWishlisted };
-      }
-      return p;
-    }));
-    console.log('Wishlist state optimistically updated');
-    
+
+    setProducts(prev =>
+      prev.map(p =>
+        p._id === productId ? { ...p, isWishlisted: !isWishlisted } : p
+      )
+    );
+
     try {
       if (isWishlisted) {
-        // If already in wishlist, remove it
-        console.log(`Removing product ${productId} from wishlist...`);
         await removeFromWishlist(productId);
       } else {
-        // If not in wishlist, add it
-        console.log(`Adding product ${productId} to wishlist...`);
         await toggleWishlist(productId);
       }
-      console.log(`Wishlist API call successful for product ${productId}`);
-      
-      // After successful API call, refresh wishlist status to ensure consistency
       checkWishlistStatus();
     } catch (err) {
       console.error(`Error toggling wishlist for product ${productId}:`, err);
-      
-      // Revert the optimistic update if the API call fails
-      setProducts(prevProducts => prevProducts.map(p => {
-        if (p._id === productId) {
-          return { ...p, isWishlisted: isWishlisted };
-        }
-        return p;
-      }));
-      console.log(`Reverted optimistic update due to error for product ${productId}`);
-      
-      // If the error has specific messages, we can handle them
-      if (err.message) {
-        if (err.message.includes('already in wishlist')) {
-          console.log(`Product ${productId} is already in wishlist on server`);
-          setProducts(prevProducts => prevProducts.map(p => {
-            if (p._id === productId) {
-              return { ...p, isWishlisted: true };
-            }
-            return p;
-          }));
-        } else if (err.message.includes('not in wishlist') || err.message.includes('not found in wishlist')) {
-          console.log(`Product ${productId} is not in wishlist on server`);
-          setProducts(prevProducts => prevProducts.map(p => {
-            if (p._id === productId) {
-              return { ...p, isWishlisted: false };
-            }
-            return p;
-          }));
-        } else {
-          // For other errors, refresh the wishlist status from server
-          console.log('Unknown error, refreshing wishlist status from server');
-          checkWishlistStatus();
-        }
-      }
+      setProducts(prev =>
+        prev.map(p =>
+          p._id === productId ? { ...p, isWishlisted } : p
+        )
+      );
     }
   };
-  
-  // WhatsApp quick order function
+
   const handleQuickOrder = (product) => {
     setSelectedProduct(product);
     setIsOrderModalOpen(true);
   };
-  
-  // Confirm order and proceed to WhatsApp
+
   const confirmOrder = () => {
-    // Close modal
     setIsOrderModalOpen(false);
-    
     if (selectedProduct) {
-      // Generate WhatsApp URL with order details using config
-      const whatsappUrl = whatsappConfig.generateOrderUrl(selectedProduct, 1); // Default quantity 1
-      
-      // Open WhatsApp in a new tab
+      const whatsappUrl = whatsappConfig.generateOrderUrl(selectedProduct, 1);
       window.open(whatsappUrl, '_blank');
     }
   };
 
   return (
     <>
-    {/* WhatsApp Order Modal */}
-    <WhatsAppOrderModal 
-      isOpen={isOrderModalOpen}
-      onClose={() => setIsOrderModalOpen(false)}
-      product={selectedProduct || {}}
-      quantity={1}
-      onConfirm={confirmOrder}
-    />
-    
-    <div className="relative w-full h-[300px] sm:h-[400px] md:h-[400px]">
-      <img
-        src={shopbanner}
-        alt="Banner"
-        className="w-full h-full object-cover"
+      <WhatsAppOrderModal
+        isOpen={isOrderModalOpen}
+        onClose={() => setIsOrderModalOpen(false)}
+        product={selectedProduct || {}}
+        quantity={1}
+        onConfirm={confirmOrder}
       />
-      <div className="absolute inset-0 flex items-center justify-center">
-        <h1 className="text-4xl sm:text-5xl font-montserrat text-[#47182E]">All Collections</h1>
+
+      <div className="relative w-full">
+        <img
+          src={shopbanner}
+          alt="Banner"
+          className="w-full h-full object-cover"
+        />
       </div>
-    </div>
-    
-    <div className="min-h-screen bg-[#fdf8f8] flex flex-col items-center py-10 px-4">
-      {error && (
-        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-6 w-full max-w-7xl" role="alert">
-          <span className="block sm:inline">{error}</span>
-        </div>
-      )}
 
-      {loading ? (
-        <div className="flex justify-center items-center h-64 w-full">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#48182E]"></div>
-        </div>
-      ) : products.length === 0 ? (
-        <div className="text-center py-10 w-full max-w-7xl">
-          <h3 className="text-xl font-medium text-gray-900">No products found</h3>
-          <p className="mt-2 text-gray-600">Please check back later for our latest collections.</p>
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 w-full max-w-7xl">
-          {products.map((product) => (
-            <div key={product._id}>
-              <Link to={`/product/${product._id}`} className="block">
-                <div className="relative bg-[#b47b48] rounded-2xl shadow p-1 flex flex-col items-center group">
-                  <img
-                    src={`http://localhost:5000${product.images[0]?.url}`}
-                    alt={product.images[0]?.alt || product.name}
-                    className="w-full h-64 object-cover rounded-xl group-hover:opacity-90 transition duration-300"
-                  />
+      <div className="min-h-screen bg-[#fdf8f8] flex flex-col items-center py-10 px-4">
+        {error && (
+          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-6 w-full max-w-7xl" role="alert">
+            <span className="block sm:inline">{error}</span>
+          </div>
+        )}
+
+        {loading ? (
+          <div className="flex justify-center items-center h-64 w-full">
+            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#48182E]"></div>
+          </div>
+        ) : products.length === 0 ? (
+          <div className="text-center py-10 w-full max-w-7xl">
+            <h3 className="text-xl font-medium text-gray-900">No products found</h3>
+            <p className="mt-2 text-gray-600">Please check back later for our latest collections.</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 w-full max-w-7xl">
+            {products.map((product) => {
+              const imageToShow =
+                hoveredProductId === product._id && product.images[1]
+                  ? `http://localhost:5000${product.images[1]?.url}`
+                  : `http://localhost:5000${product.images[0]?.url}`;
+
+              return (
+                <div
+                  key={product._id}
+                  onMouseEnter={() => setHoveredProductId(product._id)}
+                  onMouseLeave={() => setHoveredProductId(null)}
+                >
+                  <Link to={`/product/${product._id}`} className="block">
+                    <div className="relative bg-[#b47b48] rounded-2xl shadow p-1 flex flex-col items-center group">
+                      <img
+                        src={imageToShow}
+                        alt={product.images[0]?.alt || product.name}
+                        className="w-full h-64 object-cover rounded-xl group-hover:opacity-90 transition duration-300"
+                      />
+                    </div>
+                  </Link>
+
+                  <div className="w-full flex justify-between text-start mt-2 flex-col">
+                    <div className="flex items-center justify-between">
+                      <Link to={`/product/${product._id}`} className="block">
+                        <h3 className="text-base font-medium text-gray-800 font-montserrat hover:text-[#48182E] transition">
+                          {product.name}
+                        </h3>
+                      </Link>
+
+                      <div className="flex ml-2">
+                        <button
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            handleToggleWishlist(product._id);
+                          }}
+                          className="text-[#48182E] hover:scale-110 transition mr-2"
+                          title={product.isWishlisted ? "Remove from wishlist" : "Add to wishlist"}
+                        >
+                          {product.isWishlisted ? (
+                            <HiMiniHeart size={18} className="text-[#48182E] fill-current" />
+                          ) : (
+                            <FaRegHeart size={18} />
+                          )}
+                        </button>
+                        <button
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            handleQuickOrder(product);
+                          }}
+                          className="text-[#25D366] hover:scale-110 transition"
+                          title="Quick Order via WhatsApp"
+                        >
+                          <FaWhatsapp size={18} />
+                        </button>
+                      </div>
+                    </div>
+                    <div className="flex items-center">
+                      <div className="text-right">
+                        {product.salePrice < product.regularPrice ? (
+                          <>
+                            <span className="text-base font-medium text-gray-800 font-montserrat">
+                              ${product.salePrice.toFixed(2)}
+                            </span>
+                            <span className="ml-2 text-sm text-gray-500 line-through">
+                              ${product.regularPrice.toFixed(2)}
+                            </span>
+                          </>
+                        ) : (
+                          <span className="text-base font-medium text-gray-800 font-montserrat">
+                            ${product.regularPrice.toFixed(2)}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
                 </div>
-              </Link>
-
-              <div className="w-full flex justify-between text-start mt-2 flex-col">
-                <div className="flex items-center justify-between">
-                <Link to={`/product/${product._id}`} className="block">
-                  <h3 className="text-base font-medium text-gray-800 font-montserrat hover:text-[#48182E] transition">{product.name}</h3>
-                </Link>
-
-                 <div className="flex ml-2">
-                    <button
-                      onClick={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        console.log(`Like button clicked for product ${product._id}`);
-                        handleToggleWishlist(product._id);
-                      }}
-                      className="text-[#48182E] hover:scale-110 transition mr-2"
-                      title={product.isWishlisted ? "Remove from wishlist" : "Add to wishlist"}
-                    >
-                      {product.isWishlisted ? 
-                        <HiMiniHeart size={18} className="text-[#48182E] fill-current" /> : 
-                        <FaRegHeart size={18} />}
-                    </button>
-                    <button
-                      onClick={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        handleQuickOrder(product);
-                      }}
-                      className="text-[#25D366] hover:scale-110 transition"
-                      title="Quick Order via WhatsApp"
-                    >
-                      <FaWhatsapp size={18} />
-                    </button>
-                  </div>
-                  </div>
-                <div className="flex items-center">
-                  <div className="text-right">
-                    {product.salePrice < product.regularPrice ? (
-                      <>
-                        <span className="text-base font-medium text-gray-800 font-montserrat">${product.salePrice.toFixed(2)}</span>
-                        <span className="ml-2 text-sm text-gray-500 line-through">${product.regularPrice.toFixed(2)}</span>
-                      </>
-                    ) : (
-                      <span className="text-base font-medium text-gray-800 font-montserrat">${product.regularPrice.toFixed(2)}</span>
-                    )}
-                  </div>
-                 
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
-    </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
     </>
   );
 };

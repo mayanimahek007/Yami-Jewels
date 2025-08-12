@@ -2,10 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { FaUsers, FaBox, FaPlus, FaEdit, FaTrash } from 'react-icons/fa';
 import { useAuth } from '../../context/AuthContext';
+import Swal from 'sweetalert2';
+import toast, { Toaster } from 'react-hot-toast';
 
 const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState('products');
   const [products, setProducts] = useState([]);
+  const [diamonds, setDiamonds] = useState([]);
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -25,6 +28,40 @@ const AdminDashboard = () => {
     // Fetch initial data
     fetchProducts();
   }, [navigate]);
+
+  const handleDeleteDiamond = async (diamondId) => {
+  const result = await Swal.fire({
+    title: 'Are you sure?',
+    text: "This diamond will be deleted permanently!",
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#d33',
+    cancelButtonColor: '#3085d6',
+    confirmButtonText: 'Yes, delete it!'
+  });
+
+  if (!result.isConfirmed) return;
+
+  try {
+    const token = localStorage.getItem('token');
+    const response = await fetch(`http://localhost:5000/api/diamonds/${diamondId}`, {
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || 'Failed to delete diamond');
+    }
+
+    setDiamonds(diamonds.filter(d => d._id !== diamondId));
+    toast.success('Diamond deleted successfully');
+  } catch (err) {
+    toast.error(err.message);
+  }
+};
 
   const fetchProducts = async () => {
     setLoading(true);
@@ -98,12 +135,44 @@ const AdminDashboard = () => {
     }
   };
 
+  const fetchDiamonds = async () => {
+    setLoading(true);
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch('http://localhost:5000/api/diamonds', {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch diamonds');
+      }
+
+      const data = await response.json();
+      console.log('Diamonds API Response:', data);
+
+      if (data && data.status === 'success' && data.data && Array.isArray(data.data.diamonds)) {
+        setDiamonds(data.data.diamonds);
+      } else {
+        console.error('Diamonds data is not in expected format:', data);
+        setDiamonds([]);
+      }
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleTabChange = (tab) => {
     setActiveTab(tab);
     if (tab === 'users' && users.length === 0) {
       fetchUsers();
     } else if (tab === 'products' && products.length === 0) {
       fetchProducts();
+    } else if (tab === 'diamonds' && diamonds.length === 0) {
+      fetchDiamonds();
     }
   };
 
@@ -137,6 +206,7 @@ const AdminDashboard = () => {
 
   return (
     <div className="min-h-screen bg-gray-100">
+        <Toaster position="top-center" />
       <div className="bg-[#48182E] text-white shadow">
         <div className="container mx-auto px-4 py-6">
           <div className="flex justify-between items-center">
@@ -180,6 +250,12 @@ const AdminDashboard = () => {
           >
             <FaBox className="inline mr-2" />
             Products
+          </button>
+          <button
+            className={`px-4 py-2 mr-2 rounded-t-lg ${activeTab === 'diamonds' ? 'bg-white text-[#48182E] font-medium' : 'bg-gray-200 text-gray-700'}`}
+            onClick={() => handleTabChange('diamonds')}
+          >
+            Diamonds
           </button>
           <button
             className={`px-4 py-2 rounded-t-lg ${activeTab === 'users' ? 'bg-white text-[#48182E] font-medium' : 'bg-gray-200 text-gray-700'}`}
@@ -343,7 +419,102 @@ const AdminDashboard = () => {
               )}
             </div>
           )}
+      {activeTab === 'diamonds' && (
+  <div>
+    <div className="flex justify-between items-center mb-6">
+      <h2 className="text-xl font-semibold">Diamond Management</h2>
+      <div className="flex space-x-2">
+        <Link 
+          to="/admin/diamond/new"
+          className="bg-[#48182E] text-white px-4 py-2 rounded-md flex items-center"
+        >
+          <FaPlus className="mr-2" />
+          Add New Diamond
+        </Link>
+      </div>
+    </div>
+
+    {loading ? (
+      <div className="text-center py-4">Loading diamonds...</div>
+    ) : !diamonds || !Array.isArray(diamonds) ? (
+      <div className="text-center py-4">Error: Diamonds data is not in the expected format.</div>
+    ) : diamonds.length === 0 ? (
+      <div className="text-center py-4">No diamonds found.</div>
+    ) : (
+      <div className="overflow-x-auto">
+        <table className="min-w-full divide-y divide-gray-200">
+          <thead className="bg-gray-50">
+            <tr>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Image</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">SKU</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Size</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Price</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Stock</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Discount</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+            </tr>
+          </thead>
+          <tbody className="bg-white divide-y divide-gray-200">
+            {diamonds.map((diamond) => (
+              <tr key={diamond._id}>
+                <td className="px-6 py-4 whitespace-nowrap">
+                  <div className="flex-shrink-0 h-10 w-10">
+                    <img 
+                      className="h-10 w-10 rounded-md object-cover" 
+                      src={diamond.images && diamond.images.length > 0 ? diamond.images[0] : '/placeholder.png'} 
+                      alt={diamond.name} 
+                    />
+                  </div>
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap">
+                  <div className="text-sm font-medium text-gray-900 flex items-center gap-2">
+                    {diamond.name}
+                    {diamond.bestSeller && (
+                      <span className="bg-green-100 text-green-800 text-xs font-semibold px-2 py-1 rounded ml-2">
+                        Best Seller
+                      </span>
+                    )}
+                  </div>
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{diamond.sku}</td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{diamond.size}</td>
+                <td className="px-6 py-4 whitespace-nowrap flex items-center gap-3">
+                  <div className="text-sm text-gray-900 line-through">${diamond.regularPrice}</div>
+                  {diamond.salePrice && (
+                    <div className="text-sm text-red-500">${diamond.salePrice}</div>
+                  )}
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{diamond.stock}</td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  {diamond.discount ? `${diamond.discount}%` : '-'}
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                  <Link 
+                    to={`/admin/diamond/edit/${diamond._id}`}
+                    className="text-indigo-600 hover:text-indigo-900 mr-4"
+                  >
+                    <FaEdit className="inline" /> Edit
+                  </Link>
+                  <button 
+                    onClick={() => handleDeleteDiamond(diamond._id)}
+                    className="text-red-600 hover:text-red-900"
+                  >
+                    <FaTrash className="inline" /> Delete
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    )}
+  </div>
+)}
         </div>
+
+
+
       </div>
     </div>
   );
