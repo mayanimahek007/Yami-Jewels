@@ -21,7 +21,7 @@ const DiamondPage = () => {
     try {
       const response = await fetch('http://localhost:5000/api/diamonds');
       const result = await response.json();
-      
+
       if (result.status === 'success' && result.data && result.data.diamonds) {
         setDiamonds(result.data.diamonds);
       } else {
@@ -60,7 +60,6 @@ const DiamondPage = () => {
   }
 
   return (
-    <Layout>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold text-gray-900 mb-4">Diamond Collection</h1>
@@ -72,7 +71,7 @@ const DiamondPage = () => {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Shape</label>
-              <select 
+              <select
                 className="w-full border border-gray-300 rounded-md px-3 py-2"
                 onChange={(e) => handleFilterChange('shape', e.target.value)}
               >
@@ -86,7 +85,7 @@ const DiamondPage = () => {
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Color</label>
-              <select 
+              <select
                 className="w-full border border-gray-300 rounded-md px-3 py-2"
                 onChange={(e) => handleFilterChange('color', e.target.value)}
               >
@@ -100,7 +99,7 @@ const DiamondPage = () => {
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Clarity</label>
-              <select 
+              <select
                 className="w-full border border-gray-300 rounded-md px-3 py-2"
                 onChange={(e) => handleFilterChange('clarity', e.target.value)}
               >
@@ -114,10 +113,10 @@ const DiamondPage = () => {
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Price Range</label>
-              <input 
-                type="range" 
-                min="0" 
-                max="100000" 
+              <input
+                type="range"
+                min="0"
+                max="100000"
                 className="w-full"
                 onChange={(e) => handleFilterChange('priceRange', [0, e.target.value])}
               />
@@ -130,8 +129,9 @@ const DiamondPage = () => {
           {filteredDiamonds.map((diamond) => (
             <div key={diamond._id} className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
               <div className="relative">
-                <img 
-                  src={diamond.images[0] || '/placeholder-diamond.jpg'} 
+                <img
+                  src={`http://localhost:5000${diamond.images[0] || '/placeholder.png'}`}
+
                   alt={diamond.name}
                   className="w-full h-64 object-cover"
                 />
@@ -146,12 +146,12 @@ const DiamondPage = () => {
                   </span>
                 )}
               </div>
-              
+
               <div className="p-4">
                 <h3 className="text-lg font-semibold text-gray-900 mb-2">{diamond.name}</h3>
                 <p className="text-sm text-gray-600 mb-2">{diamond.Shape} Cut • {diamond.Weight} ct</p>
                 <p className="text-sm text-gray-600 mb-2">Color: {diamond.Color} • Clarity: {diamond.Clarity}</p>
-                
+
                 <div className="flex items-center justify-between mt-4">
                   <div>
                     <span className="text-xl font-bold text-gray-900">${diamond.salePrice}</span>
@@ -159,7 +159,7 @@ const DiamondPage = () => {
                       <span className="text-sm text-gray-500 line-through ml-2">${diamond.regularPrice}</span>
                     )}
                   </div>
-                  <Link 
+                  <Link
                     to={`/diamond/${diamond._id}`}
                     className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors"
                   >
@@ -177,7 +177,6 @@ const DiamondPage = () => {
           </div>
         )}
       </div>
-    </Layout>
   );
 };
 

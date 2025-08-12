@@ -19,49 +19,49 @@ const AdminDashboard = () => {
     // Check if user is logged in and is admin
     const token = localStorage.getItem('token');
     const user = JSON.parse(localStorage.getItem('user') || '{}');
-    
+
     if (!token || user.role !== 'admin') {
       navigate('/login');
       return;
     }
-    
+
     // Fetch initial data
     fetchProducts();
   }, [navigate]);
 
   const handleDeleteDiamond = async (diamondId) => {
-  const result = await Swal.fire({
-    title: 'Are you sure?',
-    text: "This diamond will be deleted permanently!",
-    icon: 'warning',
-    showCancelButton: true,
-    confirmButtonColor: '#d33',
-    cancelButtonColor: '#3085d6',
-    confirmButtonText: 'Yes, delete it!'
-  });
-
-  if (!result.isConfirmed) return;
-
-  try {
-    const token = localStorage.getItem('token');
-    const response = await fetch(`http://localhost:5000/api/diamonds/${diamondId}`, {
-      method: 'DELETE',
-      headers: {
-        'Authorization': `Bearer ${token}`
-      }
+    const result = await Swal.fire({
+      title: 'Are you sure?',
+      text: "This diamond will be deleted permanently!",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
+      confirmButtonText: 'Yes, delete it!'
     });
 
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.message || 'Failed to delete diamond');
-    }
+    if (!result.isConfirmed) return;
 
-    setDiamonds(diamonds.filter(d => d._id !== diamondId));
-    toast.success('Diamond deleted successfully');
-  } catch (err) {
-    toast.error(err.message);
-  }
-};
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(`http://localhost:5000/api/diamonds/${diamondId}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to delete diamond');
+      }
+
+      setDiamonds(diamonds.filter(d => d._id !== diamondId));
+      toast.success('Diamond deleted successfully');
+    } catch (err) {
+      toast.error(err.message);
+    }
+  };
 
   const fetchProducts = async () => {
     setLoading(true);
@@ -79,7 +79,7 @@ const AdminDashboard = () => {
 
       const data = await response.json();
       console.log('API Response:', data);
-      
+
       // Check if data is an array or has a products property
       if (Array.isArray(data)) {
         setProducts(data);
@@ -115,7 +115,7 @@ const AdminDashboard = () => {
 
       const data = await response.json();
       console.log('Users API Response:', data);
-      
+
       // Check if data is an array or has a users property
       if (Array.isArray(data)) {
         setUsers(data);
@@ -206,14 +206,14 @@ const AdminDashboard = () => {
 
   return (
     <div className="min-h-screen bg-gray-100">
-        <Toaster position="top-center" />
+      <Toaster position="top-center" />
       <div className="bg-[#48182E] text-white shadow">
         <div className="container mx-auto px-4 py-6">
           <div className="flex justify-between items-center">
             <h1 className="text-2xl font-bold">Admin Dashboard</h1>
             <div className="flex space-x-4">
               <Link to="/" className="hover:underline">View Store</Link>
-              <button 
+              <button
                 onClick={() => {
                   logout();
                   navigate('/login');
@@ -231,13 +231,13 @@ const AdminDashboard = () => {
         {error && (
           <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-6" role="alert">
             <span className="block sm:inline">{error}</span>
-            <button 
+            <button
               className="absolute top-0 bottom-0 right-0 px-4 py-3"
               onClick={() => setError('')}
             >
               <span className="sr-only">Close</span>
               <svg className="fill-current h-6 w-6 text-red-500" role="button" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
-                <path d="M14.348 14.849a1.2 1.2 0 0 1-1.697 0L10 11.819l-2.651 3.029a1.2 1.2 0 1 1-1.697-1.697l2.758-3.15-2.759-3.152a1.2 1.2 0 1 1 1.697-1.697L10 8.183l2.651-3.031a1.2 1.2 0 1 1 1.697 1.697l-2.758 3.152 2.758 3.15a1.2 1.2 0 0 1 0 1.698z"/>
+                <path d="M14.348 14.849a1.2 1.2 0 0 1-1.697 0L10 11.819l-2.651 3.029a1.2 1.2 0 1 1-1.697-1.697l2.758-3.15-2.759-3.152a1.2 1.2 0 1 1 1.697-1.697L10 8.183l2.651-3.031a1.2 1.2 0 1 1 1.697 1.697l-2.758 3.152 2.758 3.15a1.2 1.2 0 0 1 0 1.698z" />
               </svg>
             </button>
           </div>
@@ -272,7 +272,7 @@ const AdminDashboard = () => {
               <div className="flex justify-between items-center mb-6">
                 <h2 className="text-xl font-semibold">Product Management</h2>
                 <div className="flex space-x-2">
-                  <Link 
+                  <Link
                     to="/admin/product/new"
                     className="bg-[#48182E] text-white px-4 py-2 rounded-md flex items-center"
                   >
@@ -308,10 +308,10 @@ const AdminDashboard = () => {
                         <tr key={product._id}>
                           <td className="px-6 py-4 whitespace-nowrap">
                             <div className="flex-shrink-0 h-10 w-10">
-                              <img 
-                                className="h-10 w-10 rounded-md object-cover" 
-                                src={`http://localhost:5000${product.images && product.images.length > 0 ? product.images[0].url : '/placeholder.png'}`} 
-                                alt={product.name} 
+                              <img
+                                className="h-10 w-10 rounded-md object-cover"
+                                src={`http://localhost:5000${product.images && product.images.length > 0 ? product.images[0].url : '/placeholder.png'}`}
+                                alt={product.name}
                               />
                             </div>
                           </td>
@@ -342,13 +342,13 @@ const AdminDashboard = () => {
                             <div className="text-sm text-gray-900">{product.discount ? `${product.discount}%` : '-'}</div>
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                            <Link 
+                            <Link
                               to={`/admin/product/edit/${product._id}`}
                               className="text-indigo-600 hover:text-indigo-900 mr-4"
                             >
                               <FaEdit className="inline" /> Edit
                             </Link>
-                            <button 
+                            <button
                               onClick={() => handleDeleteProduct(product._id)}
                               className="text-red-600 hover:text-red-900"
                             >
@@ -368,7 +368,7 @@ const AdminDashboard = () => {
             <div>
               <div className="flex justify-between items-center mb-6">
                 <h2 className="text-xl font-semibold">User Management</h2>
-                <Link 
+                <Link
                   to="/admin/register"
                   className="bg-[#48182E] text-white px-4 py-2 rounded-md flex items-center"
                 >
@@ -419,98 +419,99 @@ const AdminDashboard = () => {
               )}
             </div>
           )}
-      {activeTab === 'diamonds' && (
-  <div>
-    <div className="flex justify-between items-center mb-6">
-      <h2 className="text-xl font-semibold">Diamond Management</h2>
-      <div className="flex space-x-2">
-        <Link 
-          to="/admin/diamond/new"
-          className="bg-[#48182E] text-white px-4 py-2 rounded-md flex items-center"
-        >
-          <FaPlus className="mr-2" />
-          Add New Diamond
-        </Link>
-      </div>
-    </div>
-
-    {loading ? (
-      <div className="text-center py-4">Loading diamonds...</div>
-    ) : !diamonds || !Array.isArray(diamonds) ? (
-      <div className="text-center py-4">Error: Diamonds data is not in the expected format.</div>
-    ) : diamonds.length === 0 ? (
-      <div className="text-center py-4">No diamonds found.</div>
-    ) : (
-      <div className="overflow-x-auto">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
-            <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Image</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">SKU</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Size</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Price</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Stock</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Discount</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-            </tr>
-          </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
-            {diamonds.map((diamond) => (
-              <tr key={diamond._id}>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="flex-shrink-0 h-10 w-10">
-                    <img 
-                      className="h-10 w-10 rounded-md object-cover" 
-                      src={diamond.images && diamond.images.length > 0 ? diamond.images[0] : '/placeholder.png'} 
-                      alt={diamond.name} 
-                    />
-                  </div>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="text-sm font-medium text-gray-900 flex items-center gap-2">
-                    {diamond.name}
-                    {diamond.bestSeller && (
-                      <span className="bg-green-100 text-green-800 text-xs font-semibold px-2 py-1 rounded ml-2">
-                        Best Seller
-                      </span>
-                    )}
-                  </div>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{diamond.sku}</td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{diamond.size}</td>
-                <td className="px-6 py-4 whitespace-nowrap flex items-center gap-3">
-                  <div className="text-sm text-gray-900 line-through">${diamond.regularPrice}</div>
-                  {diamond.salePrice && (
-                    <div className="text-sm text-red-500">${diamond.salePrice}</div>
-                  )}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{diamond.stock}</td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                  {diamond.discount ? `${diamond.discount}%` : '-'}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                  <Link 
-                    to={`/admin/diamond/edit/${diamond._id}`}
-                    className="text-indigo-600 hover:text-indigo-900 mr-4"
+          {activeTab === 'diamonds' && (
+            <div>
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-xl font-semibold">Diamond Management</h2>
+                <div className="flex space-x-2">
+                  <Link
+                    to="/admin/diamond/new"
+                    className="bg-[#48182E] text-white px-4 py-2 rounded-md flex items-center"
                   >
-                    <FaEdit className="inline" /> Edit
+                    <FaPlus className="mr-2" />
+                    Add New Diamond
                   </Link>
-                  <button 
-                    onClick={() => handleDeleteDiamond(diamond._id)}
-                    className="text-red-600 hover:text-red-900"
-                  >
-                    <FaTrash className="inline" /> Delete
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    )}
-  </div>
-)}
+                </div>
+              </div>
+
+              {loading ? (
+                <div className="text-center py-4">Loading diamonds...</div>
+              ) : !diamonds || !Array.isArray(diamonds) ? (
+                <div className="text-center py-4">Error: Diamonds data is not in the expected format.</div>
+              ) : diamonds.length === 0 ? (
+                <div className="text-center py-4">No diamonds found.</div>
+              ) : (
+                <div className="overflow-x-auto">
+                  <table className="min-w-full divide-y divide-gray-200">
+                    <thead className="bg-gray-50">
+                      <tr>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Image</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">SKU</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Size</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Price</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Stock</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Discount</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody className="bg-white divide-y divide-gray-200">
+                      {diamonds.map((diamond) => (
+                        <tr key={diamond._id}>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <div className="flex-shrink-0 h-10 w-10">
+                              <img
+                                className="h-10 w-10 rounded-md object-cover"
+                                src={`http://localhost:5000${diamond.images && diamond.images.length > 0 ? diamond.images[0] : '/placeholder.png'}`}
+
+                                alt={diamond.name}
+                              />
+                            </div>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <div className="text-sm font-medium text-gray-900 flex items-center gap-2">
+                              {diamond.name}
+                              {diamond.bestSeller && (
+                                <span className="bg-green-100 text-green-800 text-xs font-semibold px-2 py-1 rounded ml-2">
+                                  Best Seller
+                                </span>
+                              )}
+                            </div>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{diamond.sku}</td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{diamond.size}</td>
+                          <td className="px-6 py-4 whitespace-nowrap flex items-center gap-3">
+                            <div className="text-sm text-gray-900 line-through">${diamond.regularPrice}</div>
+                            {diamond.salePrice && (
+                              <div className="text-sm text-red-500">${diamond.salePrice}</div>
+                            )}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{diamond.stock}</td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            {diamond.discount ? `${diamond.discount}%` : '-'}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                            <Link
+                              to={`/admin/diamond/edit/${diamond._id}`}
+                              className="text-indigo-600 hover:text-indigo-900 mr-4"
+                            >
+                              <FaEdit className="inline" /> Edit
+                            </Link>
+                            <button
+                              onClick={() => handleDeleteDiamond(diamond._id)}
+                              className="text-red-600 hover:text-red-900"
+                            >
+                              <FaTrash className="inline" /> Delete
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
 

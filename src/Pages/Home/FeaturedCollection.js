@@ -4,16 +4,16 @@ import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
 import './FeaturedCollection.css';
 
-import pear from '../../assets/images/pear.png';
-import heart from '../../assets/images/heart.png';
-import marquise from '../../assets/images/marquise.png';
-import oval from '../../assets/images/oval.png';
-import princess from '../../assets/images/princess.png';
-import round from '../../assets/images/round.png';
-import square from '../../assets/images/square.png';
-import radiant from '../../assets/images/radiant.png';
-import emerald from '../../assets/images/Emerald.png';
-import cushion from '../../assets/images/cushion.png';
+import pear from '../../assets/images/shape-pear.svg';
+import heart from '../../assets/images/shape-heart.svg';
+import marquise from '../../assets/images/shape-marquise.svg';
+import oval from '../../assets/images/shape-oval.svg';
+import princess from '../../assets/images/shape-princess.svg';
+import round from '../../assets/images/shape-round.svg';
+import baguette from '../../assets/images/shape-baguette.svg';
+import radiant from '../../assets/images/shape-radiant square.svg';
+import emerald from '../../assets/images/shape-emerald.svg';
+import cushion from '../../assets/images/shape-cushion.svg';
 
 const items = [
   { id: 1, name: 'Pear', img: pear },
@@ -23,7 +23,7 @@ const items = [
   { id: 5, name: 'Oval', img: oval },
   { id: 6, name: 'Princess', img: princess },
   { id: 7, name: 'Round', img: round },
-  { id: 8, name: 'Square', img: square },
+  { id: 8, name: 'Baguette', img: baguette },
   { id: 9, name: 'Radiant', img: radiant },
   { id: 10, name: 'Cushion', img: cushion },
 ];
