@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef } from "react";
 import custom from "../assets/images/Custom.svg";
 
 const CustomJewels = () => {
@@ -14,8 +14,6 @@ const CustomJewels = () => {
   });
 
   const fileInputRef = useRef(null);
-  const fadeRefs = useRef([]);
-  const [visible, setVisible] = useState([]);
 
   const handleChange = (e) => {
     const { name, value, files } = e.target;
@@ -59,59 +57,20 @@ const CustomJewels = () => {
     });
   };
 
-  // Intersection Observer for fade-in
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            const index = fadeRefs.current.indexOf(entry.target);
-            if (index !== -1) {
-              setVisible((prev) => {
-                const newVisible = [...prev];
-                newVisible[index] = true;
-                return newVisible;
-              });
-              observer.unobserve(entry.target);
-            }
-          }
-        });
-      },
-      { threshold: 0.1 }
-    );
-
-    fadeRefs.current.forEach((ref) => {
-      if (ref) observer.observe(ref);
-    });
-
-    return () => observer.disconnect();
-  }, []);
-
   return (
     <div className="bg-white text-gray-800 min-h-screen">
       {/* Banner */}
-      <div
-        ref={(el) => (fadeRefs.current[0] = el)}
-        className={`transition-all duration-700 ease-out transform ${
-          visible[0] ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
-        }`}
-      >
-        <img
-          src={custom}
-          alt="Custom Jewellery"
-          className="w-full object-cover"
-        />
-      </div>
+      <img
+        src={custom}
+        alt="Custom Jewellery"
+        className="w-full object-cover"
+      />
 
       {/* Form Section */}
       <div className="bg-gray-50 py-12">
-        <div
-          ref={(el) => (fadeRefs.current[1] = el)}
-          className={`max-w-3xl mx-auto px-4 transition-all duration-700 ease-out transform ${
-            visible[1] ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
-          }`}
-        >
-    <h2 className="text-2xl font-bold text-center mb-2">            Designed by You, Crafted by Us
+        <div className="max-w-3xl mx-auto px-4">
+          <h2 className="text-2xl font-bold text-center mb-2">
+            Designed by You, Crafted by Us
           </h2>
           <p className="text-center text-gray-600 mb-8">
             Create a unique piece of jewellery that reflects your personal style.
@@ -119,10 +78,7 @@ const CustomJewels = () => {
 
           <form
             onSubmit={handleSubmit}
-            ref={(el) => (fadeRefs.current[2] = el)}
-            className={`space-y-6 bg-white p-8 rounded-2xl shadow-lg border border-[#e2c17c]/30 transition-all duration-700 ease-out transform ${
-              visible[2] ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
-            }`}
+            className="space-y-6 bg-white p-8 rounded-2xl shadow-lg border border-[#e2c17c]/30"
           >
             {/* Name & Mobile */}
             <div className="grid sm:grid-cols-2 gap-6">
@@ -228,7 +184,7 @@ const CustomJewels = () => {
                 onChange={handleChange}
                 ref={fileInputRef}
                 accept=".pdf,.jpg,.png,.jpeg,.doc,.docx"
-              className="w-full"
+                className="w-full"
               />
               <p className="text-xs text-gray-500 mt-1">
                 Allowed types: pdf, jpg, png, jpeg, doc, docx.

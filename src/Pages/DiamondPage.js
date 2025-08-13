@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import Layout from '../Components/Layout';
 import { FaRegHeart } from 'react-icons/fa';
-
+import shopbanner from '../assets/images/diamond (3).svg';
 const DiamondPage = () => {
   const [diamonds, setDiamonds] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -101,11 +101,15 @@ const DiamondPage = () => {
   }
 
   return (
+    <>
+        <div className="relative w-full">
+        <img
+          src={shopbanner}
+          alt="Banner"
+          className="w-full h-full object-cover"
+        />
+      </div>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">Diamond Collection</h1>
-          <p className="text-lg text-gray-600">Discover our exquisite collection of certified diamonds</p>
-        </div>
 
         {/* Filters */}
         <div className="bg-white p-6 rounded-lg shadow-md mb-8">
@@ -165,43 +169,81 @@ const DiamondPage = () => {
         </div>
 
         {/* Diamond Grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {filteredDiamonds.map((diamond) => (
-            <Link key={diamond._id} to={`/diamond/${diamond._id}`} className="rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow bg-white block">
-              <div className="bg-gray-100 flex justify-center items-center rounded-t-lg aspect-square">
-                <img
-                  src={`http://localhost:5000${diamond.images[0] || '/placeholder.png'}`}
-                  alt={diamond.name}
-                  className="w-full h-full object-cover"
-                />
-              </div>
-              <div className="p-4 bg-white rounded-b-lg">
-                <div className="flex justify-between text-xs font-semibold text-gray-900 mb-2">
-                  <div>{diamond.Shape}</div>
-                  <div>${diamond.salePrice}</div>
-                </div>
-                <div className="flex justify-between text-[11px] py-2">
-                  <div className="flex flex-col items-center flex-1 border-r border-gray-300 truncate gap-1">
-                    <span className="font-semibold truncate max-w-[70px]" title={diamond.Weight}>{diamond.Weight}</span>
-                    <span>Carat</span>
-                  </div>
-                  <div className="flex flex-col items-center flex-1 border-r border-gray-300 truncate gap-1">
-                    <span className="font-semibold truncate max-w-[70px]" title={diamond.Color}>{diamond.Color}</span>
-                    <span>Color</span>
-                  </div>
-                  <div className="flex flex-col items-center flex-1 border-r border-gray-300 truncate gap-1">
-                    <span className="font-semibold truncate max-w-[70px]" title={diamond.Clarity}>{diamond.Clarity}</span>
-                    <span>Clarity</span>
-                  </div>
-                  <div className="flex flex-col items-center flex-1 truncate gap-1">
-                    <span className="font-semibold truncate max-w-[70px]" title="Excellent">Excellent</span>
-                    <span>Cut</span>
-                  </div>
-                </div>
-              </div>
-            </Link>
-          ))}
+       <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2 sm:gap-2 md:gap-3 lg:gap-4">
+  {filteredDiamonds.map((diamond) => (
+    <Link
+      key={diamond._id}
+      to={`/diamond/${diamond._id}`}
+      className="rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow bg-white block"
+    >
+      {/* Image Section */}
+      <div className="bg-gray-100 flex justify-center items-center rounded-t-lg aspect-square">
+        <img
+          src={`http://localhost:5000${diamond.images[0] || '/placeholder.png'}`}
+          alt={diamond.name}
+          className="w-full h-full object-cover"
+        />
+      </div>
+
+      {/* Details Section */}
+      <div className="p-2 sm:p-4 bg-white rounded-b-lg">
+        {/* Shape & Price */}
+        <div className="flex justify-between text-[11px] sm:text-xs font-semibold text-gray-900 mb-2">
+          <div>{diamond.Shape}</div>
+          <div>${diamond.salePrice}</div>
         </div>
+
+        {/* Specs */}
+        <div className="flex justify-between text-[10px] py-2 pt-0 sm:pt-1">
+          {/* Carat */}
+          <div className="flex flex-col items-center flex-1 border-r border-gray-300 truncate gap-1">
+            <span
+              className="font-semibold truncate max-w-[70px] sm:max-w-[100px] md:max-w-[120px]"
+              title={diamond.Weight}
+            >
+              {diamond.Weight}
+            </span>
+            <span className="truncate max-w-[25px] sm:max-w-[100px]">Carat</span>
+          </div>
+
+          {/* Color */}
+          <div className="flex flex-col items-center flex-1 border-r border-gray-300 truncate gap-1">
+            <span
+              className="font-semibold truncate max-w-[70px] sm:max-w-[100px] md:max-w-[120px]"
+              title={diamond.Color}
+            >
+              {diamond.Color}
+            </span>
+            <span className="truncate max-w-[25px] sm:max-w-[100px]">Color</span>
+          </div>
+
+          {/* Clarity */}
+          <div className="flex flex-col items-center flex-1 border-r border-gray-300 truncate gap-1">
+            <span
+              className="font-semibold truncate max-w-[70px] sm:max-w-[100px] md:max-w-[120px]"
+              title={diamond.Clarity}
+            >
+              {diamond.Clarity}
+            </span>
+            <span className="truncate max-w-[25px] sm:max-w-[100px]">Clarity</span>
+          </div>
+
+          {/* Cut */}
+          <div className="flex flex-col items-center flex-1 truncate gap-1">
+            <span
+              className="font-semibold truncate max-w-[20px] sm:max-w-[100px] md:max-w-[120px]"
+              title="Excellent"
+            >
+              Excellent
+            </span>
+            <span className="truncate max-w-[25px] sm:max-w-[100px]">Cut</span>
+          </div>
+        </div>
+      </div>
+    </Link>
+  ))}
+</div>
+
 
         {filteredDiamonds.length === 0 && (
           <div className="text-center py-12">
@@ -209,6 +251,7 @@ const DiamondPage = () => {
           </div>
         )}
       </div>
+    </>
   );
 };
 
