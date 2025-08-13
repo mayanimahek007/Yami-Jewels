@@ -140,12 +140,12 @@ export const getProductsByCategory = async (categoryName) => {
     }
 
     const data = await response.json();
-    
+
     // Return just the products array
     if (data && data.status === 'success' && data.data && data.data.products) {
       return data.data.products;
     }
-    
+
     throw new Error('Unexpected API response structure');
   } catch (error) {
     console.error(`Error fetching products for category ${categoryName}:`, error);
@@ -211,7 +211,7 @@ export const createProduct = async (productData) => {
 
     // Create FormData for file uploads
     const formData = new FormData();
-    
+
     // Add text fields
     Object.keys(productData).forEach(key => {
       if (key !== 'images' && key !== 'videoUrl' && key !== 'metalVariations') {
@@ -285,7 +285,7 @@ export const updateProduct = async (productId, productData) => {
     if (hasFiles) {
       // Create FormData for file uploads
       const formData = new FormData();
-      
+
       // Add text fields
       Object.keys(productData).forEach(key => {
         if (key !== 'images' && key !== 'videoUrl' && key !== 'metalVariations' && key !== 'existingImages') {
@@ -373,3 +373,55 @@ export const deleteProduct = async (productId) => {
     throw error;
   }
 };
+
+export const getDiamondById = async (id) => {
+  try {
+    const response = await fetch(`http://localhost:5000/api/diamonds/${id}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || 'Failed to fetch diamond');
+    }
+
+    const data = await response.json();
+    console.log('Diamond data:', data);
+    return data;
+  } catch (error) {
+    console.error('Error fetching diamond by ID:', error);
+    throw error;
+  }
+};
+
+// Fetch related diamonds by name
+export const fetchRelatedDiamonds = async (Shape) => {
+  try {
+    const response = await fetch(
+      `http://localhost:5000/api/diamonds/by-name?Shape=${encodeURIComponent(Shape)}`,
+      {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' },
+      }
+    );
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || 'Failed to fetch related diamonds');
+    }
+
+    const data = await response.json();
+    console.log('Related diamonds data:', data);
+
+    // ✅ Return just the array of diamonds
+    return data?.data?.diamonds || [];
+  } catch (error) {
+    console.error(`Error fetching related diamonds for Shape "${Shape}":`, error);
+    throw error;
+  }
+};
+
+

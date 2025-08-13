@@ -13,9 +13,19 @@ const DiamondPage = () => {
     priceRange: [0, 100000]
   });
 
+  const [attributes, setAttributes] = useState({
+    shapes: [],
+    colors: [],
+    clarities: [],
+    cuts: [],
+    priceRange: { minSalePrice: 0, maxSalePrice: 100000 }
+  });
+
   useEffect(() => {
+    fetchAttributes();
     fetchDiamonds();
   }, []);
+
 
   const fetchDiamonds = async () => {
     try {
@@ -33,6 +43,37 @@ const DiamondPage = () => {
       console.error('Error fetching diamonds:', error);
       setDiamonds([]);
       setLoading(false);
+    }
+  };
+
+  const fetchAttributes = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch('http://localhost:5000/api/diamonds/attributes', {
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      const result = await response.json();
+      if (result.status === 'success' && result.data) {
+        setAttributes({
+          shapes: result.data.shapes || [],
+          colors: result.data.colors || [],
+          clarities: result.data.clarities || [],
+          cuts: result.data.cuts || [],
+          priceRange: {
+            minSalePrice: result.data.priceRange.minSalePrice || 0,
+            maxSalePrice: result.data.priceRange.maxSalePrice || 100000
+          }
+        });
+        setFilters(prev => ({
+          ...prev,
+          priceRange: [result.data.priceRange.minSalePrice || 0, result.data.priceRange.maxSalePrice || 100000]
+        }));
+      }
+    } catch (error) {
+      console.error('Error fetching diamond attributes:', error);
     }
   };
 
@@ -76,11 +117,9 @@ const DiamondPage = () => {
                 onChange={(e) => handleFilterChange('shape', e.target.value)}
               >
                 <option value="">All Shapes</option>
-                <option value="Round">Round</option>
-                <option value="Princess">Princess</option>
-                <option value="Emerald">Emerald</option>
-                <option value="Oval">Oval</option>
-                <option value="Pear">Pear</option>
+                {attributes.shapes.map(shape => (
+                  <option key={shape} value={shape}>{shape}</option>
+                ))}
               </select>
             </div>
             <div>
@@ -90,11 +129,9 @@ const DiamondPage = () => {
                 onChange={(e) => handleFilterChange('color', e.target.value)}
               >
                 <option value="">All Colors</option>
-                <option value="D">D</option>
-                <option value="E">E</option>
-                <option value="F">F</option>
-                <option value="G">G</option>
-                <option value="H">H</option>
+                {attributes.colors.map(color => (
+                  <option key={color} value={color}>{color}</option>
+                ))}
               </select>
             </div>
             <div>
@@ -104,70 +141,65 @@ const DiamondPage = () => {
                 onChange={(e) => handleFilterChange('clarity', e.target.value)}
               >
                 <option value="">All Clarity</option>
-                <option value="IF">IF</option>
-                <option value="VVS1">VVS1</option>
-                <option value="VVS2">VVS2</option>
-                <option value="VS1">VS1</option>
-                <option value="VS2">VS2</option>
+                {attributes.clarities.map(clarity => (
+                  <option key={clarity} value={clarity}>{clarity}</option>
+                ))}
               </select>
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Price Range</label>
               <input
                 type="range"
-                min="0"
-                max="100000"
+                min={attributes.priceRange.minSalePrice}
+                max={attributes.priceRange.maxSalePrice}
+                value={filters.priceRange[1]}
                 className="w-full"
-                onChange={(e) => handleFilterChange('priceRange', [0, e.target.value])}
+                onChange={(e) => handleFilterChange('priceRange', [attributes.priceRange.minSalePrice, Number(e.target.value)])}
               />
+              <div className="flex justify-between text-xs text-gray-600 mt-1">
+                <span>${attributes.priceRange.minSalePrice}</span>
+                <span>${attributes.priceRange.maxSalePrice}</span>
+              </div>
             </div>
           </div>
         </div>
 
         {/* Diamond Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {filteredDiamonds.map((diamond) => (
-            <div key={diamond._id} className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
-              <div className="relative">
+            <Link key={diamond._id} to={`/diamond/${diamond._id}`} className="rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow bg-white block">
+              <div className="bg-gray-100 flex justify-center items-center rounded-t-lg aspect-square">
                 <img
                   src={`http://localhost:5000${diamond.images[0] || '/placeholder.png'}`}
-
                   alt={diamond.name}
-                  className="w-full h-64 object-cover"
+                  className="w-full h-full object-cover"
                 />
-                <div className="absolute top-2 right-2 flex space-x-2">
-                  <button className="bg-white p-2 rounded-full shadow-md hover:bg-gray-100">
-                    <FaRegHeart className="w-4 h-4" />
-                  </button>
-                </div>
-                {diamond.bestSeller && (
-                  <span className="absolute top-2 left-2 bg-red-500 text-white px-2 py-1 text-xs rounded">
-                    Best Seller
-                  </span>
-                )}
               </div>
-
-              <div className="p-4">
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">{diamond.name}</h3>
-                <p className="text-sm text-gray-600 mb-2">{diamond.Shape} Cut • {diamond.Weight} ct</p>
-                <p className="text-sm text-gray-600 mb-2">Color: {diamond.Color} • Clarity: {diamond.Clarity}</p>
-
-                <div className="flex items-center justify-between mt-4">
-                  <div>
-                    <span className="text-xl font-bold text-gray-900">${diamond.salePrice}</span>
-                    {diamond.regularPrice > diamond.salePrice && (
-                      <span className="text-sm text-gray-500 line-through ml-2">${diamond.regularPrice}</span>
-                    )}
+              <div className="p-4 bg-white rounded-b-lg">
+                <div className="flex justify-between text-xs font-semibold text-gray-900 mb-2">
+                  <div>{diamond.Shape}</div>
+                  <div>${diamond.salePrice}</div>
+                </div>
+                <div className="flex justify-between text-[11px] py-2">
+                  <div className="flex flex-col items-center flex-1 border-r border-gray-300 truncate gap-1">
+                    <span className="font-semibold truncate max-w-[70px]" title={diamond.Weight}>{diamond.Weight}</span>
+                    <span>Carat</span>
                   </div>
-                  <Link
-                    to={`/diamond/${diamond._id}`}
-                    className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors"
-                  >
-                    View Details
-                  </Link>
+                  <div className="flex flex-col items-center flex-1 border-r border-gray-300 truncate gap-1">
+                    <span className="font-semibold truncate max-w-[70px]" title={diamond.Color}>{diamond.Color}</span>
+                    <span>Color</span>
+                  </div>
+                  <div className="flex flex-col items-center flex-1 border-r border-gray-300 truncate gap-1">
+                    <span className="font-semibold truncate max-w-[70px]" title={diamond.Clarity}>{diamond.Clarity}</span>
+                    <span>Clarity</span>
+                  </div>
+                  <div className="flex flex-col items-center flex-1 truncate gap-1">
+                    <span className="font-semibold truncate max-w-[70px]" title="Excellent">Excellent</span>
+                    <span>Cut</span>
+                  </div>
                 </div>
               </div>
-            </div>
+            </Link>
           ))}
         </div>
 

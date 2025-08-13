@@ -289,9 +289,12 @@ const ProductDisplaySection = () => {
               </Link>
               <div className="w-full flex justify-between items-start mt-2 flex-col">
                 <div className="flex items-center justify-between w-full">
-                  <Link to={`/product/${product._id || product.id}`} className="block">
-                    <h3 className="text-[11px] sm:text-base font-medium text-gray-800 font-montserrat hover:text-[#48182E] transition truncate max-w-[160px]">
-
+                  {/* Product name */}
+                  <Link
+                    to={`/product/${product._id || product.id}`}
+                    className="block flex-1 min-w-0"
+                  >
+                    <h3 className="text-[11px] sm:text-base font-medium text-gray-800 font-montserrat hover:text-[#48182E] transition truncate max-w-[80px] sm:max-w-[160px]">
                       {product.name}
                     </h3>
                   </Link>
@@ -307,9 +310,11 @@ const ProductDisplaySection = () => {
                       className="text-[#48182E] hover:scale-110 transition mr-2"
                       title={wishlistedProducts.includes(product._id || product.id) ? "Remove from wishlist" : "Add to wishlist"}
                     >
-                      {wishlistedProducts.includes(product._id || product.id) ?
-                        <HiMiniHeart size={18} className="text-[#48182E] fill-current" /> :
-                        <FaRegHeart size={18} className='' />}
+                      {wishlistedProducts.includes(product._id || product.id) ? (
+                        <HiMiniHeart className="size-[14px] sm:size-[18px] text-[#48182E]" />
+                      ) : (
+                        <FaRegHeart className="size-[14px] sm:size-[18px]" />
+                      )}
                     </button>
                     <button
                       onClick={(e) => {
@@ -325,7 +330,7 @@ const ProductDisplaySection = () => {
                       className="text-[#25D366] hover:scale-110 transition"
                       title="Quick Order via WhatsApp"
                     >
-                      <FaWhatsapp size={18} />
+                      <FaWhatsapp className="size-[14px] sm:size-[18px]" />
                     </button>
                   </div>
                 </div>

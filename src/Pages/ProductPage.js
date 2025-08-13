@@ -14,7 +14,7 @@ const ProductPage = () => {
   const [error, setError] = useState('');
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [isOrderModalOpen, setIsOrderModalOpen] = useState(false);
-  const [hoveredProductId, setHoveredProductId] = useState(null); // ✅ Track hovered product
+  const [hoveredProductId, setHoveredProductId] = useState(null);
 
   const { currentUser } = useAuth();
   const navigate = useNavigate();
@@ -178,7 +178,7 @@ const ProductPage = () => {
             <p className="mt-2 text-gray-600">Please check back later for our latest collections.</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 w-full max-w-7xl">
+          <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 w-full max-w-7xl">
             {products.map((product) => {
               const imageToShow =
                 hoveredProductId === product._id && product.images[1]
@@ -192,70 +192,73 @@ const ProductPage = () => {
                   onMouseLeave={() => setHoveredProductId(null)}
                 >
                   <Link to={`/product/${product._id}`} className="block">
-                    <div className="relative bg-[#b47b48] rounded-2xl shadow p-1 flex flex-col items-center group">
+                    <div className="relative border-4 border-[#b47b48] rounded-2xl shadow flex flex-col items-center group aspect-square">
                       <img
                         src={imageToShow}
                         alt={product.images[0]?.alt || product.name}
-                        className="w-full h-64 object-cover rounded-xl group-hover:opacity-90 transition duration-300"
+                        className="w-full h-full object-cover rounded-xl group-hover:opacity-90 transition duration-300"
                       />
                     </div>
                   </Link>
 
-                  <div className="w-full flex justify-between text-start mt-2 flex-col">
-                    <div className="flex items-center justify-between">
-                      <Link to={`/product/${product._id}`} className="block">
-                        <h3 className="text-base font-medium text-gray-800 font-montserrat hover:text-[#48182E] transition">
-                          {product.name}
-                        </h3>
-                      </Link>
+                  {/* Name + Icons */}
+                  <div className="flex items-center justify-between mt-2">
+                    <Link to={`/product/${product._id}`} className="flex-1 min-w-0">
+                      <h3
+                        className="text-[11px] sm:text-base font-medium text-gray-800 font-montserrat hover:text-[#48182E] transition truncate"
+                        title={product.name}
+                      >
+                        {product.name}
+                      </h3>
+                    </Link>
 
-                      <div className="flex ml-2">
-                        <button
-                          onClick={(e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            handleToggleWishlist(product._id);
-                          }}
-                          className="text-[#48182E] hover:scale-110 transition mr-2"
-                          title={product.isWishlisted ? "Remove from wishlist" : "Add to wishlist"}
-                        >
-                          {product.isWishlisted ? (
-                            <HiMiniHeart size={18} className="text-[#48182E] fill-current" />
-                          ) : (
-                            <FaRegHeart size={18} />
-                          )}
-                        </button>
-                        <button
-                          onClick={(e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            handleQuickOrder(product);
-                          }}
-                          className="text-[#25D366] hover:scale-110 transition"
-                          title="Quick Order via WhatsApp"
-                        >
-                          <FaWhatsapp size={18} />
-                        </button>
-                      </div>
-                    </div>
-                    <div className="flex items-center">
-                      <div className="text-right">
-                        {product.salePrice < product.regularPrice ? (
-                          <>
-                            <span className="text-base font-medium text-gray-800 font-montserrat">
-                              ${product.salePrice.toFixed(2)}
-                            </span>
-                            <span className="ml-2 text-sm text-gray-500 line-through">
-                              ${product.regularPrice.toFixed(2)}
-                            </span>
-                          </>
+                    <div className="flex items-center flex-shrink-0 ml-2 space-x-2">
+                      <button
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          handleToggleWishlist(product._id);
+                        }}
+                        className="text-[#48182E] hover:scale-110 transition"
+                        title={product.isWishlisted ? "Remove from wishlist" : "Add to wishlist"}
+                      >
+                        {product.isWishlisted ? (
+                          <HiMiniHeart className="text-[#48182E] fill-current w-[14px] h-[14px] sm:w-[18px] sm:h-[18px]" />
                         ) : (
-                          <span className="text-base font-medium text-gray-800 font-montserrat">
-                            ${product.regularPrice.toFixed(2)}
-                          </span>
+                          <FaRegHeart className="w-[14px] h-[14px] sm:w-[18px] sm:h-[18px]" />
                         )}
-                      </div>
+                      </button>
+
+                      <button
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          handleQuickOrder(product);
+                        }}
+                        className="text-[#25D366] hover:scale-110 transition"
+                        title="Quick Order via WhatsApp"
+                      >
+                        <FaWhatsapp className="w-[14px] h-[14px] sm:w-[18px] sm:h-[18px]" />
+                      </button>
                     </div>
+                  </div>
+
+                  {/* Price */}
+                  <div className="">
+                    {product.salePrice < product.regularPrice ? (
+                      <>
+                        <span className="text-[11px] sm:text-base font-medium text-gray-800 font-montserrat">
+                          ₹{product.salePrice.toFixed(2)}
+                        </span>
+                        <span className="ml-2 text-xs sm:text-sm text-gray-500 line-through">
+                          ₹{product.regularPrice.toFixed(2)}
+                        </span>
+                      </>
+                    ) : (
+                      <span className="text-sm sm:text-base font-medium text-gray-800 font-montserrat">
+                        ₹{product.regularPrice.toFixed(2)}
+                      </span>
+                    )}
                   </div>
                 </div>
               );

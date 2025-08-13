@@ -4,6 +4,7 @@ import { FaUsers, FaBox, FaPlus, FaEdit, FaTrash } from 'react-icons/fa';
 import { useAuth } from '../../context/AuthContext';
 import Swal from 'sweetalert2';
 import toast, { Toaster } from 'react-hot-toast';
+import { IoDiamond } from 'react-icons/io5';
 
 const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState('products');
@@ -255,6 +256,7 @@ const AdminDashboard = () => {
             className={`px-4 py-2 mr-2 rounded-t-lg ${activeTab === 'diamonds' ? 'bg-white text-[#48182E] font-medium' : 'bg-gray-200 text-gray-700'}`}
             onClick={() => handleTabChange('diamonds')}
           >
+            <IoDiamond className="inline mr-2" />
             Diamonds
           </button>
           <button

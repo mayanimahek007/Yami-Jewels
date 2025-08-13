@@ -188,6 +188,10 @@ const Header = () => {
                         <p className=" " onClick={handleCategoryClick}>Wedding</p>
                         <p className=" " onClick={handleCategoryClick}>Jewelary</p>
                         <p className=" " onClick={handleCategoryClick}>Gifts</p>
+                        <p onClick={() => {navigate('/diamond');
+                              handleClose();
+                        }}>Diamond</p>
+
                         <p onClick={() => navigate('/custom-jewellery')}>Custom Jewellery</p>
 
                         {currentUser ? (

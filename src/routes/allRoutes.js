@@ -27,10 +27,12 @@ import BlogDetail from "../Pages/BlogDetail";
 import AboutUs from "../Pages/AboutUs";
 import ContactUs from "../Pages/ContactUs";
 import DiamondPage from "../Pages/DiamondPage";
+import DiamondDetailPage from "../Pages/DiamondDetailPage";
 
 export const publicRoutes = [
     { path: "/", component: <Home /> },
     { path: "/diamond", component: <DiamondPage /> },
+    { path: "/diamond/:id", component: <DiamondDetailPage /> },
     { path: "/product", component: <ProductPage /> },
     { path: "/product/:id", component: <ProductDetailPage /> },
     { path: "/login", component: <LoginPage /> },

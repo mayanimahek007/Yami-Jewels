@@ -6,7 +6,7 @@ import { MdLocationOn } from 'react-icons/md';
 
 const Footer = () => (
   <footer className="w-full bg-[#48182e] text-gray-100 pt-12 pb-4">
-    <div className="max-w-7xl mx-auto px-6 grid grid-col-1 sm:grid-cols-2 md:grid-cols-4 gap-10 items-start">
+    <div className="max-w-7xl mx-auto px-6 grid grid-col-1 sm:grid-cols-2 lg:grid-cols-4 gap-10 items-start">
       {/* Brand & Newsletter */}
       <div className="flex flex-col gap-4">
         <div className="flex items-center gap-3 mb-2 ">
