@@ -12,6 +12,7 @@ const Header = () => {
     const [openMenu, setOpenMenu] = useState(false);
     const [showAccountMenu, setShowAccountMenu] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
+    const [wishlistCount, setWishlistCount] = useState(0);
     const navigate = useNavigate();
     const { currentUser, logout, isAdmin } = useAuth();
     const accountMenuRef = useRef(null);
@@ -28,6 +29,53 @@ const Header = () => {
             document.removeEventListener('mousedown', handleClickOutside);
         };
     }, []);
+
+    // Fetch wishlist count
+    useEffect(() => {
+        const fetchWishlistCount = async () => {
+            if (!currentUser) {
+                setWishlistCount(0);
+                return;
+            }
+
+            try {
+                const token = localStorage.getItem('token');
+                if (!token) {
+                    setWishlistCount(0);
+                    return;
+                }
+
+                const response = await fetch('http://localhost:5000/api/products/wishlist/me', {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json',
+                    },
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    setWishlistCount(data.data.wishlist.length);
+                } else {
+                    setWishlistCount(0);
+                }
+            } catch (error) {
+                console.error('Error fetching wishlist count:', error);
+                setWishlistCount(0);
+            }
+        };
+
+        fetchWishlistCount();
+        
+        // Refresh count when user changes or on focus
+        const interval = setInterval(() => {
+            if (currentUser) {
+                fetchWishlistCount();
+            }
+        }, 30000); // Refresh every 30 seconds
+
+        return () => clearInterval(interval);
+    }, [currentUser]);
 
     const handleOpen = () => {
         setOpenMenu(true);
@@ -85,8 +133,13 @@ const Header = () => {
                             </form>
                             <div className='text-white flex items-center justify-center gap-5'>
                                 {currentUser ? (
-                                    <Link to="/wishlist">
+                                    <Link to="/wishlist" className="relative">
                                         <CiHeart size={25} className="cursor-pointer" />
+                                        {wishlistCount > 0 && (
+                                            <span className="absolute -top-1 -right-1 bg-white text-black text-xs rounded-full h-4 w-4 flex items-center justify-center">
+                                                {wishlistCount}
+                                            </span>
+                                        )}
                                     </Link>
                                 ) : (
                                     <CiHeart size={25} className="cursor-pointer" onClick={() => navigate('/login')} />
@@ -150,8 +203,13 @@ const Header = () => {
                             <img src={headerLogo} alt='...' className='sm:w-40 h-20 object-cover cursor-pointer' onClick={() => navigate('/')}/>
                             <div className='text-white flex items-center justify-center gap-3'>
                                 {currentUser ? (
-                                    <Link to="/wishlist">
+                                    <Link to="/wishlist" className="relative">
                                         <CiHeart size={25} />
+                                        {wishlistCount > 0 && (
+                                            <span className="absolute -top-1 -right-1 bg-white text-black text-xs rounded-full h-4 w-4 flex items-center justify-center">
+                                                {wishlistCount}
+                                            </span>
+                                        )}
                                     </Link>
                                 ) : (
                                     <CiHeart size={25} onClick={() => navigate('/login')} />
@@ -212,12 +270,17 @@ const Header = () => {
                                     <PiUser size={25} />
                                     <p>Profile</p>
                                 </div>
-                                <div className='flex items-center gap-1 cursor-pointer' onClick={() => {
+                                <div className='flex items-center gap-1 cursor-pointer relative' onClick={() => {
                                     navigate('/wishlist');
                                     handleClose();
                                 }}>
                                     <CiHeart size={25} />
                                     <p>Wishlist</p>
+                                    {wishlistCount > 0 && (
+                                        <span className="absolute -right-3 bg-white text-black text-xs rounded-full h-5 w-5 flex items-center justify-center text-[10px]">
+                                            {wishlistCount}
+                                        </span>
+                                    )}
                                 </div>
                                 <div className='flex items-center gap-1 cursor-pointer' onClick={() => {
                                     navigate('/update-password');

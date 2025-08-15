@@ -12,6 +12,7 @@ import 'slick-carousel/slick/slick-theme.css';
 import './ProductDetailPage.css';
 
 import { getProductById, toggleWishlist, removeFromWishlist, getUserWishlist, getProductsByCategory } from '../services/productService';
+import ReviewSection from '../Components/ReviewSection';
 
 
 const ProductDetailPage = () => {
@@ -32,6 +33,19 @@ const ProductDetailPage = () => {
   const [isShowingVideo, setIsShowingVideo] = useState(false);
   const [combinedMedia, setCombinedMedia] = useState([]);
   const [selectedProduct, setSelectedProduct] = useState(null);
+  const [reviews, setReviews] = useState([]);
+  const [reviewLoading, setReviewLoading] = useState(false);
+  const [reviewError, setReviewError] = useState(null);
+  const [showReviewForm, setShowReviewForm] = useState(false);
+  const [newReview, setNewReview] = useState({
+    rating: 5,
+    title: '',
+    comment: '',
+    images: []
+  });
+  const [reviewImages, setReviewImages] = useState([]);
+  const [averageRating, setAverageRating] = useState(0);
+  const [totalReviews, setTotalReviews] = useState(0);
   // Fetch product data and check wishlist status
   useEffect(() => {
     const fetchProductData = async () => {
@@ -66,7 +80,7 @@ const ProductDetailPage = () => {
               if (products.length > 0) {
                 // Check if current product is in the user's wishlist
                 const isInWishlist = products.some(
-                  wishlistProduct => wishlistProduct._id === data.data.product._id
+                  wishlistProduct => wishlistProduct && wishlistProduct._id === data.data.product._id
                 );
                 setIsWishlisted(isInWishlist);
                 console.log('Product wishlist status updated:', isInWishlist);
@@ -94,74 +108,66 @@ const ProductDetailPage = () => {
   }, [id, currentUser]);
 
   useEffect(() => {
-    const fetchRelatedProducts = async () => {
-      if (!product || !product.categoryName) return;
+const fetchRelatedProducts = async () => {
+  if (!product || !product.categoryName) return;
 
+  try {
+    setRelatedProductsLoading(true);
+    setRelatedProductsError(null);
+
+    const products = await getProductsByCategory(product.categoryName);
+
+    // Filter and map with proper null checks
+    const filteredProducts = products
+      .filter(p => p && p._id && p._id !== product._id)
+      .map(p => ({
+        ...p,
+        regularPrice: p.regularPrice || 0,
+        salePrice: p.salePrice || null,
+        isWishlisted: false
+      }));
+
+    setRelatedProducts(filteredProducts);
+
+    if (currentUser && filteredProducts.length > 0) {
       try {
-        setRelatedProductsLoading(true);
-        setRelatedProductsError(null);
+        const wishlistData = await getUserWishlist();
+        let wishlistProducts = [];
 
-        // Call your API endpoint for related products
-        const products = await getProductsByCategory(product.categoryName);
-
-        // Filter out the current product
-        const filteredProducts = products
-          .filter(p => p._id !== product._id)
-          .map(p => ({
-            ...p,
-            regularPrice: p.regularPrice || 0, // Default to 0 if missing
-            salePrice: p.salePrice || null,    // Default to null if missing
-            isWishlisted: false                // Default wishlist status
-          }));
-
-        setRelatedProducts(filteredProducts);
-
-        // If user is logged in, check wishlist status for related products
-        if (currentUser && filteredProducts.length > 0) {
-          try {
-            const wishlistData = await getUserWishlist();
-
-            // Handle different possible response structures
-            let wishlistProducts = [];
-            if (wishlistData && wishlistData.status === 'success' && wishlistData.data && wishlistData.data.products) {
-              wishlistProducts = wishlistData.data.products;
-            } else if (wishlistData && wishlistData.status === 'success' && wishlistData.data && wishlistData.data.wishlist) {
-              // Extract products from wishlist items
-              wishlistProducts = wishlistData.data.wishlist.map(item => item.product);
-            } else if (wishlistData && wishlistData.products) {
-              wishlistProducts = wishlistData.products;
-            } else if (wishlistData && Array.isArray(wishlistData)) {
-              wishlistProducts = wishlistData;
-            }
-
-            if (wishlistProducts.length > 0) {
-              // Extract product IDs from wishlist
-              const wishlistProductIds = wishlistProducts.map(product => product._id);
-
-              // Update related products with wishlist status
-              setRelatedProducts(prevRelatedProducts =>
-                prevRelatedProducts.map(relatedProduct => ({
-                  ...relatedProduct,
-                  isWishlisted: wishlistProductIds.includes(relatedProduct._id)
-                }))
-              );
-              console.log('Related products wishlist status set on initial load');
-            }
-          } catch (wishlistErr) {
-            console.error('Error fetching wishlist for related products:', wishlistErr);
-            // Keep the default isWishlisted: false for related products
+        if (wishlistData && wishlistData.status === 'success') {
+          if (wishlistData.data?.products) {
+            wishlistProducts = wishlistData.data.products.filter(Boolean);
+          } else if (wishlistData.data?.wishlist) {
+            wishlistProducts = wishlistData.data.wishlist
+              .map(item => item?.product)
+              .filter(Boolean);
           }
         }
-      } catch (err) {
-        console.error('Error fetching related products:', err);
-        setRelatedProductsError('Failed to load related products');
-        // Instead of fallback products, just set an empty array
-        setRelatedProducts([]);
-      } finally {
-        setRelatedProductsLoading(false);
-      }
-    };
 
+        if (wishlistProducts.length > 0) {
+          const wishlistProductIds = wishlistProducts
+            .map(product => product?._id)
+            .filter(Boolean);
+
+          setRelatedProducts(prevRelatedProducts =>
+            prevRelatedProducts.map(relatedProduct => ({
+              ...relatedProduct,
+              isWishlisted: wishlistProductIds.includes(relatedProduct._id)
+            }))
+          );
+        }
+      } catch (wishlistErr) {
+        console.error('Error fetching wishlist for related products:', wishlistErr);
+      }
+    }
+  } catch (err) {
+    console.error('Error fetching related products:', err);
+    setRelatedProductsError('Failed to load related products');
+    setRelatedProducts([]);
+  } finally {
+    setRelatedProductsLoading(false);
+  }
+};
     fetchRelatedProducts();
   }, [product, id, currentUser]);
 
@@ -185,20 +191,21 @@ const ProductDetailPage = () => {
       console.log('Refreshing wishlist status, received data:', wishlistData);
 
       // Handle different possible response structures
+      // Handle different possible response structures
       let products = [];
-      if (wishlistData && wishlistData.status === 'success' && wishlistData.data && wishlistData.data.products) {
-        console.log('Found products in wishlistData.data.products');
-        products = wishlistData.data.products;
-      } else if (wishlistData && wishlistData.status === 'success' && wishlistData.data && wishlistData.data.wishlist) {
-        console.log('Found products in wishlistData.data.wishlist');
-        // Extract products from wishlist items
-        products = wishlistData.data.wishlist.map(item => item.product);
-      } else if (wishlistData && wishlistData.products) {
-        console.log('Found products in wishlistData.products');
-        products = wishlistData.products;
-      } else if (wishlistData && Array.isArray(wishlistData)) {
-        console.log('Found products in wishlistData array');
-        products = wishlistData;
+      if (wishlistData && wishlistData.status === 'success') {
+        if (wishlistData.data?.products) {
+          products = wishlistData.data.products.filter(Boolean); // Remove any null/undefined
+        } else if (wishlistData.data?.wishlist) {
+          // Extract products from wishlist items, filtering out invalid entries
+          products = wishlistData.data.wishlist
+            .map(item => item?.product)
+            .filter(Boolean);
+        }
+      } else if (wishlistData?.products) {
+        products = wishlistData.products.filter(Boolean);
+      } else if (Array.isArray(wishlistData)) {
+        products = wishlistData.filter(Boolean);
       }
 
       console.log('Extracted products from wishlist:', products.length);
@@ -246,139 +253,59 @@ const ProductDetailPage = () => {
   };
 
   // Handle wishlist toggle
-  const handleToggleWishlist = async (productId) => {
-    console.log('handleToggleWishlist called with productId:', productId);
+const handleToggleWishlist = async (productId, isRelatedProduct = false) => {
+  if (!currentUser) {
+    navigate('/login');
+    return;
+  }
 
-    if (!currentUser) {
-      console.log('No user logged in, redirecting to login page');
-      navigate('/login');
-      return;
-    }
-
-    // If no productId is provided, use the main product's ID
-    const targetProductId = productId || (product ? product._id : null);
-    if (!targetProductId) {
-      console.error('No target product ID available');
-      return;
-    }
-
-    // Determine if we're toggling the main product or a related product
-    const isMainProduct = !productId || (product && productId === product._id);
-    console.log('Is main product:', isMainProduct);
-
-    // Get the current wishlist state of the target product
-    let currentWishlistState;
-    if (isMainProduct) {
-      currentWishlistState = isWishlisted;
-      console.log('Main product current wishlist state:', currentWishlistState);
-    } else {
-      // Find the related product
-      const relatedProduct = relatedProducts.find(p => p._id === productId);
-      if (!relatedProduct) {
-        console.error('Related product not found in relatedProducts array');
-        return;
-      }
-      currentWishlistState = relatedProduct.isWishlisted;
-      console.log('Related product current wishlist state:', currentWishlistState);
-    }
-
-    console.log(`Current wishlist state for product ${targetProductId}:`, currentWishlistState);
-
-    // Optimistically update UI first
-    if (isMainProduct) {
-      console.log(`Setting main product wishlist state to: ${!currentWishlistState}`);
-      setIsWishlisted(!currentWishlistState);
-    } else {
-      console.log(`Updating related product ${targetProductId} wishlist state to: ${!currentWishlistState}`);
-      setRelatedProducts(prevRelatedProducts =>
-        prevRelatedProducts.map(p => {
-          if (p._id === targetProductId) {
-            return { ...p, isWishlisted: !currentWishlistState };
-          }
-          return p;
-        })
+  try {
+    // Optimistic UI update
+    if (isRelatedProduct) {
+      setRelatedProducts(prevProducts =>
+        prevProducts.map(p =>
+          p._id === productId
+            ? { ...p, isWishlisted: !p.isWishlisted }
+            : p
+        )
       );
+    } else {
+      setIsWishlisted(!isWishlisted);
     }
-    console.log(`Wishlist state optimistically updated to: ${!currentWishlistState} for product ${targetProductId}`);
 
+    // Try toggling first
     try {
-      if (currentWishlistState) {
-        // If already in wishlist, remove it
-        console.log(`Removing product ${targetProductId} from wishlist...`);
-        const response = await removeFromWishlist(targetProductId);
-        console.log('Remove from wishlist response:', response);
+      await toggleWishlist(productId);
+    } catch (toggleErr) {
+      // If product is already in wishlist, try removing it
+      if (toggleErr.message.includes('already in wishlist')) {
+        await removeFromWishlist(productId);
       } else {
-        // If not in wishlist, add it
-        console.log(`Adding product ${targetProductId} to wishlist...`);
-        const response = await toggleWishlist(targetProductId);
-        console.log('Add to wishlist response:', response);
-      }
-      console.log('Wishlist API call successful');
-
-      // After successful API call, refresh wishlist status to ensure consistency
-      // This will update both main product and related products
-      console.log('Refreshing wishlist status...');
-      await refreshWishlistStatus();
-    } catch (err) {
-      console.error(`Error toggling wishlist for product ${targetProductId}:`, err);
-
-      // Show error message to user
-      alert('Failed to update wishlist. Please try again.');
-
-      // Revert the optimistic update if the API call fails
-      console.log('Reverting optimistic UI update due to error');
-      if (isMainProduct) {
-        setIsWishlisted(currentWishlistState);
-      } else {
-        setRelatedProducts(prevRelatedProducts =>
-          prevRelatedProducts.map(p => {
-            if (p._id === targetProductId) {
-              return { ...p, isWishlisted: currentWishlistState };
-            }
-            return p;
-          })
-        );
-      }
-
-      // If the error has specific messages, we can handle them
-      if (err.message) {
-        if (err.message.includes('already in wishlist')) {
-          console.log(`Product ${targetProductId} is already in wishlist on server`);
-          if (isMainProduct) {
-            setIsWishlisted(true);
-          } else {
-            setRelatedProducts(prevRelatedProducts =>
-              prevRelatedProducts.map(p => {
-                if (p._id === targetProductId) {
-                  return { ...p, isWishlisted: true };
-                }
-                return p;
-              })
-            );
-          }
-        } else if (err.message.includes('not in wishlist') || err.message.includes('not found in wishlist')) {
-          console.log(`Product ${targetProductId} is not in wishlist on server`);
-          if (isMainProduct) {
-            setIsWishlisted(false);
-          } else {
-            setRelatedProducts(prevRelatedProducts =>
-              prevRelatedProducts.map(p => {
-                if (p._id === targetProductId) {
-                  return { ...p, isWishlisted: false };
-                }
-                return p;
-              })
-            );
-          }
-        } else {
-          // For other errors, refresh the wishlist status from server
-          console.log('Unknown error, refreshing wishlist status from server');
-          refreshWishlistStatus();
-        }
+        throw toggleErr;
       }
     }
-    console.log(`Completed wishlist toggle operation for product ${targetProductId}`);
-  };
+
+    // Refresh wishlist status after successful API call
+    await refreshWishlistStatus();
+  } catch (err) {
+    console.error('Error toggling wishlist:', err);
+    
+    // Revert optimistic update on error
+    if (isRelatedProduct) {
+      setRelatedProducts(prevProducts =>
+        prevProducts.map(p =>
+          p._id === productId
+            ? { ...p, isWishlisted: !p.isWishlisted }
+            : p
+        )
+      );
+    } else {
+      setIsWishlisted(!isWishlisted);
+    }
+    
+    alert('Failed to update wishlist. Please try again.');
+  }
+};
 
   const handleQuickOrder = (product) => {
     setSelectedProduct(product);
@@ -566,6 +493,12 @@ const ProductDetailPage = () => {
       setIsShowingVideo(false);
     }
   }, [product]);
+
+  // Handle rating update from ReviewSection
+  const handleRatingUpdate = (ratingData) => {
+    setAverageRating(ratingData.average);
+    setTotalReviews(ratingData.count);
+  };
 
   // Render the component with loading, error, or product details
   return (
@@ -810,9 +743,9 @@ const ProductDetailPage = () => {
 
                   {/* Rating */}
                   <div className="flex items-center mt-2">
-                    <div className="flex mr-2">{renderStars(product.rating)}</div>
+                    <div className="flex mr-2">{renderStars(averageRating)}</div>
                     <span className="text-sm text-gray-600">
-                      {product.rating} ({product.reviews} reviews)
+                      {averageRating > 0 ? `${averageRating} (${totalReviews} reviews)` : 'No reviews yet'}
                     </span>
                   </div>
                 </div>
@@ -981,6 +914,9 @@ const ProductDetailPage = () => {
             </div>
 
 
+            {/* Review Section */}
+            <ReviewSection productId={id} currentUser={currentUser} onRatingUpdate={handleRatingUpdate} />
+
             {/* Similar Products Section */}
             <div className="mt-8 sm:mt-12 md:mt-16">
               <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl text-[#48182E] font-serif font-semibold mb-6 text-center">
@@ -1033,16 +969,20 @@ const ProductDetailPage = () => {
                               {relatedProduct.name}
                             </h3>
                             <div className="flex items-center space-x-1 sm:space-x-2">
-                              <button
-                                onClick={(e) => {
-                                  e.preventDefault();
-                                  e.stopPropagation();
-                                  handleToggleWishlist(relatedProduct._id);
-                                }}
-                                className="text-[#48182E] hover:scale-110 transition"
-                              >
-                                {relatedProduct.isWishlisted ? <HiMiniHeart size={16} /> : <FaRegHeart size={16} />}
-                              </button>
+                             <button
+  onClick={(e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    handleToggleWishlist(relatedProduct._id, true);
+  }}
+  className="text-[#48182E] hover:scale-110 transition"
+  title={relatedProduct.isWishlisted ? "Remove from wishlist" : "Add to wishlist"}
+>
+  {relatedProduct.isWishlisted ? 
+    <HiMiniHeart size={16} className="text-[#48182E]" /> : 
+    <FaRegHeart size={16} />
+  }
+</button>
                               <button
                                 onClick={(e) => {
                                   e.preventDefault();
