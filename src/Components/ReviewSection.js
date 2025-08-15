@@ -6,7 +6,6 @@ const ReviewSection = ({ productId, currentUser, onRatingUpdate }) => {
   const [reviews, setReviews] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [showReviewForm, setShowReviewForm] = useState(false);
   const [newReview, setNewReview] = useState({
     rating: 5,
     title: '',
@@ -15,7 +14,6 @@ const ReviewSection = ({ productId, currentUser, onRatingUpdate }) => {
   });
   const [imageFiles, setImageFiles] = useState([]);
 
-  // Calculate average rating
   const calculateAverageRating = (reviews) => {
     if (!reviews || reviews.length === 0) {
       return { average: 0, count: 0 };
@@ -35,7 +33,6 @@ const ReviewSection = ({ productId, currentUser, onRatingUpdate }) => {
     };
   };
 
-  // Fetch reviews
   useEffect(() => {
     const fetchReviews = async () => {
       try {
@@ -44,7 +41,7 @@ const ReviewSection = ({ productId, currentUser, onRatingUpdate }) => {
         const data = await response.json();
         const fetchedReviews = data.data?.reviews || [];
         setReviews(fetchedReviews);
-        
+
         // Calculate and pass rating data to parent
         const ratingData = calculateAverageRating(fetchedReviews);
         if (onRatingUpdate) {
@@ -121,57 +118,60 @@ const ReviewSection = ({ productId, currentUser, onRatingUpdate }) => {
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">
+      
       {/* Review Display */}
-      <div className="mb-8">
-        {reviews.length > 0 && (
-          <>
-            <h2 className="text-3xl font-serif font-semibold text-[#48182E] mb-6">Customer Reviews</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {reviews && Array.isArray(reviews) && reviews.map(review => (
-                review && typeof review === 'object' && review._id ? (
-                  <div key={review._id} className="bg-white rounded-lg shadow-md p-6">
-                    <div className="flex items-center mb-2">
-                      <div className="flex mr-2">{renderStars(review.rating || 0)}</div>
-                      <span className="text-sm text-gray-600">({review.rating || 0})</span>
-                    </div>
-                    <h4 className="font-semibold mb-2">{review.title || 'No title'}</h4>
-                    <p className="text-sm text-gray-600 mb-2">{review.comment || 'No comment'}</p>
-                    <div className="flex items-center mb-2">
-                      <FaUserCircle className="text-gray-400 mr-2" />
-                      <p className="text-xs text-gray-500">
-                        {(review.user && typeof review.user === 'object' ? review.user.name : 'Anonymous') || 'Anonymous'} • {formatDate(review.createdAt)}
-                      </p>
-                    </div>
-                    {review.images && Array.isArray(review.images) && review.images.length > 0 && (
-                      <div className="flex space-x-2 mt-2">
-                        {review.images.map((img, idx) => (
-                          <img
-                            key={idx}
-                            src={`http://localhost:5000${img && typeof img === 'object' ? img.url : ''}`}
-                            alt="Review"
-                            className="w-16 h-16 object-cover rounded"
-                          />
-                        ))}
-                      </div>
-                    )}
+      {reviews.length > 0 && (
+        <div className="mb-8">
+          <h2 className="text-3xl font-serif font-semibold text-[#48182E] mb-6">Customer Reviews</h2>
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {reviews.map(review => (
+              <div 
+                key={review._id} 
+                className="bg-white rounded-2xl shadow-lg p-6 hover:shadow-xl transition duration-300 transform hover:-translate-y-1"
+              >
+                <div className="flex items-center mb-2">
+                  <div className="flex mr-2">{renderStars(review.rating || 0)}</div>
+                  <span className="text-sm text-gray-600">({review.rating || 0})</span>
+                </div>
+                <h4 className="font-semibold mb-2 text-lg">{review.title || 'No title'}</h4>
+                <p className="text-sm text-gray-600 mb-4">{review.comment || 'No comment'}</p>
+                <div className="flex items-center mb-2">
+                  <FaUserCircle className="text-gray-400 mr-2 text-xl" />
+                  <p className="text-xs text-gray-500">
+                    {review.user?.name || 'Anonymous'} • {formatDate(review.createdAt)}
+                  </p>
+                </div>
+                {review.images?.length > 0 && (
+                  <div className="flex space-x-2 mt-2">
+                    {review.images.map((img, idx) => (
+                      <img
+                        key={idx}
+                        src={`http://localhost:5000${img?.url}`}
+                        alt="Review"
+                        className="w-16 h-16 object-cover rounded-lg border border-gray-200 hover:scale-105 transition"
+                      />
+                    ))}
                   </div>
-                ) : null
-              ))}
-            </div>
-          </>
-        )}
-
-      </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Review Form */}
       {currentUser && (
         <div className="mt-8">
           <h3 className="text-2xl font-serif font-semibold text-[#48182E] mb-4">Write a Review</h3>
-          <form onSubmit={handleSubmitReview} className="bg-white rounded-lg shadow-md p-6">
-            <div className="mb-4">
+          <form 
+            onSubmit={handleSubmitReview} 
+            className="bg-white rounded-2xl shadow-lg p-6 space-y-4"
+          >
+            {/* Rating */}
+            <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Rating</label>
               <div className="flex space-x-1">
-                {[1, 2, 3, 4, 5].map((star) => (
+                {[1, 2, 3, 4, 5].map(star => (
                   <button
                     key={star}
                     type="button"
@@ -184,44 +184,48 @@ const ReviewSection = ({ productId, currentUser, onRatingUpdate }) => {
               </div>
             </div>
 
-            <div className="mb-4">
+            {/* Title */}
+            <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Title</label>
               <input
                 type="text"
                 value={newReview.title}
                 onChange={(e) => setNewReview({ ...newReview, title: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#48182E] focus:border-transparent"
+                className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#48182E]"
                 placeholder="Review title"
                 required
               />
             </div>
 
-            <div className="mb-4">
+            {/* Comment */}
+            <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Comment</label>
               <textarea
                 value={newReview.comment}
                 onChange={(e) => setNewReview({ ...newReview, comment: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#48182E] focus:border-transparent"
+                className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#48182E]"
                 rows="4"
                 placeholder="Your review"
                 required
               />
             </div>
 
-            <div className="mb-4">
+            {/* Images */}
+            <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Images (optional)</label>
               <input
                 type="file"
                 multiple
                 accept="image/*"
                 onChange={handleImageUpload}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                className="w-full px-3 py-2 border border-gray-200 rounded-lg"
               />
             </div>
 
+            {/* Submit */}
             <button
               type="submit"
-              className="w-full bg-[#48182E] text-white py-2 px-4 rounded-md hover:bg-[#5a2a40] transition"
+              className="w-full bg-[#48182E] text-white py-2 px-4 rounded-lg hover:bg-[#5a2a40] transition"
             >
               Submit Review
             </button>
