@@ -26,22 +26,13 @@ const ProductPage = () => {
   }, []);
 
   useEffect(() => {
-    if (currentUser && products.length > 0 && !wishlistCheckedRef.current) {
-      if (wishlistCheckTimeoutRef.current) {
-        clearTimeout(wishlistCheckTimeoutRef.current);
-      }
-      wishlistCheckTimeoutRef.current = setTimeout(() => {
-        wishlistCheckedRef.current = true;
-        checkWishlistStatus();
-      }, 100);
+    if (currentUser && products.length > 0) {
+      checkWishlistStatus();
     }
   }, [currentUser, products.length]);
 
   useEffect(() => {
     wishlistCheckedRef.current = false;
-    if (wishlistCheckTimeoutRef.current) {
-      clearTimeout(wishlistCheckTimeoutRef.current);
-    }
   }, [currentUser]);
 
   const fetchProducts = async () => {
@@ -50,10 +41,28 @@ const ProductPage = () => {
     wishlistCheckedRef.current = false;
     try {
       const response = await getAllProducts();
-      setProducts(response.data.products || []);
+      const productsData = response.data.products || [];
 
       if (currentUser) {
-        checkWishlistStatus();
+        const wishlistData = await getUserWishlist();
+        let wishlistProductIds = new Set();
+
+        if (wishlistData?.status === 'success' && wishlistData?.data?.wishlist) {
+          wishlistData.data.wishlist.forEach(item => {
+            if (item.product && item.product._id) {
+              wishlistProductIds.add(item.product._id);
+            }
+          });
+        }
+
+        const productsWithWishlistStatus = productsData.map(product => ({
+          ...product,
+          isWishlisted: wishlistProductIds.has(product._id)
+        }));
+
+        setProducts(productsWithWishlistStatus);
+      } else {
+        setProducts(productsData.map(product => ({ ...product, isWishlisted: false })));
       }
     } catch (err) {
       console.error('Error fetching products:', err);
@@ -68,29 +77,24 @@ const ProductPage = () => {
 
     try {
       const wishlistData = await getUserWishlist();
-      let wishlistProducts = [];
+      let wishlistProductIds = new Set();
 
-      if (wishlistData?.status === 'success' && wishlistData?.data?.products) {
-        wishlistProducts = wishlistData.data.products;
-      } else if (wishlistData?.status === 'success' && wishlistData?.data?.wishlist) {
-        wishlistProducts = wishlistData.data.wishlist.map(item => item.product);
-      } else if (wishlistData?.products) {
-        wishlistProducts = wishlistData.products;
-      } else if (Array.isArray(wishlistData)) {
-        wishlistProducts = wishlistData;
+      console.log(wishlistData)
+      if (wishlistData?.status === 'success' && wishlistData?.data?.wishlist) {
+        // Correctly handle the wishlist items that have products
+        wishlistData.data.wishlist.forEach(item => {
+          if (item.product && item.product._id) {
+            wishlistProductIds.add(item.product._id);
+          }
+        });
       }
 
-      if (wishlistProducts.length > 0) {
-        const wishlistIds = wishlistProducts.map(product => product._id);
-        setProducts(prev =>
-          prev.map(product => ({
-            ...product,
-            isWishlisted: wishlistIds.includes(product._id)
-          }))
-        );
-      } else {
-        setProducts(prev => prev.map(product => ({ ...product, isWishlisted: false })));
-      }
+      setProducts(prev =>
+        prev.map(product => ({
+          ...product,
+          isWishlisted: wishlistProductIds.has(product._id)
+        }))
+      );
     } catch (err) {
       console.error('Error checking wishlist status:', err);
     }

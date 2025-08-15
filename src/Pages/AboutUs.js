@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { GiCrystalEarrings, GiDiamondRing } from 'react-icons/gi';
 import { FaGem, FaStar } from 'react-icons/fa';
 
@@ -14,6 +14,31 @@ import ClientTestimonial from './Home/ClientTestimonial';
 
 import './AboutUs.css'; // Assuming you have a CSS file for custom styles
 const AboutUs = () => {
+
+  const [email, setEmail] = useState("");
+  const [status, setStatus] = useState("");
+
+  const handleNewsletterSubmit = async (e) => {
+    e.preventDefault();
+    setStatus("Sending...");
+    try {
+      const res = await fetch("http://localhost:5000/api/news/send-newsletter", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setStatus("✅ Thank you for subscribing!");
+        setEmail("");
+      } else {
+        setStatus(`❌ ${data.message}`);
+      }
+    } catch (err) {
+      setStatus("❌ Failed to send email");
+    }
+  };
+
   return (
     <div className="font-sans text-gray-800">
 
@@ -33,9 +58,9 @@ const AboutUs = () => {
       </div>
 
       {/* Centered Image */}
-<div className="w-full px-4 sm:px-8 md:px-16 lg:px-36">
-  <img src={diamondImg} alt="Jewelry" className="w-full h-auto" />
-</div>
+      <div className="w-full px-4 sm:px-8 md:px-16 lg:px-36">
+        <img src={diamondImg} alt="Jewelry" className="w-full h-auto" />
+      </div>
 
 
       {/* Philosophy Content */}
@@ -95,39 +120,39 @@ const AboutUs = () => {
           </ul>
         </div>
       </div> */}
-<div className="flex flex-col lg:flex-row items-center justify-center gap-8 px-4 py-16 pt-4">
-  <img 
-    src={goldRingImg} 
-    alt="Why We Are Best" 
-    className="w-full max-w-md mb-8 lg:mb-0 about_uss h-[370px] sm:h-[550px] lg:h-[600px] object-cover rounded-lg shadow-lg" 
-  />
-  <div className="w-full lg:max-w-xl text-left px-16 lg:px-0">
-    <h3 className="text-xl font-semibold mb-4 uppercase text-center lg:text-left fc-title font-semibold mb-2 uppercase pl-2">Why We Are Best</h3>
-    <ul className="space-y-10">
-      <li className="flex flex-row gap-6">
-        <GiCrystalEarrings className="text-[#AE8B0D] flex-shrink-0 mt-3" size={60} />
-        <div>
-          <h4 className="about_names font-semibold">Captivating Collections</h4>
-          <p className="about_para">From classic and vintage to contemporary and avant-garde, our jewelry showcases the perfect blend of tradition and innovation.</p>
+      <div className="flex flex-col lg:flex-row items-center justify-center gap-8 px-4 py-16 pt-4">
+        <img
+          src={goldRingImg}
+          alt="Why We Are Best"
+          className="w-full max-w-md mb-8 lg:mb-0 about_uss h-[370px] sm:h-[550px] lg:h-[600px] object-cover rounded-lg shadow-lg"
+        />
+        <div className="w-full lg:max-w-xl text-left px-16 lg:px-0">
+          <h3 className="text-xl font-semibold mb-4 uppercase text-center lg:text-left fc-title font-semibold mb-2 uppercase pl-2">Why We Are Best</h3>
+          <ul className="space-y-10">
+            <li className="flex flex-row gap-6">
+              <GiCrystalEarrings className="text-[#AE8B0D] flex-shrink-0 mt-3" size={60} />
+              <div>
+                <h4 className="about_names font-semibold">Captivating Collections</h4>
+                <p className="about_para">From classic and vintage to contemporary and avant-garde, our jewelry showcases the perfect blend of tradition and innovation.</p>
+              </div>
+            </li>
+            <li className="flex flex-row gap-6">
+              <GiDiamondRing className="text-[#AE8B0D] flex-shrink-0 mt-3" size={60} />
+              <div>
+                <h4 className="about_names font-semibold">Precious Gemstones</h4>
+                <p className="about_para">Experience the allure of rare gemstones, carefully selected to infuse each piece with a touch of the extraordinary.</p>
+              </div>
+            </li>
+            <li className="flex flex-row gap-6">
+              <FaGem className="text-[#AE8B0D] flex-shrink-0 mt-3" size={60} />
+              <div>
+                <h4 className="about_names font-semibold">Sparkling Diamonds</h4>
+                <p className="about_para">From dazzling solitaires to intricate diamond-studded bands, our collection showcases the finest quality gems.</p>
+              </div>
+            </li>
+          </ul>
         </div>
-      </li>
-      <li className="flex flex-row gap-6">
-        <GiDiamondRing className="text-[#AE8B0D] flex-shrink-0 mt-3" size={60} />
-        <div>
-          <h4 className="about_names font-semibold">Precious Gemstones</h4>
-          <p className="about_para">Experience the allure of rare gemstones, carefully selected to infuse each piece with a touch of the extraordinary.</p>
-        </div>
-      </li>
-      <li className="flex flex-row gap-6">
-        <FaGem className="text-[#AE8B0D] flex-shrink-0 mt-3" size={60} />
-        <div>
-          <h4 className="about_names font-semibold">Sparkling Diamonds</h4>
-          <p className="about_para">From dazzling solitaires to intricate diamond-studded bands, our collection showcases the finest quality gems.</p>
-        </div>
-      </li>
-    </ul>
-  </div>
-</div>
+      </div>
 
       {/* Quote Section */}
       {/* <div className="bg-gray-50 text-center py-20 px-4">
@@ -138,7 +163,7 @@ const AboutUs = () => {
 
       {/* Features Section */}
       {/* Features Section */}
-<div className="max-w-6xl mx-auto py-4 px-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10">
+      <div className="max-w-6xl mx-auto py-4 px-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10">
         <div className='flex flex-col items-center text-center p-6 bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow'>
           <img src={quality} alt="Quality Products" className=" mb-4" />
           <h4 className="text-lg font-medium mb-2">Quality Products</h4>
@@ -161,29 +186,33 @@ const AboutUs = () => {
 
 
       {/* Newsletter Section */}
-    <div 
-  className="relative text-white py-20 px-4 bg-cover bg-center flex flex-col justify-center items-center h-[380px]"
-  style={{ backgroundImage: `url(${subsri})` }}
->
-  <div className="text-center max-w-xl">
-    <h2 className="text-2xl md:text-3xl font-semibold mb-3">Subscribe to Our Newsletter</h2>
-    <p className="text-sm md:text-base text-gray-300 mb-6">Be the first to know about new collections and exclusive offers.</p>
-    <form className="flex flex-col sm:flex-row gap-4">
-      <input
-        type="email"
-        placeholder="Email Address"
-        className="w-full sm:w-auto px-4 py-2 rounded-md text-gray-900 placeholder-gray-500 focus:ring-2 focus:ring-[#AE8B0D] outline-none"
-      />
-      <button
-        type="submit"
-        className="bg-[#AE8B0D] text-white px-6 py-2 rounded-md hover:bg-yellow-700 transition"
+      <div
+        className="relative text-white py-20 px-4 bg-cover bg-center flex flex-col justify-center items-center h-[380px]"
+        style={{ backgroundImage: `url(${subsri})` }}
       >
-        Subscribe
-      </button>
-    </form>
-  </div>
-</div>
+        <div className="text-center max-w-xl">
+          <h2 className="text-2xl md:text-3xl font-semibold mb-3">Subscribe to Our Newsletter</h2>
+          <p className="text-sm md:text-base text-gray-300 mb-6">Be the first to know about new collections and exclusive offers.</p>
+          <form onSubmit={handleNewsletterSubmit} className="flex flex-col sm:flex-row gap-4 justify-between">
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="Enter your email"
+              required
+              className="w-full px-4 py-2 rounded-md text-gray-900 placeholder-gray-500 focus:ring-2 focus:ring-[#AE8B0D] outline-none"
+            />
+            <button
+              type="submit"
+              className="bg-[#AE8B0D] text-white px-6 py-2 rounded-md hover:bg-yellow-700 transition"
+            >
+              Subscribe
+            </button>
+          </form>
+          {status && <p className="text-xs mt-1">{status}</p>}
 
+        </div>
+      </div>
 
     </div>
   );

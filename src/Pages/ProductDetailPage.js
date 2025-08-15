@@ -63,7 +63,6 @@ const ProductDetailPage = () => {
               } else if (wishlistData && Array.isArray(wishlistData)) {
                 products = wishlistData;
               }
-
               if (products.length > 0) {
                 // Check if current product is in the user's wishlist
                 const isInWishlist = products.some(

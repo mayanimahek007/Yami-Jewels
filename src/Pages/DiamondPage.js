@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import Layout from '../Components/Layout';
-import { FaRegHeart } from 'react-icons/fa';
+import { FaRegHeart, FaHeart } from 'react-icons/fa';
+import { getDiamondWishlist, addDiamondToWishlist, removeDiamondFromWishlist } from '../services/productService';
+import { useAuth } from '../context/AuthContext';
 import shopbanner from '../assets/images/diamond (3).svg';
 const DiamondPage = () => {
   const [diamonds, setDiamonds] = useState([]);
@@ -20,11 +22,16 @@ const DiamondPage = () => {
     cuts: [],
     priceRange: { minSalePrice: 0, maxSalePrice: 100000 }
   });
+  const [wishlistDiamonds, setWishlistDiamonds] = useState([]);
+  const { currentUser } = useAuth();
 
   useEffect(() => {
     fetchAttributes();
     fetchDiamonds();
-  }, []);
+    if (currentUser) {
+      fetchDiamondWishlist();
+    }
+  }, [currentUser]);
 
 
   const fetchDiamonds = async () => {
@@ -79,6 +86,47 @@ const DiamondPage = () => {
 
   const handleFilterChange = (filterType, value) => {
     setFilters(prev => ({ ...prev, [filterType]: value }));
+  };
+
+  const fetchDiamondWishlist = async () => {
+    try {
+      const response = await getDiamondWishlist();
+      if (response.status === 'success' && response.data) {
+        const diamondIds = response.data.wishlist.map(item => item.diamond._id);
+        setWishlistDiamonds(diamondIds);
+      }
+    } catch (error) {
+      console.error('Error fetching diamond wishlist:', error);
+    }
+  };
+
+  const toggleDiamondWishlist = async (diamondId, e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    if (!currentUser) {
+      alert('Please login to add items to wishlist');
+      return;
+    }
+
+    try {
+      const isInWishlist = wishlistDiamonds.includes(diamondId);
+      
+      if (isInWishlist) {
+        await removeDiamondFromWishlist(diamondId);
+        setWishlistDiamonds(prev => prev.filter(id => id !== diamondId));
+      } else {
+        await addDiamondToWishlist(diamondId);
+        setWishlistDiamonds(prev => [...prev, diamondId]);
+      }
+    } catch (error) {
+      console.error('Error toggling diamond wishlist:', error);
+      alert('Failed to update wishlist. Please try again.');
+    }
+  };
+
+  const isDiamondInWishlist = (diamondId) => {
+    return wishlistDiamonds.includes(diamondId);
   };
 
   const filteredDiamonds = diamonds.filter(diamond => {
@@ -188,10 +236,23 @@ const DiamondPage = () => {
       {/* Details Section */}
       <div className="p-2 sm:p-4 bg-white rounded-b-lg">
         {/* Shape & Price */}
-        <div className="flex justify-between text-[11px] sm:text-xs font-semibold text-gray-900 mb-2">
-          <div>{diamond.Shape}</div>
-          <div>${diamond.salePrice}</div>
-        </div>
+          <div className="flex justify-between items-center text-[11px] sm:text-xs font-semibold text-gray-900 mb-2">
+            <div>{diamond.Shape}</div>
+            <div className="flex items-center gap-1 sm:gap-3">
+              <span>${diamond.salePrice}</span>
+              <button
+                onClick={(e) => toggleDiamondWishlist(diamond._id, e)}
+                className="hover:scale-110 transition-transform"
+                title={isDiamondInWishlist(diamond._id) ? "Remove from wishlist" : "Add to wishlist"}
+              >
+                {isDiamondInWishlist(diamond._id) ? (
+                  <FaHeart size={15} className="text-[#48182E]" />
+                ) : (
+                  <FaRegHeart size={15} className="text-[#48182E]" />
+                )}
+              </button>
+            </div>
+          </div>
 
         {/* Specs */}
         <div className="flex justify-between text-[10px] py-2 pt-0 sm:pt-1">

@@ -10,7 +10,7 @@ import Slider from 'react-slick';
 import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
 import './ProductDetailPage.css';
-import { fetchRelatedDiamonds, getDiamondById, removeFromWishlist, toggleWishlist } from '../services/productService';
+import { addDiamondToWishlist, fetchRelatedDiamonds, getDiamondById, removeDiamondFromWishlist, getDiamondWishlist } from '../services/productService';
 
 
 const DiamondDetailPage = () => {
@@ -28,6 +28,7 @@ const DiamondDetailPage = () => {
   const [isShowingVideo, setIsShowingVideo] = useState(false);
   const [combinedMedia, setCombinedMedia] = useState([]);
   const [selectedProductForOrder, setSelectedProductForOrder] = useState(null);
+  const [wishlistIds, setWishlistIds] = useState(new Set());
 
   const handleMediaSelect = (index) => {
     setCurrentImageIndex(index);
@@ -39,20 +40,33 @@ const DiamondDetailPage = () => {
     const fetchDiamondData = async () => {
       try {
         setLoading(true);
-        const data = await getDiamondById(id);
-        if (data && data.status === 'success') {
-          setDiamond(data.data.diamond);
-          setIsWishlisted(data.data.diamond.isWishlisted);
+        const [diamondData, wishlistData] = await Promise.all([
+          getDiamondById(id),
+          currentUser ? getDiamondWishlist() : Promise.resolve(null)
+        ]);
+
+        if (diamondData && diamondData.status === 'success') {
+          setDiamond(diamondData.data.diamond);
+
+          // Process wishlist data once for all diamonds
+          if (wishlistData && wishlistData.status === 'success') {
+            const wishlistItems = wishlistData.data?.wishlist || [];
+            const wishlistIdsSet = new Set(wishlistItems.map(item => item.diamond?._id));
+            setWishlistIds(wishlistIdsSet);
+            
+            // Check if current diamond is in wishlist
+            setIsWishlisted(wishlistIdsSet.has(id));
+          }
 
           // Media setup
           const media = [];
-          if (data.data.diamond.images?.length) {
-            data.data.diamond.images.forEach((image, index) => {
-              media.push({ type: 'image', url: image.url || image, alt: `${data.data.diamond.name} ${index + 1}` });
+          if (diamondData.data.diamond.images?.length) {
+            diamondData.data.diamond.images.forEach((image, index) => {
+              media.push({ type: 'image', url: image.url || image, alt: `${diamondData.data.diamond.name} ${index + 1}` });
             });
           }
-          if (data.data.diamond.videoUrl) {
-            media.push({ type: 'video', url: data.data.diamond.videoUrl, alt: `${data.data.diamond.name} video` });
+          if (diamondData.data.diamond.videoUrl) {
+            media.push({ type: 'video', url: diamondData.data.diamond.videoUrl, alt: `${diamondData.data.diamond.name} video` });
           }
           setCombinedMedia(media);
           setCurrentImageIndex(0);
@@ -66,7 +80,7 @@ const DiamondDetailPage = () => {
       }
     };
     fetchDiamondData();
-  }, [id]);
+  }, [id, currentUser]);
 
   const handleQuickOrder = (product) => {
     setRelatedDiamonds(product);
@@ -86,26 +100,76 @@ const DiamondDetailPage = () => {
             if (!exists) acc.push(current);
             return acc;
           }, []);
-        setRelatedDiamonds(uniqueDiamonds);
+
+        // Check wishlist status for related diamonds if user is logged in
+        if (currentUser) {
+          try {
+            const wishlistData = await getDiamondWishlist();
+            if (wishlistData && wishlistData.status === 'success') {
+              const wishlistItems = wishlistData.data?.wishlist || [];
+              const wishlistIds = new Set(wishlistItems.map(item => item.diamond?._id));
+              
+              // Update related diamonds with wishlist status
+              const updatedDiamonds = uniqueDiamonds.map(diamond => ({
+                ...diamond,
+                isWishlisted: wishlistIds.has(diamond._id)
+              }));
+              setRelatedDiamonds(updatedDiamonds);
+            } else {
+              setRelatedDiamonds(uniqueDiamonds);
+            }
+          } catch (wishlistError) {
+            console.error('Error fetching wishlist for related diamonds:', wishlistError);
+            setRelatedDiamonds(uniqueDiamonds);
+          }
+        } else {
+          setRelatedDiamonds(uniqueDiamonds);
+        }
       } catch {
         setRelatedDiamonds([]);
       }
     };
     loadRelatedDiamonds();
-  }, [diamond]);
+  }, [diamond, currentUser]);
 
 
-  const handleToggleWishlist = async (diamondId) => {
+  const handleToggleWishlist = async (diamondId, isRelated = false) => {
     if (!currentUser) return navigate('/login');
     try {
-      if (isWishlisted) {
-        await removeFromWishlist(diamondId);
-        setIsWishlisted(false);
+      // Check if this diamond is currently in wishlist
+      const isCurrentlyWishlisted = isRelated 
+        ? relatedDiamonds.find(d => d._id === diamondId)?.isWishlisted
+        : isWishlisted;
+
+      if (isCurrentlyWishlisted) {
+        await removeDiamondFromWishlist(diamondId);
+        if (isRelated) {
+          // Update related diamonds
+          setRelatedDiamonds(prev => 
+            prev.map(d => 
+              d._id === diamondId ? { ...d, isWishlisted: false } : d
+            )
+          );
+        } else {
+          setIsWishlisted(false);
+          setDiamond(prev => ({ ...prev, isWishlisted: false }));
+        }
       } else {
-        await toggleWishlist(diamondId);
-        setIsWishlisted(true);
+        await addDiamondToWishlist(diamondId);
+        if (isRelated) {
+          // Update related diamonds
+          setRelatedDiamonds(prev => 
+            prev.map(d => 
+              d._id === diamondId ? { ...d, isWishlisted: true } : d
+            )
+          );
+        } else {
+          setIsWishlisted(true);
+          setDiamond(prev => ({ ...prev, isWishlisted: true }));
+        }
       }
-    } catch {
+    } catch (error) {
+      console.error('Wishlist update error:', error);
       alert('Failed to update wishlist');
     }
   };
@@ -261,8 +325,13 @@ const DiamondDetailPage = () => {
             <h1 className="text-xl sm:text-2xl md:text-3xl font-serif font-semibold text-gray-900">
               {diamond.name}</h1>
             <div className="flex items-center gap-3">
-              <button onClick={() => handleToggleWishlist(diamond._id)}>{isWishlisted ? <HiMiniHeart size={20} className="text-[#48182E]" /> : <FaRegHeart size={20} />}</button>
-              <button onClick={() => { navigator.clipboard.writeText(window.location.href); alert('Link copied!'); }}><FaShareAlt size={20} /></button>
+              <button onClick={() => handleToggleWishlist(diamond._id)}>
+                {isWishlisted ? (
+                  <HiMiniHeart size={20} className="text-[#48182E]" />
+                ) : (
+                  <FaRegHeart size={20} />
+                )}
+              </button>              <button onClick={() => { navigator.clipboard.writeText(window.location.href); alert('Link copied!'); }}><FaShareAlt size={20} /></button>
             </div>
           </div>
           <p className="text-lg sm:text-xl md:text-2xl font-medium text-gray-800 mt-1 flex flex-wrap gap-2 items-center">
@@ -386,12 +455,16 @@ const DiamondDetailPage = () => {
                           onClick={(e) => {
                             e.preventDefault();
                             e.stopPropagation();
-                            handleToggleWishlist(d._id);
-                            console.log(`Toggled wishlist for product ${d._id}`);
+                            handleToggleWishlist(d._id, true);
                           }}
                           className="text-[#48182E] hover:scale-110 transition mr-2"
                         >
-                          {d.isWishlisted ? <HiMiniHeart size={16} className="sm:size-[18px]" /> : <FaRegHeart size={16} className="sm:size-[18px]" />}                        </button>
+                          {d.isWishlisted ? (
+                            <HiMiniHeart size={16} className="sm:size-[18px]" />
+                          ) : (
+                            <FaRegHeart size={16} className="sm:size-[18px]" />
+                          )}
+                        </button>
                         <button
                           onClick={(e) => {
                             e.preventDefault();

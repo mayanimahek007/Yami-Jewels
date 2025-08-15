@@ -424,4 +424,93 @@ export const fetchRelatedDiamonds = async (Shape) => {
   }
 };
 
+// Diamond wishlist APIs
+// Add diamond to wishlist
+export const addDiamondToWishlist = async (diamondId) => {
+  try {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      throw new Error('Authentication required');
+    }
 
+    const response = await fetch(`http://localhost:5000/api/diamonds/wishlist/add`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify({ diamondId })
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || 'Failed to add diamond to wishlist');
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error(`Error adding diamond ${diamondId} to wishlist:`, error);
+    throw error;
+  }
+};
+
+// Get diamond wishlist
+export const getDiamondWishlist = async () => {
+  try {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      throw new Error('Authentication required');
+    }
+
+    const response = await fetch(`http://localhost:5000/api/diamonds/wishlist`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      }
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || 'Failed to fetch diamond wishlist');
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error('Error fetching diamond wishlist:', error);
+    throw error;
+  }
+};
+
+// Remove diamond from wishlist
+export const removeDiamondFromWishlist = async (diamondId) => {
+  try {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      throw new Error('Authentication required');
+    }
+
+    const response = await fetch(`http://localhost:5000/api/diamonds/wishlist/remove/${diamondId}`, {
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || 'Failed to remove diamond from wishlist');
+    }
+
+    // Handle empty response
+    const contentType = response.headers.get('content-type');
+    if (contentType && contentType.includes('application/json')) {
+      return await response.json();
+    } else {
+      return { status: 'success', message: 'Diamond removed from wishlist' };
+    }
+  } catch (error) {
+    console.error(`Error removing diamond ${diamondId} from wishlist:`, error);
+    throw error;
+  }
+};

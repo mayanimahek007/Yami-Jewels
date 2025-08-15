@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import featuredImg from '../assets/images/b1.webp'; // Replace with your actual image path
 import blogBanner from '../assets/images/blogDetails.svg';
 import authorImg from '../assets/images/b2.webp';
@@ -6,6 +6,31 @@ import subsri from '../assets/images/subsri.svg';
 import './Home/Unique.css';
 
 const BlogDetail = () => {
+
+  const [email, setEmail] = useState("");
+  const [status, setStatus] = useState("");
+
+  const handleNewsletterSubmit = async (e) => {
+    e.preventDefault();
+    setStatus("Sending...");
+    try {
+      const res = await fetch("http://localhost:5000/api/news/send-newsletter", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setStatus("✅ Thank you for subscribing!");
+        setEmail("");
+      } else {
+        setStatus(`❌ ${data.message}`);
+      }
+    } catch (err) {
+      setStatus("❌ Failed to send email");
+    }
+  };
+
   return (
     <div>
       {/* Header Section */}
@@ -96,7 +121,7 @@ const BlogDetail = () => {
       </div>
 
       {/* Newsletter Section */}
-          {/* <div className="relative bg-[#48182ec4] text-white py-20 text-center px-4 bg-cover bg-center flex h-[300px]" style={{ backgroundImage: `url(${subsri}` }}>
+      {/* <div className="relative bg-[#48182ec4] text-white py-20 text-center px-4 bg-cover bg-center flex h-[300px]" style={{ backgroundImage: `url(${subsri}` }}>
 
        <div className='flex flex-col items-center docccc'>
         <h2 className="text-3xl font-semibold mb-4">Subscribe to Our Newsletter</h2>
@@ -118,28 +143,33 @@ const BlogDetail = () => {
         </form>
         
       </div> */}
-          <div 
-  className="relative text-white py-20 px-4 bg-cover bg-center flex flex-col justify-center items-center h-[380px]"
-  style={{ backgroundImage: `url(${subsri})` }}
->
-  <div className="text-center max-w-xl">
-    <h2 className="text-2xl md:text-3xl font-semibold mb-3">Subscribe to Our Newsletter</h2>
-    <p className="text-sm md:text-base text-gray-300 mb-6">Be the first to know about new collections and exclusive offers.</p>
-    <form className="flex flex-col sm:flex-row gap-4">
-      <input
-        type="email"
-        placeholder="Email Address"
-        className="w-full sm:w-auto px-4 py-2 rounded-md text-gray-900 placeholder-gray-500 focus:ring-2 focus:ring-[#AE8B0D] outline-none"
-      />
-      <button
-        type="submit"
-        className="bg-[#AE8B0D] text-white px-6 py-2 rounded-md hover:bg-yellow-700 transition"
+      <div
+        className="relative text-white py-20 px-4 bg-cover bg-center flex flex-col justify-center items-center h-[380px]"
+        style={{ backgroundImage: `url(${subsri})` }}
       >
-        Subscribe
-      </button>
-    </form>
-  </div>
-</div>
+        <div className="text-center max-w-xl">
+          <h2 className="text-2xl md:text-3xl font-semibold mb-3">Subscribe to Our Newsletter</h2>
+          <p className="text-sm md:text-base text-gray-300 mb-6">Be the first to know about new collections and exclusive offers.</p>
+          <form onSubmit={handleNewsletterSubmit} className="flex flex-col sm:flex-row gap-4 justify-between">
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="Enter your email"
+              required
+              className="w-full px-4 py-2 rounded-md text-gray-900 placeholder-gray-500 focus:ring-2 focus:ring-[#AE8B0D] outline-none"
+            />
+            <button
+              type="submit"
+              className="bg-[#AE8B0D] text-white px-6 py-2 rounded-md hover:bg-yellow-700 transition"
+            >
+              Subscribe
+            </button>
+          </form>
+          {status && <p className="text-xs mt-1">{status}</p>}
+
+        </div>
+      </div>
     </div>
   );
 };

@@ -105,8 +105,10 @@ const ProductDisplaySection = () => {
         }
 
         if (products.length > 0) {
-          // Extract product IDs from wishlist
-          const wishlistProductIds = products.map(product => product._id);
+        // Extract product IDs from wishlist
+          const wishlistProductIds = products
+            .filter(product => product && product._id)
+            .map(product => product._id);
           console.log('Extracted wishlist product IDs:', wishlistProductIds);
           setWishlistedProducts(wishlistProductIds);
         } else {

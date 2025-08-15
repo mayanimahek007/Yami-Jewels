@@ -52,8 +52,10 @@ const WishlistPage = () => {
         products = response.data;
       }
       
-      console.log('Extracted products:', products);
-      setWishlistItems(products);
+      // Filter out null/undefined products and ensure they have _id
+      const validProducts = products.filter(product => product && product._id);
+      console.log('Valid products:', validProducts);
+      setWishlistItems(validProducts);
     } catch (err) {
       console.error('Error fetching wishlist:', err);
       setError('Failed to load wishlist. Please try again later.');
