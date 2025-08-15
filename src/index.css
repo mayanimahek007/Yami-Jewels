@@ -12,6 +12,8 @@ body {
   background: #fdf8f8;
   margin: 0;
   padding: 0;
+ cursor: default;
+  caret-color: transparent; 
 }
 
 h1, h2, h3, .fc-title, .es-title, .cts-title {
