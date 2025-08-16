@@ -3,7 +3,7 @@
 /**
  * Base URL for API requests
  */
-export const API_BASE_URL = 'http://localhost:5000/api';
+export const API_BASE_URL = 'http://194.238.18.43:5000/api';
 
 /**
  * Get the authentication token from local storage

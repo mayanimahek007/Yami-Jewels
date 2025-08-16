@@ -36,7 +36,7 @@ const DiamondPage = () => {
 
   const fetchDiamonds = async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/diamonds');
+      const response = await fetch('http://194.238.18.43:5000/api/diamonds');
       const result = await response.json();
 
       if (result.status === 'success' && result.data && result.data.diamonds) {
@@ -56,7 +56,7 @@ const DiamondPage = () => {
   const fetchAttributes = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:5000/api/diamonds/attributes', {
+      const response = await fetch('http://194.238.18.43:5000/api/diamonds/attributes', {
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
@@ -227,7 +227,7 @@ const DiamondPage = () => {
       {/* Image Section */}
       <div className="bg-gray-100 flex justify-center items-center rounded-t-lg aspect-square">
         <img
-          src={`http://localhost:5000${diamond.images[0] || '/placeholder.png'}`}
+          src={`http://194.238.18.43:5000${diamond.images[0] || '/placeholder.png'}`}
           alt={diamond.name}
           className="w-full h-full object-cover"
         />

@@ -27,7 +27,7 @@ const RegisterPage = () => {
     setError('');
 
     try {
-      const response = await fetch('http://localhost:5000/api/users/register', {
+      const response = await fetch('http://194.238.18.43:5000/api/users/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData)

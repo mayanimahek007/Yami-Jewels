@@ -13,9 +13,9 @@ import { BiSolidOffer } from 'react-icons/bi';
 import { FaMedal } from 'react-icons/fa6';
 
 const apiEndpoints = {
-  'ON SALE': 'http://localhost:5000/api/products/on-sale',
-  'BEST SELLER': 'http://localhost:5000/api/products/best-seller',
-  'TOP RATED': 'http://localhost:5000/api/products/top-rated',
+  'ON SALE': 'http://194.238.18.43:5000/api/products/on-sale',
+  'BEST SELLER': 'http://194.238.18.43:5000/api/products/best-seller',
+  'TOP RATED': 'http://194.238.18.43:5000/api/products/top-rated',
 };
 
 const sliderSettings = {
@@ -280,7 +280,7 @@ const ProductDisplaySection = () => {
                   <div className="w-full aspect-square overflow-hidden rounded-xl">
                     <img
                       src={product.images && product.images[0]?.url
-                        ? `http://localhost:5000${product.images[0].url}`
+                        ? `http://194.238.18.43:5000${product.images[0].url}`
                         : product.img}
                       alt={product.name}
                       className="w-full h-full object-cover group-hover:opacity-90 transition duration-300"
@@ -324,7 +324,7 @@ const ProductDisplaySection = () => {
                         e.stopPropagation();
                         handleQuickOrder({
                           ...product,
-                          image: product.images && product.images[0]?.url ? `http://localhost:5000${product.images[0].url}` : product.img,
+                          image: product.images && product.images[0]?.url ? `http://194.238.18.43:5000${product.images[0].url}` : product.img,
                           salePrice: product.salePrice,
                           regularPrice: product.regularPrice || product.price
                         });

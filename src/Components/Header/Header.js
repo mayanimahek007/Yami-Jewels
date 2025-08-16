@@ -45,7 +45,7 @@ const Header = () => {
                     return;
                 }
 
-                const response = await fetch('http://localhost:5000/api/products/wishlist/me', {
+                const response = await fetch('http://194.238.18.43:5000/api/products/wishlist/me', {
                     method: 'GET',
                     headers: {
                         'Authorization': `Bearer ${token}`,

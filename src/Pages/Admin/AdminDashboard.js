@@ -45,7 +45,7 @@ const AdminDashboard = () => {
 
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`http://localhost:5000/api/diamonds/${diamondId}`, {
+      const response = await fetch(`http://194.238.18.43:5000/api/diamonds/${diamondId}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`
@@ -68,7 +68,7 @@ const AdminDashboard = () => {
     setLoading(true);
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:5000/api/products', {
+      const response = await fetch('http://194.238.18.43:5000/api/products', {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -104,7 +104,7 @@ const AdminDashboard = () => {
     setLoading(true);
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:5000/api/users/admin/users', {
+      const response = await fetch('http://194.238.18.43:5000/api/users/admin/users', {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -140,7 +140,7 @@ const AdminDashboard = () => {
     setLoading(true);
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:5000/api/diamonds', {
+      const response = await fetch('http://194.238.18.43:5000/api/diamonds', {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -184,7 +184,7 @@ const AdminDashboard = () => {
 
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`http://localhost:5000/api/products/admin/${productId}`, {
+      const response = await fetch(`http://194.238.18.43:5000/api/products/admin/${productId}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`
@@ -312,7 +312,7 @@ const AdminDashboard = () => {
                             <div className="flex-shrink-0 h-10 w-10">
                               <img
                                 className="h-10 w-10 rounded-md object-cover"
-                                src={`http://localhost:5000${product.images && product.images.length > 0 ? product.images[0].url : '/placeholder.png'}`}
+                                src={`http://194.238.18.43:5000${product.images && product.images.length > 0 ? product.images[0].url : '/placeholder.png'}`}
                                 alt={product.name}
                               />
                             </div>
@@ -464,7 +464,7 @@ const AdminDashboard = () => {
                             <div className="flex-shrink-0 h-10 w-10">
                               <img
                                 className="h-10 w-10 rounded-md object-cover"
-                                src={`http://localhost:5000${diamond.images && diamond.images.length > 0 ? diamond.images[0] : '/placeholder.png'}`}
+                                src={`http://194.238.18.43:5000${diamond.images && diamond.images.length > 0 ? diamond.images[0] : '/placeholder.png'}`}
 
                                 alt={diamond.name}
                               />

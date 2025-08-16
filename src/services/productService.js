@@ -1,6 +1,6 @@
 // Product API service for handling product-related API calls
 
-const API_URL = 'http://localhost:5000/api/products';
+const API_URL = 'http://194.238.18.43:5000/api/products';
 
 // Get all products
 export const getAllProducts = async () => {
@@ -376,7 +376,7 @@ export const deleteProduct = async (productId) => {
 
 export const getDiamondById = async (id) => {
   try {
-    const response = await fetch(`http://localhost:5000/api/diamonds/${id}`, {
+    const response = await fetch(`http://194.238.18.43:5000/api/diamonds/${id}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -401,7 +401,7 @@ export const getDiamondById = async (id) => {
 export const fetchRelatedDiamonds = async (Shape) => {
   try {
     const response = await fetch(
-      `http://localhost:5000/api/diamonds/by-name?Shape=${encodeURIComponent(Shape)}`,
+      `http://194.238.18.43:5000/api/diamonds/by-name?Shape=${encodeURIComponent(Shape)}`,
       {
         method: 'GET',
         headers: { 'Content-Type': 'application/json' },
@@ -433,7 +433,7 @@ export const addDiamondToWishlist = async (diamondId) => {
       throw new Error('Authentication required');
     }
 
-    const response = await fetch(`http://localhost:5000/api/diamonds/wishlist/add`, {
+    const response = await fetch(`http://194.238.18.43:5000/api/diamonds/wishlist/add`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -462,7 +462,7 @@ export const getDiamondWishlist = async () => {
       throw new Error('Authentication required');
     }
 
-    const response = await fetch(`http://localhost:5000/api/diamonds/wishlist`, {
+    const response = await fetch(`http://194.238.18.43:5000/api/diamonds/wishlist`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -490,7 +490,7 @@ export const removeDiamondFromWishlist = async (diamondId) => {
       throw new Error('Authentication required');
     }
 
-    const response = await fetch(`http://localhost:5000/api/diamonds/wishlist/remove/${diamondId}`, {
+    const response = await fetch(`http://194.238.18.43:5000/api/diamonds/wishlist/remove/${diamondId}`, {
       method: 'DELETE',
       headers: {
         'Authorization': `Bearer ${token}`

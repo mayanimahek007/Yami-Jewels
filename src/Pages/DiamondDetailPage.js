@@ -212,10 +212,10 @@ const DiamondDetailPage = () => {
           <div className="border-4 border-[#b47b48] rounded-2xl shadow-md relative"
           >
             {isShowingVideo ? (
-              <video src={`http://localhost:5000${combinedMedia[currentImageIndex]?.url}`} className="w-full aspect-square object-cover rounded-xl bg-white"
+              <video src={`http://194.238.18.43:5000${combinedMedia[currentImageIndex]?.url}`} className="w-full aspect-square object-cover rounded-xl bg-white"
               />
             ) : (
-              <img src={`http://localhost:5000${combinedMedia[currentImageIndex]?.url}`} alt={diamond.name} className="w-full aspect-square object-cover rounded-xl bg-white"
+              <img src={`http://194.238.18.43:5000${combinedMedia[currentImageIndex]?.url}`} alt={diamond.name} className="w-full aspect-square object-cover rounded-xl bg-white"
               />
             )}
 
@@ -283,7 +283,7 @@ const DiamondDetailPage = () => {
               >
                 {media.type === "image" ? (
                   <img
-                    src={`http://localhost:5000${media.url}`}
+                    src={`http://194.238.18.43:5000${media.url}`}
                     alt={media.alt || `${media.name} view ${index + 1}`}
                     className="w-20 h-20 object-cover rounded-sm"
                   />
@@ -292,7 +292,7 @@ const DiamondDetailPage = () => {
                     <img
                       src={
                         media.images && media.images[0]?.url
-                          ? `http://localhost:5000${media.images[0].url}`
+                          ? `http://194.238.18.43:5000${media.images[0].url}`
                           : "/placeholder-image.jpg"
                       }
                       alt="Video Thumbnail"
@@ -437,7 +437,7 @@ const DiamondDetailPage = () => {
                     <div className="relative border border-[#b47b48] rounded-2xl shadow p-1 flex flex-col items-center aspect-square">
 
                       <img
-                        src={`http://localhost:5000${typeof d.images[0] === 'string'
+                        src={`http://194.238.18.43:5000${typeof d.images[0] === 'string'
                           ? d.images[0]
                           : d.images[0]?.url
                           }`}

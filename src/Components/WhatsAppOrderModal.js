@@ -11,15 +11,15 @@ const WhatsAppOrderModal = ({ isOpen, onClose, diamond, product, quantity, onCon
     if (p.image) {
       return p.image.startsWith('http')
         ? p.image
-        : `http://localhost:5000${p.image}`;
+        : `http://194.238.18.43:5000${p.image}`;
     }
 
     if (p.images && p.images.length > 0) {
       const imgObj = p.images[0];
       return typeof imgObj === 'string'
-        ? `http://localhost:5000${imgObj}`
+        ? `http://194.238.18.43:5000${imgObj}`
         : imgObj.url
-          ? `http://localhost:5000${imgObj.url}`
+          ? `http://194.238.18.43:5000${imgObj.url}`
           : '/placeholder.png';
     }
 

@@ -37,7 +37,7 @@ const ReviewSection = ({ productId, currentUser, onRatingUpdate }) => {
     const fetchReviews = async () => {
       try {
         setLoading(true);
-        const response = await fetch(`http://localhost:5000/api/reviews/product/${productId}`);
+        const response = await fetch(`http://194.238.18.43:5000/api/reviews/product/${productId}`);
         const data = await response.json();
         const fetchedReviews = data.data?.reviews || [];
         setReviews(fetchedReviews);
@@ -74,7 +74,7 @@ const ReviewSection = ({ productId, currentUser, onRatingUpdate }) => {
       formData.append("comment", newReview.comment);
       imageFiles.forEach((file) => formData.append("images", file));
 
-      const res = await fetch("http://localhost:5000/api/reviews", {
+      const res = await fetch("http://194.238.18.43:5000/api/reviews", {
         method: "POST",
         headers: { Authorization: `Bearer ${token}` },
         body: formData,
@@ -146,7 +146,7 @@ const ReviewSection = ({ productId, currentUser, onRatingUpdate }) => {
                     {review.images.map((img, idx) => (
                       <img
                         key={idx}
-                        src={`http://localhost:5000${img?.url}`}
+                        src={`http://194.238.18.43:5000${img?.url}`}
                         alt="Review"
                         className="w-16 h-16 object-cover rounded-lg border border-gray-200 hover:scale-105 transition"
                       />

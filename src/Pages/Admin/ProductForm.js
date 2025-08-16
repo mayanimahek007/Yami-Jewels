@@ -81,7 +81,7 @@ const ProductForm = () => {
 const fetchProductData = async () => {
   setLoading(true);
   try {
-    const response = await fetch(`http://localhost:5000/api/products/${id}`);
+    const response = await fetch(`http://194.238.18.43:5000/api/products/${id}`);
     
     if (!response.ok) {
       throw new Error('Failed to fetch product data');
@@ -121,7 +121,7 @@ const fetchProductData = async () => {
     // Set image previews if available
     if (data.images && data.images.length > 0) {
       const previewUrls = data.images.map(img => 
-        img.url.startsWith('http') ? img.url : `http://localhost:5000${img.url}`
+        img.url.startsWith('http') ? img.url : `http://194.238.18.43:5000${img.url}`
       );
       setImagePreviewUrls(previewUrls);
     }
@@ -129,7 +129,7 @@ const fetchProductData = async () => {
     // Set video preview if available
     if (data.videoUrl) {
       setVideoPreviewUrl(
-        data.videoUrl.startsWith('http') ? data.videoUrl : `http://localhost:5000${data.videoUrl}`
+        data.videoUrl.startsWith('http') ? data.videoUrl : `http://194.238.18.43:5000${data.videoUrl}`
       );
     }
   } catch (err) {
@@ -214,7 +214,7 @@ useEffect(() => {
   const removeImage = (index) => {
     // Determine if the image at this index is a new upload or an existing one
     // Existing images have URLs that start with the server URL
-    const isExistingImage = imagePreviewUrls[index] && imagePreviewUrls[index].startsWith('http://localhost:5000');
+    const isExistingImage = imagePreviewUrls[index] && imagePreviewUrls[index].startsWith('http://194.238.18.43:5000');
     
     if (isExistingImage) {
       // For existing images, we need to update the existingImages array in formData
@@ -223,7 +223,7 @@ useEffect(() => {
         // This is more reliable than using a simple offset calculation
         const existingImageUrl = imagePreviewUrls[index];
         const existingImageIndex = formData.existingImages.findIndex(
-          img => `http://localhost:5000${img.url}` === existingImageUrl
+          img => `http://194.238.18.43:5000${img.url}` === existingImageUrl
         );
         
         if (existingImageIndex >= 0) {
@@ -241,7 +241,7 @@ useEffect(() => {
       // Count how many new images come before this index
       let newImageCount = 0;
       for (let i = 0; i < index; i++) {
-        if (!imagePreviewUrls[i].startsWith('http://localhost:5000')) {
+        if (!imagePreviewUrls[i].startsWith('http://194.238.18.43:5000')) {
           newImageCount++;
         }
       }
@@ -329,11 +329,11 @@ useEffect(() => {
         formDataObj.append('existingVideoUrl', formData.videoUrl);
       }
       
-      let url = 'http://localhost:5000/api/products/admin';
+      let url = 'http://194.238.18.43:5000/api/products/admin';
       let method = 'POST';
       
       if (isEditMode) {
-        url = `http://localhost:5000/api/products/admin/${id}`;
+        url = `http://194.238.18.43:5000/api/products/admin/${id}`;
         method = 'PATCH';
       }
       

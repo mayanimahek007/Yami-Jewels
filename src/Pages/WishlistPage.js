@@ -153,7 +153,7 @@ const WishlistPage = () => {
                     <div className="relative bg-[#b47b48] rounded-2xl shadow p-1 flex flex-col items-center group">
                       <img
                         src={product.images && product.images[0]?.url 
-                          ? `http://localhost:5000${product.images[0].url}` 
+                          ? `http://194.238.18.43:5000${product.images[0].url}` 
                           : '/placeholder-image.jpg'}
                         alt={product.images && product.images[0]?.alt || product.name}
                         className="w-full h-64 object-cover rounded-xl group-hover:opacity-90 transition duration-300"

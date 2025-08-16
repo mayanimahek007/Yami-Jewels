@@ -186,8 +186,8 @@ const ProductPage = () => {
             {products.map((product) => {
               const imageToShow =
                 hoveredProductId === product._id && product.images[1]
-                  ? `http://localhost:5000${product.images[1]?.url}`
-                  : `http://localhost:5000${product.images[0]?.url}`;
+                  ? `http://194.238.18.43:5000${product.images[1]?.url}`
+                  : `http://194.238.18.43:5000${product.images[0]?.url}`;
 
               return (
                 <div

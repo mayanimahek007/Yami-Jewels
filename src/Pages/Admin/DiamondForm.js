@@ -57,7 +57,7 @@ const DiamondForm = () => {
     setLoading(true);
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`http://localhost:5000/api/diamonds/${id}`, {
+      const response = await fetch(`http://194.238.18.43:5000/api/diamonds/${id}`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
 
@@ -189,8 +189,8 @@ const handleSubmit = async (e) => {
     const token = localStorage.getItem('token');
     const response = await fetch(
       isEditMode
-        ? `http://localhost:5000/api/diamonds/${id}`
-        : 'http://localhost:5000/api/diamonds',
+        ? `http://194.238.18.43:5000/api/diamonds/${id}`
+        : 'http://194.238.18.43:5000/api/diamonds',
       {
         method: isEditMode ? 'PATCH' : 'POST',
         headers: {

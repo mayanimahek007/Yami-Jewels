@@ -48,7 +48,7 @@ const UpdatePasswordPage = () => {
 
     try {
       const token = localStorage.getItem('token');
-      const res = await fetch('http://localhost:5000/api/users/updatePassword', {
+      const res = await fetch('http://194.238.18.43:5000/api/users/updatePassword', {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',

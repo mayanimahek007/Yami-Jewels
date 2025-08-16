@@ -1,6 +1,6 @@
 // User API service for handling user-related API calls
 
-const API_URL = 'http://localhost:5000/api/users';
+const API_URL = 'http://194.238.18.43:5000/api/users';
 
 // Admin: Get all users
 export const getAllUsers = async () => {

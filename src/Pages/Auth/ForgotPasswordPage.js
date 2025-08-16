@@ -15,7 +15,7 @@ const ForgotPasswordPage = () => {
     setSuccess(false);
 
     try {
-      const response = await fetch('http://localhost:5000/api/users/forgotPassword', {
+      const response = await fetch('http://194.238.18.43:5000/api/users/forgotPassword', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email }),

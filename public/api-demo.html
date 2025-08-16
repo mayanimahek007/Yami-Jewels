@@ -138,7 +138,7 @@
         
         <div class="container">
             <h3>Login Endpoint</h3>
-            <p><strong>URL:</strong> http://localhost:5000/api/users/login</p>
+            <p><strong>URL:</strong> http://194.238.18.43:5000/api/users/login</p>
             <p><strong>Method:</strong> POST</p>
             <p><strong>Request Body:</strong></p>
             <pre>{
@@ -197,7 +197,7 @@
             const password = document.getElementById('password').value;
             
             try {
-                const response = await fetch('http://localhost:5000/api/users/login', {
+                const response = await fetch('http://194.238.18.43:5000/api/users/login', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'

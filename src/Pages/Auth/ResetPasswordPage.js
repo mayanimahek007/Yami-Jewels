@@ -26,7 +26,7 @@ const ResetPasswordPage = () => {
     setError('');
 
     try {
-      const response = await fetch(`http://localhost:5000/api/users/resetPassword/${token}`, {
+      const response = await fetch(`http://194.238.18.43:5000/api/users/resetPassword/${token}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ password }),

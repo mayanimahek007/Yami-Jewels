@@ -32,7 +32,7 @@ export const AuthProvider = ({ children }) => {
     setError('');
     
     try {
-      const response = await fetch('http://localhost:5000/api/users/login', {
+      const response = await fetch('http://194.238.18.43:5000/api/users/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -69,7 +69,7 @@ export const AuthProvider = ({ children }) => {
     setError('');
     
     try {
-      const response = await fetch('http://localhost:5000/api/users/register', {
+      const response = await fetch('http://194.238.18.43:5000/api/users/register', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -112,7 +112,7 @@ export const AuthProvider = ({ children }) => {
     setError('');
     
     try {
-      const response = await fetch('http://localhost:5000/api/users/forgotPassword', {
+      const response = await fetch('http://194.238.18.43:5000/api/users/forgotPassword', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -140,7 +140,7 @@ export const AuthProvider = ({ children }) => {
     setError('');
     
     try {
-      const response = await fetch(`http://localhost:5000/api/users/resetPassword/${token}`, {
+      const response = await fetch(`http://194.238.18.43:5000/api/users/resetPassword/${token}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json'
@@ -174,7 +174,7 @@ export const AuthProvider = ({ children }) => {
         throw new Error('You must be logged in to update your password');
       }
       
-      const response = await fetch('http://localhost:5000/api/users/updatePassword', {
+      const response = await fetch('http://194.238.18.43:5000/api/users/updatePassword', {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
@@ -241,7 +241,7 @@ export const AuthProvider = ({ children }) => {
         throw new Error('You must be logged in to update your profile');
       }
       
-      const response = await fetch('http://localhost:5000/api/users/updateProfile', {
+      const response = await fetch('http://194.238.18.43:5000/api/users/updateProfile', {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',

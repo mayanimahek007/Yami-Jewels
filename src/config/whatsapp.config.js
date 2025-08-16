@@ -33,7 +33,7 @@ Thank you!`,
       .replace('{regularPrice}', product.regularPrice ? `₹${product.regularPrice}` : '-')
       .replace('{quantity}', quantity)
       .replace('{category}', product.category || 'Jewelry')
-      .replace('{imageUrl}', product.image ? (product.image.startsWith('http') ? product.image : `http://localhost:5000${product.image}`) : '-')
+      .replace('{imageUrl}', product.image ? (product.image.startsWith('http') ? product.image : `http://194.238.18.43:5000${product.image}`) : '-')
       .replace('{productUrl}', productUrl);
   },
   
