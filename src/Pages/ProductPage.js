@@ -302,16 +302,13 @@ const ProductPage = () => {
           ) : (
             <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
               {displayedProducts.map((product) => {
-                const imageToShow =
-                  hoveredProductId === product._id && product.images[1]
-                    ? `http://194.238.18.43:5000${product.images[1]?.url}`
-                    : `http://194.238.18.43:5000${product.images[0]?.url}`;
+                const imageToShow = `http://194.238.18.43:5000${product.images[0]?.url}`;
 
                 return (
                   <div
                     key={product._id}
-                    onMouseEnter={() => setHoveredProductId(product._id)}
-                    onMouseLeave={() => setHoveredProductId(null)}
+                    // onMouseEnter={() => setHoveredProductId(product._id)}
+                    // onMouseLeave={() => setHoveredProductId(null)}
                   >
                     <Link to={`/product/${product._id}`} className="block">
                       <div className="relative border-4 border-[#b47b48] rounded-2xl shadow flex flex-col items-center group aspect-square">

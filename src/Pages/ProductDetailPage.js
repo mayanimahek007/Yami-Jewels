@@ -108,66 +108,66 @@ const ProductDetailPage = () => {
   }, [id, currentUser]);
 
   useEffect(() => {
-const fetchRelatedProducts = async () => {
-  if (!product || !product.categoryName) return;
+    const fetchRelatedProducts = async () => {
+      if (!product || !product.categoryName) return;
 
-  try {
-    setRelatedProductsLoading(true);
-    setRelatedProductsError(null);
-
-    const products = await getProductsByCategory(product.categoryName);
-
-    // Filter and map with proper null checks
-    const filteredProducts = products
-      .filter(p => p && p._id && p._id !== product._id)
-      .map(p => ({
-        ...p,
-        regularPrice: p.regularPrice || 0,
-        salePrice: p.salePrice || null,
-        isWishlisted: false
-      }));
-
-    setRelatedProducts(filteredProducts);
-
-    if (currentUser && filteredProducts.length > 0) {
       try {
-        const wishlistData = await getUserWishlist();
-        let wishlistProducts = [];
+        setRelatedProductsLoading(true);
+        setRelatedProductsError(null);
 
-        if (wishlistData && wishlistData.status === 'success') {
-          if (wishlistData.data?.products) {
-            wishlistProducts = wishlistData.data.products.filter(Boolean);
-          } else if (wishlistData.data?.wishlist) {
-            wishlistProducts = wishlistData.data.wishlist
-              .map(item => item?.product)
-              .filter(Boolean);
+        const products = await getProductsByCategory(product.categoryName);
+
+        // Filter and map with proper null checks
+        const filteredProducts = products
+          .filter(p => p && p._id && p._id !== product._id)
+          .map(p => ({
+            ...p,
+            regularPrice: p.regularPrice || 0,
+            salePrice: p.salePrice || null,
+            isWishlisted: false
+          }));
+
+        setRelatedProducts(filteredProducts);
+
+        if (currentUser && filteredProducts.length > 0) {
+          try {
+            const wishlistData = await getUserWishlist();
+            let wishlistProducts = [];
+
+            if (wishlistData && wishlistData.status === 'success') {
+              if (wishlistData.data?.products) {
+                wishlistProducts = wishlistData.data.products.filter(Boolean);
+              } else if (wishlistData.data?.wishlist) {
+                wishlistProducts = wishlistData.data.wishlist
+                  .map(item => item?.product)
+                  .filter(Boolean);
+              }
+            }
+
+            if (wishlistProducts.length > 0) {
+              const wishlistProductIds = wishlistProducts
+                .map(product => product?._id)
+                .filter(Boolean);
+
+              setRelatedProducts(prevRelatedProducts =>
+                prevRelatedProducts.map(relatedProduct => ({
+                  ...relatedProduct,
+                  isWishlisted: wishlistProductIds.includes(relatedProduct._id)
+                }))
+              );
+            }
+          } catch (wishlistErr) {
+            console.error('Error fetching wishlist for related products:', wishlistErr);
           }
         }
-
-        if (wishlistProducts.length > 0) {
-          const wishlistProductIds = wishlistProducts
-            .map(product => product?._id)
-            .filter(Boolean);
-
-          setRelatedProducts(prevRelatedProducts =>
-            prevRelatedProducts.map(relatedProduct => ({
-              ...relatedProduct,
-              isWishlisted: wishlistProductIds.includes(relatedProduct._id)
-            }))
-          );
-        }
-      } catch (wishlistErr) {
-        console.error('Error fetching wishlist for related products:', wishlistErr);
+      } catch (err) {
+        console.error('Error fetching related products:', err);
+        setRelatedProductsError('Failed to load related products');
+        setRelatedProducts([]);
+      } finally {
+        setRelatedProductsLoading(false);
       }
-    }
-  } catch (err) {
-    console.error('Error fetching related products:', err);
-    setRelatedProductsError('Failed to load related products');
-    setRelatedProducts([]);
-  } finally {
-    setRelatedProductsLoading(false);
-  }
-};
+    };
     fetchRelatedProducts();
   }, [product, id, currentUser]);
 
@@ -253,59 +253,59 @@ const fetchRelatedProducts = async () => {
   };
 
   // Handle wishlist toggle
-const handleToggleWishlist = async (productId, isRelatedProduct = false) => {
-  if (!currentUser) {
-    navigate('/login');
-    return;
-  }
-
-  try {
-    // Optimistic UI update
-    if (isRelatedProduct) {
-      setRelatedProducts(prevProducts =>
-        prevProducts.map(p =>
-          p._id === productId
-            ? { ...p, isWishlisted: !p.isWishlisted }
-            : p
-        )
-      );
-    } else {
-      setIsWishlisted(!isWishlisted);
+  const handleToggleWishlist = async (productId, isRelatedProduct = false) => {
+    if (!currentUser) {
+      navigate('/login');
+      return;
     }
 
-    // Try toggling first
     try {
-      await toggleWishlist(productId);
-    } catch (toggleErr) {
-      // If product is already in wishlist, try removing it
-      if (toggleErr.message.includes('already in wishlist')) {
-        await removeFromWishlist(productId);
+      // Optimistic UI update
+      if (isRelatedProduct) {
+        setRelatedProducts(prevProducts =>
+          prevProducts.map(p =>
+            p._id === productId
+              ? { ...p, isWishlisted: !p.isWishlisted }
+              : p
+          )
+        );
       } else {
-        throw toggleErr;
+        setIsWishlisted(!isWishlisted);
       }
-    }
 
-    // Refresh wishlist status after successful API call
-    await refreshWishlistStatus();
-  } catch (err) {
-    console.error('Error toggling wishlist:', err);
-    
-    // Revert optimistic update on error
-    if (isRelatedProduct) {
-      setRelatedProducts(prevProducts =>
-        prevProducts.map(p =>
-          p._id === productId
-            ? { ...p, isWishlisted: !p.isWishlisted }
-            : p
-        )
-      );
-    } else {
-      setIsWishlisted(!isWishlisted);
+      // Try toggling first
+      try {
+        await toggleWishlist(productId);
+      } catch (toggleErr) {
+        // If product is already in wishlist, try removing it
+        if (toggleErr.message.includes('already in wishlist')) {
+          await removeFromWishlist(productId);
+        } else {
+          throw toggleErr;
+        }
+      }
+
+      // Refresh wishlist status after successful API call
+      await refreshWishlistStatus();
+    } catch (err) {
+      console.error('Error toggling wishlist:', err);
+
+      // Revert optimistic update on error
+      if (isRelatedProduct) {
+        setRelatedProducts(prevProducts =>
+          prevProducts.map(p =>
+            p._id === productId
+              ? { ...p, isWishlisted: !p.isWishlisted }
+              : p
+          )
+        );
+      } else {
+        setIsWishlisted(!isWishlisted);
+      }
+
+      alert('Failed to update wishlist. Please try again.');
     }
-    
-    alert('Failed to update wishlist. Please try again.');
-  }
-};
+  };
 
   const handleQuickOrder = (product) => {
     setSelectedProduct(product);
@@ -692,10 +692,7 @@ const handleToggleWishlist = async (productId, isRelatedProduct = false) => {
                           const url = window.location.href;
                           if (navigator.share) {
                             navigator.share({ title: product.name, url });
-                          } else {
-                            navigator.clipboard.writeText(url);
-                            alert("Product link copied to clipboard!");
-                          }
+                          } 
                         }}
                         className="text-2xl text-[#48182E] hover:scale-110 transition"
                         title="Share"
@@ -969,20 +966,20 @@ const handleToggleWishlist = async (productId, isRelatedProduct = false) => {
                               {relatedProduct.name}
                             </h3>
                             <div className="flex items-center space-x-1 sm:space-x-2">
-                             <button
-  onClick={(e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    handleToggleWishlist(relatedProduct._id, true);
-  }}
-  className="text-[#48182E] hover:scale-110 transition"
-  title={relatedProduct.isWishlisted ? "Remove from wishlist" : "Add to wishlist"}
->
-  {relatedProduct.isWishlisted ? 
-    <HiMiniHeart size={16} className="text-[#48182E]" /> : 
-    <FaRegHeart size={16} />
-  }
-</button>
+                              <button
+                                onClick={(e) => {
+                                  e.preventDefault();
+                                  e.stopPropagation();
+                                  handleToggleWishlist(relatedProduct._id, true);
+                                }}
+                                className="text-[#48182E] hover:scale-110 transition"
+                                title={relatedProduct.isWishlisted ? "Remove from wishlist" : "Add to wishlist"}
+                              >
+                                {relatedProduct.isWishlisted ?
+                                  <HiMiniHeart size={16} className="text-[#48182E]" /> :
+                                  <FaRegHeart size={16} />
+                                }
+                              </button>
                               <button
                                 onClick={(e) => {
                                   e.preventDefault();

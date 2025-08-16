@@ -53,7 +53,7 @@ const DiamondDetailPage = () => {
             const wishlistItems = wishlistData.data?.wishlist || [];
             const wishlistIdsSet = new Set(wishlistItems.map(item => item.diamond?._id));
             setWishlistIds(wishlistIdsSet);
-            
+
             // Check if current diamond is in wishlist
             setIsWishlisted(wishlistIdsSet.has(id));
           }
@@ -108,7 +108,7 @@ const DiamondDetailPage = () => {
             if (wishlistData && wishlistData.status === 'success') {
               const wishlistItems = wishlistData.data?.wishlist || [];
               const wishlistIds = new Set(wishlistItems.map(item => item.diamond?._id));
-              
+
               // Update related diamonds with wishlist status
               const updatedDiamonds = uniqueDiamonds.map(diamond => ({
                 ...diamond,
@@ -137,7 +137,7 @@ const DiamondDetailPage = () => {
     if (!currentUser) return navigate('/login');
     try {
       // Check if this diamond is currently in wishlist
-      const isCurrentlyWishlisted = isRelated 
+      const isCurrentlyWishlisted = isRelated
         ? relatedDiamonds.find(d => d._id === diamondId)?.isWishlisted
         : isWishlisted;
 
@@ -145,8 +145,8 @@ const DiamondDetailPage = () => {
         await removeDiamondFromWishlist(diamondId);
         if (isRelated) {
           // Update related diamonds
-          setRelatedDiamonds(prev => 
-            prev.map(d => 
+          setRelatedDiamonds(prev =>
+            prev.map(d =>
               d._id === diamondId ? { ...d, isWishlisted: false } : d
             )
           );
@@ -158,8 +158,8 @@ const DiamondDetailPage = () => {
         await addDiamondToWishlist(diamondId);
         if (isRelated) {
           // Update related diamonds
-          setRelatedDiamonds(prev => 
-            prev.map(d => 
+          setRelatedDiamonds(prev =>
+            prev.map(d =>
               d._id === diamondId ? { ...d, isWishlisted: true } : d
             )
           );
@@ -204,7 +204,7 @@ const DiamondDetailPage = () => {
   if (error || !diamond) return <div className="min-h-screen flex items-center justify-center">{error || 'Diamond not found'}</div>;
 
   return (
-    <div className="min-h-screen bg-[#fdf8f8] py-10 px-4 md:px-8">
+    <div className="min-h-screen bg-[#fdf8f8] py-10 px-4 md:px-8 max-w-7xl mx-auto">
       <WhatsAppOrderModal isOpen={isOrderModalOpen} onClose={() => setIsOrderModalOpen(false)} product={diamond} quantity={quantity} onConfirm={confirmOrder} />
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-10">
         {/* Left: Media */}
@@ -331,7 +331,12 @@ const DiamondDetailPage = () => {
                 ) : (
                   <FaRegHeart size={20} />
                 )}
-              </button>              <button onClick={() => { navigator.clipboard.writeText(window.location.href); alert('Link copied!'); }}><FaShareAlt size={20} /></button>
+              </button>              <button onClick={() => {
+                const url = window.location.href;
+                if (navigator.share) {
+                  navigator.share({ title: diamond.name, url });
+                }
+              }}><FaShareAlt size={20} /></button>
             </div>
           </div>
           <p className="text-lg sm:text-xl md:text-2xl font-medium text-gray-800 mt-1 flex flex-wrap gap-2 items-center">
