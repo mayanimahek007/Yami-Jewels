@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import headerLogo from "../../assets/images/headerlogo.svg";
+import headerLogo from "../../assets/images/webp/headerlogo.webp";
 import { FaBars } from 'react-icons/fa6';
 import { IoClose } from 'react-icons/io5';
 import { CiHeart, CiSearch } from 'react-icons/ci';

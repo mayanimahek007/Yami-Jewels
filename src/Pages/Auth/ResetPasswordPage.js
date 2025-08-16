@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
 import { PiEyeLight, PiEyeSlashLight } from 'react-icons/pi';
-import headerLogo from '../../assets/images/headerlogo.svg';
+import headerLogo from '../../assets/images/webp/headerlogo.webp';
 
 const ResetPasswordPage = () => {
   const [password, setPassword] = useState('');

@@ -4,16 +4,16 @@ import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
 import './FeaturedCollection.css';
 
-import pear from '../../assets/images/shape-pear.svg';
-import heart from '../../assets/images/shape-heart.svg';
-import marquise from '../../assets/images/shape-marquise.svg';
-import oval from '../../assets/images/shape-oval.svg';
-import princess from '../../assets/images/shape-princess.svg';
-import round from '../../assets/images/shape-round.svg';
-import baguette from '../../assets/images/shape-baguette.svg';
-import radiant from '../../assets/images/shape-radiant square.svg';
-import emerald from '../../assets/images/shape-emerald.svg';
-import cushion from '../../assets/images/shape-cushion.svg';
+import pear from '../../assets/images/webp/shape-pear.webp';
+import heart from '../../assets/images/webp/shape-heart.webp';
+import marquise from '../../assets/images/webp/shape-marquise.webp';
+import oval from '../../assets/images/webp/shape-oval.webp';
+import princess from '../../assets/images/webp/shape-princess.webp';
+import round from '../../assets/images/webp/shape-round.webp';
+import baguette from '../../assets/images/webp/shape-baguette.webp';
+import radiant from '../../assets/images/webp/shape-radiant square.webp';
+import emerald from '../../assets/images/webp/shape-emerald.webp';
+import cushion from '../../assets/images/webp/shape-cushion.webp';
 
 const items = [
   { id: 1, name: 'Pear', img: pear },

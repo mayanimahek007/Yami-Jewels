@@ -1,7 +1,7 @@
 import React from 'react';
 import './newArrivals.css';
 import { IoDiamond } from 'react-icons/io5';
-import bannerImg from '../assets/images/img2.svg';
+import bannerImg from '../assets/images/webp/img2.webp';
 
 const categories = [
   { name: 'Bracelet', img: require('../assets/images/bracelets1.png') },

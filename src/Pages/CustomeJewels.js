@@ -1,5 +1,5 @@
 import React, { useState, useRef } from "react";
-import custom from "../assets/images/Custom.svg";
+import custom from "../assets/images/webp/Custom.webp";
 
 const CustomJewels = () => {
   const [formData, setFormData] = useState({

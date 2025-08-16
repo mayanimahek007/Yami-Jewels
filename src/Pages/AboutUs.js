@@ -2,14 +2,14 @@ import React, { useState } from 'react';
 import { GiCrystalEarrings, GiDiamondRing } from 'react-icons/gi';
 import { FaGem, FaStar } from 'react-icons/fa';
 
-import subsri from '../assets/images/subsri.svg'; // Hero background
-import blogBanner from '../assets/images/aboutUs.svg'; // Hero background
-import diamondImg from '../assets/images/aboutUs1.svg'; // Main center image
+import subsri from '../assets/images/webp/subsri.webp'; // Hero background
+import blogBanner from '../assets/images/webp/aboutUs.webp'; // Hero background
+import diamondImg from '../assets/images/webp/aboutUs1.webp'; // Main center image
 import goldRingImg from '../assets/images/silver.jpg'; // Why We Are Best image
 
-import quality from '../assets/images/Quality-Product.svg'; // Quality Products icon
-import returnF from '../assets/images/return.svg';
-import fastDelvry from '../assets/images/Fast-Delivery.svg'; // Fast Delivery icon
+import quality from '../assets/images/webp/Product.webp'; // Quality Products icon
+import returnF from '../assets/images/webp/return.webp';
+import fastDelvry from '../assets/images/webp/Fast-Delivery.webp'; // Fast Delivery icon
 import ClientTestimonial from './Home/ClientTestimonial';
 
 import './AboutUs.css'; // Assuming you have a CSS file for custom styles

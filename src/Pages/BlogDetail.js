@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import featuredImg from '../assets/images/b1.webp'; // Replace with your actual image path
-import blogBanner from '../assets/images/blogDetails.svg';
+import blogBanner from '../assets/images/webp/blogDetails.webp';
 import authorImg from '../assets/images/b2.webp';
-import subsri from '../assets/images/subsri.svg';
+import subsri from '../assets/images/webp/subsri.webp';
 import './Home/Unique.css';
 
 const BlogDetail = () => {

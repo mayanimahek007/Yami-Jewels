@@ -4,7 +4,7 @@ import Layout from '../Components/Layout';
 import { FaRegHeart, FaHeart } from 'react-icons/fa';
 import { getDiamondWishlist, addDiamondToWishlist, removeDiamondFromWishlist } from '../services/productService';
 import { useAuth } from '../context/AuthContext';
-import shopbanner from '../assets/images/diamond (3).svg';
+import shopbanner from '../assets/images/webp/diamond (3).webp';
 const DiamondPage = () => {
   const [diamonds, setDiamonds] = useState([]);
   const [loading, setLoading] = useState(true);

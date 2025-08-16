@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { FiPhone, FiMail, FiMapPin } from "react-icons/fi";
 import { FaWhatsapp } from "react-icons/fa";
-import blogBanner from "../assets/images/contact (1).svg"; // Hero background
+import blogBanner from "../assets/images/contact.svg"; // Hero background
 
 const ContactUs = () => {
   const [formData, setFormData] = useState({

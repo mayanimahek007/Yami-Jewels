@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { PiEyeLight, PiEyeSlashLight } from 'react-icons/pi';
 import { FaCheckCircle, FaExclamationCircle } from 'react-icons/fa';
-import headerLogo from '../../assets/images/headerlogo.svg';
+import headerLogo from '../../assets/images/webp/headerlogo.webp';
 
 const UpdatePasswordPage = () => {
   const [formData, setFormData] = useState({

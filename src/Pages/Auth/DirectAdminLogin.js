@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import headerLogo from '../../assets/images/headerlogo.svg';
+import headerLogo from '../../assets/images/webp/headerlogo.webp';
 
 const DirectAdminLogin = () => {
   const navigate = useNavigate();

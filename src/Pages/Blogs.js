@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import shopbanner from '../assets/images/blogs.svg';
+import shopbanner from '../assets/images/webp/blogs.webp';
 import b1 from '../assets/images/b1.webp';
 import b2 from '../assets/images/b2.webp';
 import b3 from '../assets/images/b3.webp';

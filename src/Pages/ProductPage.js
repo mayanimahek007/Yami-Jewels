@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { HiMiniHeart } from 'react-icons/hi2';
 import { FaRegHeart, FaWhatsapp } from 'react-icons/fa';
-import shopbanner from '../assets/images/Product5.svg';
+import shopbanner from '../assets/images/webp/Product5.webp';
 import whatsappConfig from '../config/whatsapp.config';
 import WhatsAppOrderModal from '../Components/WhatsAppOrderModal';
 import { getAllProducts, toggleWishlist, removeFromWishlist, getUserWishlist } from '../services/productService';
