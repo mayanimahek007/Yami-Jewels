@@ -25,9 +25,10 @@ const ProductPage = () => {
   const wishlistCheckedRef = useRef(false);
   const wishlistCheckTimeoutRef = useRef(null);
 
-  // Extract category from URL parameters
+  // Extract category and search from URL parameters
   const searchParams = new URLSearchParams(location.search);
   const category = searchParams.get('category');
+  const searchQuery = searchParams.get('search');
 
   useEffect(() => {
     if (category) {
@@ -35,7 +36,7 @@ const ProductPage = () => {
     } else {
       fetchProducts();
     }
-  }, [category]);
+  }, [category, searchQuery]);
 
   useEffect(() => {
     if (currentUser && products.length > 0) {
@@ -48,8 +49,39 @@ const ProductPage = () => {
   }, [currentUser]);
 
   useEffect(() => {
-    sortProducts();
-  }, [products, priceSort]);
+    filterAndSortProducts();
+  }, [products, priceSort, searchQuery]);
+
+  const filterAndSortProducts = () => {
+    let filtered = [...products];
+    
+    // Apply search filter if searchQuery exists
+    if (searchQuery && searchQuery.trim()) {
+      const query = searchQuery.toLowerCase().trim();
+      filtered = filtered.filter(product => 
+        product.name.toLowerCase().includes(query) ||
+        (product.description && product.description.toLowerCase().includes(query)) ||
+        (product.category && product.category.toLowerCase().includes(query))
+      );
+    }
+    
+    // Apply price sorting
+    if (priceSort === 'low-to-high') {
+      filtered.sort((a, b) => {
+        const priceA = a.salePrice < a.regularPrice ? a.salePrice : a.regularPrice;
+        const priceB = b.salePrice < b.regularPrice ? b.salePrice : b.regularPrice;
+        return priceA - priceB;
+      });
+    } else if (priceSort === 'high-to-low') {
+      filtered.sort((a, b) => {
+        const priceA = a.salePrice < a.regularPrice ? a.salePrice : a.regularPrice;
+        const priceB = b.salePrice < b.regularPrice ? b.salePrice : b.regularPrice;
+        return priceB - priceA;
+      });
+    }
+    
+    setDisplayedProducts(filtered);
+  };
 
   const fetchProducts = async () => {
     setLoading(true);
@@ -197,25 +229,7 @@ const ProductPage = () => {
     }
   };
 
-  const sortProducts = () => {
-    let sortedProducts = [...products];
-    
-    if (priceSort === 'low-to-high') {
-      sortedProducts.sort((a, b) => {
-        const priceA = a.salePrice < a.regularPrice ? a.salePrice : a.regularPrice;
-        const priceB = b.salePrice < b.regularPrice ? b.salePrice : b.regularPrice;
-        return priceA - priceB;
-      });
-    } else if (priceSort === 'high-to-low') {
-      sortedProducts.sort((a, b) => {
-        const priceA = a.salePrice < a.regularPrice ? a.salePrice : a.regularPrice;
-        const priceB = b.salePrice < b.regularPrice ? b.salePrice : b.regularPrice;
-        return priceB - priceA;
-      });
-    }
-    
-    setDisplayedProducts(sortedProducts);
-  };
+  
 
   return (
     <>
@@ -246,7 +260,11 @@ const ProductPage = () => {
           {/* Product Header with Sort Dropdown */}
           <div className="flex justify-between items-center mb-6">
             <h1 className="text-2xl font-bold text-gray-800">
-              {category ? `${category} Products` : 'All Products'}
+              {searchQuery 
+                ? `Search Results for "${searchQuery}"` 
+                : category 
+                  ? `${category} Products` 
+                  : 'All Products'}
             </h1>
             
             <div className="relative">
@@ -296,8 +314,14 @@ const ProductPage = () => {
             </div>
           ) : displayedProducts.length === 0 ? (
             <div className="text-center py-10 w-full">
-              <h3 className="text-xl font-medium text-gray-900">No products found</h3>
-              <p className="mt-2 text-gray-600">Please check back later for our latest collections.</p>
+              <h3 className="text-xl font-medium text-gray-900">
+                {searchQuery ? `No products found for "${searchQuery}"` : 'No products found'}
+              </h3>
+              <p className="mt-2 text-gray-600">
+                {searchQuery 
+                  ? 'Try searching with different keywords or browse our categories.' 
+                  : 'Please check back later for our latest collections.'}
+              </p>
             </div>
           ) : (
             <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
