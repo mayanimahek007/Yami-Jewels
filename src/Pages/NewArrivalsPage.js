@@ -36,7 +36,7 @@ const NewArrivalsPage = () => {
           <p className="text-xs sm:text-base font-normal text-[#000000] drop-shadow">
             Explore the Latest Launches Now!
           </p>
-            <button className="bg-[#48182E] text-white text-xs mt-0 sm:mt-5 sm:text-sm md:text-base px-4 py-2 rounded-md shadow-md hover:bg-[#6a2545] transition w-fit">
+            <button className="bg-[#48182E] text-white text-xs mt-0 sm:mt-5 sm:text-sm md:text-base px-4 py-2 rounded-md shadow-md hover:bg-[#6a2545] transition w-fit" onClick={() => window.location.href = '/product'}>
             Shop Now
           </button>
         </div>

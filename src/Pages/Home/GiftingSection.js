@@ -28,7 +28,7 @@ const GiftingSection = () => {
     slidesToShow: 1,
     slidesToScroll: 1,
     arrows: false,
-    autoplay: true,
+    // autoplay: true,
   };
 
   const GiftCard = ({ gift }) => (
@@ -63,10 +63,12 @@ const GiftingSection = () => {
 
       {/* Conditionally show slider on mobile */}
       {isMobile ? (
-        <div className="w-full max-w-sm mx-auto px-4 mb-10 z-10">
+        <div className="w-full max-w-sm mx-auto px-4 mb-10 z-10 ">
           <Slider {...sliderSettings}>
             {gifts.map(gift => (
-              <GiftCard key={gift.name} gift={gift} />
+                <div key={gift.name} className="px-2"> {/* Add horizontal padding */}
+      <GiftCard gift={gift} />
+    </div>
             ))}
           </Slider>
         </div>
@@ -78,7 +80,7 @@ const GiftingSection = () => {
         </div>
       )}
 
-      <button className="px-10 py-3 bg-gradient-to-r from-[#e2c17c] to-[#bfa14a] text-white rounded-full  font-bold text-lg flex items-center gap-2 hover:scale-105 transition z-10">
+      <button className="px-10 py-3 bg-gradient-to-r from-[#e2c17c] to-[#bfa14a] text-white rounded-full  font-bold text-lg flex items-center gap-2 hover:scale-105 transition z-10" onClick={() => window.location.href = '/product'}>
         <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
           <path d="M12 2 L15 10 L23 12 L15 14 L12 22 L9 14 L1 12 L9 10 Z" />
         </svg>

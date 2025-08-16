@@ -57,17 +57,17 @@ const ChooseTypeSection = () => {
           </p>
         </div>
         <div className="cts-cards">
-          <div className="cts-card">
+          <div className="cts-card" onClick={() => window.location.href = '/product'}>
             <img src={imgRing} alt="Ring" className="cts-card-img" />
             <div className="cts-card-label">Ring</div>
             <FaCircleArrowRight size={28} fill="#B47B48" />
           </div>
-          <div className="cts-card">
+          <div className="cts-card" onClick={() => window.location.href = '/product'}>
             <img src={imgNecklace} alt="Earring" className="cts-card-img" />
             <div className="cts-card-label">Earring</div>
             <FaCircleArrowRight size={28} fill="#B47B48" />
           </div>
-          <div className="cts-card">
+          <div className="cts-card" onClick={() => window.location.href = '/product'}>
             <img src={imgBracelet} alt="Bracelet" className="cts-card-img" />
             <div className="cts-card-label">Bracelet</div>
             <FaCircleArrowRight size={28} fill="#B47B48" />
