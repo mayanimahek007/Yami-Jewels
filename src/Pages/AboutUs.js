@@ -7,7 +7,7 @@ import blogBanner from '../assets/images/webp/aboutUs.webp'; // Hero background
 import diamondImg from '../assets/images/webp/aboutUs1.webp'; // Main center image
 import goldRingImg from '../assets/images/silver.jpg'; // Why We Are Best image
 
-import quality from '../assets/images/webp/Product.webp'; // Quality Products icon
+import quality from '../assets/images/webp/Quality-Product.webp'; // Quality Products icon
 import returnF from '../assets/images/webp/return.webp';
 import fastDelvry from '../assets/images/webp/Fast-Delivery.webp'; // Fast Delivery icon
 import ClientTestimonial from './Home/ClientTestimonial';
