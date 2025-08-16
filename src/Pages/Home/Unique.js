@@ -37,7 +37,7 @@ const Unique = () => {
         </div> */}
 
         {/* Button */}
-        <button className="text-[12px] sm:text-base mt-6 bg-[#B47B48] text-white px-6 py-3 rounded-full hover:bg-[#a06a3a] transition">
+        <button className="text-[12px] sm:text-base mt-6 bg-[#B47B48] text-white px-6 py-3 rounded-full hover:bg-[#a06a3a] transition" onClick={() => window.location.href = '/about-us'}>
           Know More →
         </button>
       </div>

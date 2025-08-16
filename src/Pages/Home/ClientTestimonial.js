@@ -69,9 +69,9 @@ const ClientTestimonials = () => {
   };
 
   return (
-    <section className="py-16 bg-gradient-to-b from-white to-gray-50" id="testimonials">
+    <section className="py-5 sm:py-16 bg-gradient-to-b from-white to-gray-50" id="testimonials">
       <div className="container mx-auto px-6 lg:px-12">
-        <h2 className="text-3xl md:text-4xl font-serif font-bold text-center text-gray-800 mb-10">
+        <h2 className="text-2xl md:text-4xl font-serif font-bold text-center text-gray-800 mb-5 md:mb-10">
           What Our Clients Say
         </h2>
         <Slider {...settings}>

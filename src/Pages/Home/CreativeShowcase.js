@@ -17,7 +17,7 @@ const CreativeShowcase = () => {
           <p className="cs-desc-unique">
             Discover our exclusive collection, where every piece is crafted to perfection. Elevate your elegance with timeless designs and modern luxury.
           </p>
-          <button className="cs-btn-unique">Explore Collection</button>
+          <button className="cs-btn-unique" onClick={() => window.location.href = '/product'}>Explore Collection</button>
         </div>
       </div>
     </section>
