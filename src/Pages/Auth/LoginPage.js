@@ -32,7 +32,7 @@ const LoginPage = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#f9f4f4] to-[#fbeef2] px-4">
+    <div className=" py-12 flex items-center justify-center bg-gradient-to-br from-[#f9f4f4] to-[#fbeef2] px-4">
       <div className="w-full max-w-md bg-white p-8 rounded-2xl shadow-xl">
         <div className="text-center mb-6">
           {/* <img src={headerLogo} alt="Yami Jewels" className="h-16 mx-auto" /> */}

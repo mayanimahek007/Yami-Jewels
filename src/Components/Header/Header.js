@@ -150,23 +150,28 @@ const Header = () => {
                                         {currentUser ? (
                                             <>
                                                 {isAdmin && (
-                                                    <Link to="/admin" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center">
+                                                    <Link to="/admin" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center"
+                                                    onClick={() => setShowAccountMenu(!showAccountMenu)}>
                                                         <RiAdminLine className="mr-2" /> Admin Dashboard
                                                     </Link>
                                                 )}
-                                                <Link to="/profile" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                                <Link to="/profile" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                                onClick={() => setShowAccountMenu(!showAccountMenu)}>
                                                     Profile
                                                 </Link>
-                                                <Link to="/wishlist" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                                <Link to="/wishlist" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                                onClick={() => setShowAccountMenu(!showAccountMenu)}>
                                                     Wishlist
                                                 </Link>
-                                                <Link to="/update-password" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                                <Link to="/update-password" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                                onClick={() => setShowAccountMenu(!showAccountMenu)}>
                                                     Update Password
                                                 </Link>
                                                 <button
                                                     onClick={() => {
                                                         logout();
                                                         navigate('/');
+                                                        setShowAccountMenu(!showAccountMenu)
                                                     }}
                                                     className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                                                 >
@@ -175,10 +180,10 @@ const Header = () => {
                                             </>
                                         ) : (
                                             <>
-                                                <Link to="/login" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                                <Link to="/login" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" onClick={() => setShowAccountMenu(!showAccountMenu)}>
                                                     Login
                                                 </Link>
-                                                <Link to="/register" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                                <Link to="/register" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" onClick={() => setShowAccountMenu(!showAccountMenu)}>
                                                     Register
                                                 </Link>
                                             </>
