@@ -4,14 +4,6 @@
     display: block; /* Ensure it behaves like a block element */
 }
 
-.about_names{
-    font-size: 1.6em; 
-}
-
-.about_para{
-    font-size: 1.13em; 
-    margin-top: 10px; /* Add some space above the paragraph */
-}
 
 .about_us_part{
     max-width: 600px; /* Adjust as needed */

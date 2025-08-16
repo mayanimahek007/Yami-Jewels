@@ -49,24 +49,28 @@ const AboutUs = () => {
       </div>
 
       {/* Values Section */}
-      <div className="max-w-4xl mx-auto text-center py-8 px-4">
+      <div className="max-w-4xl mx-auto text-center py-8 px-4 sm:px-6">
         <p className="uppercase tracking-wide text-sm text-gray-500">Shop The Look</p>
-        <h2 className="text-lg sm:text-2xl md:text-4xl font-bold mb-6c uppercase py-3">Our Values & Philosophy</h2>
-        <p className="text-gray-600 leading-relaxed">
-          We believe in being transparent about our processes, materials, and sources. Our customers deserve to know the journey their jewelry takes from inception to creation.
+        <h2 className="text-lg sm:text-2xl md:text-4xl font-bold mb-0 sm:mb-6 uppercase py-3">
+          Our Values & Philosophy
+        </h2>
+        <p className="text-gray-600 leading-relaxed text-sm sm:text-base md:text-lg">
+          We believe in being transparent about our processes, materials, and sources...
         </p>
       </div>
 
+
       {/* Centered Image */}
-      <div className="w-full px-4 sm:px-8 md:px-16 lg:px-36">
-        <img src={diamondImg} alt="Jewelry" className="w-full h-auto" />
+      <div className="w-full px-4 sm:px-8 md:px-16 lg:px-36 my-8 mt-0 sm:mt-6">
+        <img src={diamondImg} alt="Jewelry" className="w-full h-auto rounded-lg shadow-md" />
       </div>
 
 
+
       {/* Philosophy Content */}
-      <div className="max-w-7xl mx-auto flex flex-col lg:flex-row items-center justify-center gap-10 py-10 px-4 lg:px-0">
+      <div className="max-w-7xl mx-auto flex flex-col lg:flex-row items-center justify-center gap-10 py-0 sm:py-10 px-4 lg:px-0">
         {/* Text */}
-        <div className="lg:w-2/3 space-y-6 text-gray-700 px-16 lg:px-0">
+        <div className="lg:w-2/3 space-y-6 text-gray-700 px-0 sm:px-16 lg:px-0">
           <p className='font-bold'>
             At Jewelix, we hold the art of jewelry craftsmanship in the highest regard. Every piece is meticulously crafted by skilled artisans who pour their passion and expertise into creating exquisite jewelry that stands the test of time.
           </p>
@@ -120,34 +124,34 @@ const AboutUs = () => {
           </ul>
         </div>
       </div> */}
-      <div className="flex flex-col lg:flex-row items-center justify-center gap-8 px-4 py-16 pt-4">
+      <div className="flex flex-col lg:flex-row items-center justify-center gap-8 px-4 py-2 sm:py-16 pt-4">
         <img
           src={goldRingImg}
           alt="Why We Are Best"
           className="w-full max-w-md mb-8 lg:mb-0 about_uss h-[370px] sm:h-[550px] lg:h-[600px] object-cover rounded-lg shadow-lg"
         />
-        <div className="w-full lg:max-w-xl text-left px-16 lg:px-0">
-          <h3 className="text-xl font-semibold mb-4 uppercase text-center lg:text-left fc-title font-semibold mb-2 uppercase pl-2">Why We Are Best</h3>
+        <div className="w-full lg:max-w-xl text-left px-0 sm:px-16 lg:px-0">
+          <h3 className="text-xl font-semibold mb-4 uppercase text-center lg:text-left text-[#AE8B0D] font-semibold mb-2 uppercase pl-2">Why We Are Best</h3>
           <ul className="space-y-10">
             <li className="flex flex-row gap-6">
               <GiCrystalEarrings className="text-[#AE8B0D] flex-shrink-0 mt-3" size={60} />
               <div>
-                <h4 className="about_names font-semibold">Captivating Collections</h4>
-                <p className="about_para">From classic and vintage to contemporary and avant-garde, our jewelry showcases the perfect blend of tradition and innovation.</p>
+                <h4 className="about_names font-semibold text-lg sm:text-xl">Captivating Collections</h4>
+                <p className="about_para text-sm sm:text-lg mt-2 sm:mt-5">From classic and vintage to contemporary and avant-garde, our jewelry showcases the perfect blend of tradition and innovation.</p>
               </div>
             </li>
             <li className="flex flex-row gap-6">
               <GiDiamondRing className="text-[#AE8B0D] flex-shrink-0 mt-3" size={60} />
               <div>
-                <h4 className="about_names font-semibold">Precious Gemstones</h4>
-                <p className="about_para">Experience the allure of rare gemstones, carefully selected to infuse each piece with a touch of the extraordinary.</p>
+                <h4 className="about_names font-semibold text-lg sm:text-xl">Precious Gemstones</h4>
+                <p className="about_para text-sm sm:text-lg mt-2 sm:mt-5">Experience the allure of rare gemstones, carefully selected to infuse each piece with a touch of the extraordinary.</p>
               </div>
             </li>
             <li className="flex flex-row gap-6">
               <FaGem className="text-[#AE8B0D] flex-shrink-0 mt-3" size={60} />
               <div>
-                <h4 className="about_names font-semibold">Sparkling Diamonds</h4>
-                <p className="about_para">From dazzling solitaires to intricate diamond-studded bands, our collection showcases the finest quality gems.</p>
+                <h4 className="about_names font-semibold text-lg sm:text-xl">Sparkling Diamonds</h4>
+                <p className="about_para text-sm sm:text-lg mt-2 sm:mt-5">From dazzling solitaires to intricate diamond-studded bands, our collection showcases the finest quality gems.</p>
               </div>
             </li>
           </ul>
