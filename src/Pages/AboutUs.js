@@ -167,7 +167,7 @@ const AboutUs = () => {
 
       {/* Features Section */}
       {/* Features Section */}
-      <div className="max-w-6xl mx-auto py-4 px-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10">
+      <div className="max-w-6xl mx-auto py-4 px-4 grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-3 gap-10">
         <div className='flex flex-col items-center text-center p-6 bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow'>
           <img src={quality} alt="Quality Products" className=" mb-4" />
           <h4 className="text-lg font-medium mb-2">Quality Products</h4>
