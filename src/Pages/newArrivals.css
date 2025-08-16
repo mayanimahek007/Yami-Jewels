@@ -51,19 +51,3 @@ body {
     }
   }
 }
-
-.newArrib_pag{
-  @media (min-width:490px) and (max-width:639px) {
-      min-height: 350px;
-  }
-  @media (min-width:639px) and (max-width:768px) {
-      min-height: 450px;
-  }
-  @media (width: 768px) {
-      min-height: 590px;
-    
-  }
-   @media (max-width:490px) {
- min-height: 280px;
-}
-}

@@ -657,7 +657,7 @@ width: 100%;
 }
 }
 
-@media (max-width:991px) {
+@media (max-width:1100px) {
   .cts-video-wrapper{
 display: none;
 }
