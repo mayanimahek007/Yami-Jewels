@@ -1,4 +1,7 @@
 /* Additional styling for Client Testimonial section */
+/* index.css */
+@import "~slick-carousel/slick/slick.css";
+@import "~slick-carousel/slick/slick-theme.css";
 
 .client-testimonial {
   position: relative;
