@@ -51,7 +51,7 @@ export const publicRoutes = [
     { path: "/privacy-policy", component: <PrivacyPolicy /> },
     { path: "/blogs", component: <Blogs /> },
     { path: "/blog-detail/:id", component: <BlogDetail /> },
-    {path: "/custom-jewellery", component: <CustomJewels />}, // Assuming this is a custom route for jewellery
+    {path: "/custom-Jewelery", component: <CustomJewels />}, // Assuming this is a custom route for Jewelery
 ];
 
 

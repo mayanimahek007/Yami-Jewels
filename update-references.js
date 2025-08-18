@@ -29,7 +29,7 @@ const svgToWebpMap = {
     'diamond (2).svg': 'diamond (2).webp',
     'diamond (3).svg': 'diamond (3).webp',
     'Fast-Delivery.svg': 'Fast-Delivery.webp',
-    'headerlogo.svg': 'headerlogo.webp',
+    'headerlogo.svg': 'headerlogo.svg',
     'image.svg': 'image.webp',
     'img.svg': 'img.webp',
     'img1.svg': 'img1.webp',

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import headerLogo from '../../assets/images/webp/headerlogo.webp';
+import headerLogo from '../../assets/images/headerlogo.svg';
 
 const ForgotPasswordPage = () => {
   const [email, setEmail] = useState('');

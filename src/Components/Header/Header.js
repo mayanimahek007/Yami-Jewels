@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import headerLogo from "../../assets/images/webp/headerlogo.webp";
+import headerLogo from "../../assets/images/headerlogo.svg";
 import { FaBars } from 'react-icons/fa6';
 import { IoClose } from 'react-icons/io5';
 import { CiHeart, CiSearch } from 'react-icons/ci';
@@ -119,7 +119,7 @@ const Header = () => {
                     <div className='xl:block hidden'>
                         <div className='flex items-center justify-between h-full'>
                             <div>
-                                <img src={headerLogo} alt='...' className='h-[92px] w-[178px] cursor-pointer' onClick={() => navigate('/')} />
+                                <img src={headerLogo} alt='...' className='h-[92px] w-72 cursor-pointer' onClick={() => navigate('/')} />
                             </div>
                             <form onSubmit={handleSearch} className="relative w-96">
                                 <CiSearch size={20} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-black" />
@@ -196,16 +196,16 @@ const Header = () => {
                         <div className='flex items-center 2xl:gap-[50px] xl:gap-8 gap-5 text-white w-fit mx-auto uppercase text-base font-semibold cursor-pointer'>
                         <p onClick={handleCategoryClick}>Engagement</p>
                         <p onClick={handleCategoryClick}>Wedding</p>
-                        <p onClick={handleCategoryClick}>Jewelary</p>
+                        <p onClick={handleCategoryClick}>Jewelery</p>
                         <p onClick={handleCategoryClick}>Gifts</p>
                         <p onClick={() => navigate('/diamond')}>Diamond</p>
-                        <p onClick={() => navigate('/custom-jewellery')}>Custom Jewellery</p>
+                        <p onClick={() => navigate('/custom-Jewelery')}>Custom Jewelery</p>
                         </div>
                     </div>
-                    <div className='xl:hidden block'>
+                    <div className='xl:hidden block pt-4'>
                         <div className='flex items-center justify-between h-full'>
                             <FaBars className='text-white w-6 h-6' onClick={() => handleOpen()} />
-                            <img src={headerLogo} alt='...' className='sm:w-40 h-20 object-cover cursor-pointer' onClick={() => navigate('/')}/>
+                            <img src={headerLogo} alt='...' className='h-10 sm:h-16 object-cover cursor-pointer' onClick={() => navigate('/')}/>
                             <div className='text-white flex items-center justify-center gap-3'>
                                 {currentUser ? (
                                     <Link to="/wishlist" className="relative">
@@ -249,13 +249,13 @@ const Header = () => {
                     <div className='flex flex-col gap-6 text-white text-base font-semibold'>
                         <p className=" " onClick={handleCategoryClick}>Engagement</p>
                         <p className=" " onClick={handleCategoryClick}>Wedding</p>
-                        <p className=" " onClick={handleCategoryClick}>Jewelary</p>
+                        <p className=" " onClick={handleCategoryClick}>Jewelery</p>
                         <p className=" " onClick={handleCategoryClick}>Gifts</p>
                         <p onClick={() => {navigate('/diamond');
                               handleClose();
                         }}>Diamond</p>
 
-                        <p onClick={() => navigate('/custom-jewellery')}>Custom Jewellery</p>
+                        <p onClick={() => navigate('/custom-Jewelery')}>Custom Jewelery</p>
 
                         {currentUser ? (
                             <>

@@ -20,14 +20,14 @@ const EditorialShowcase = () => {
       </div>
 
       <div className="editorial-content">
-        <span className="editorial-label">NEW LOOKING 23</span>
+        <span className="editorial-label">NEW LOOKING 25</span>
         <h2 className="editorial-title">Professional Sophistication With Our Jewelry Embrace</h2>
         <p className="editorial-description">
           Discover curated, elegant jewelry handmade with expert detail and a modern touch. Each piece is crafted to
           highlight your unique style and sophistication.
         </p>
         <div className="editorial-buttons">
-          <button className="btn dark">View Details</button>
+          <button className="btn dark" onClick={() => window.location.href = '/product'}>View Details</button>
           <button className="btn light">Play Video</button>
         </div>
       </div>

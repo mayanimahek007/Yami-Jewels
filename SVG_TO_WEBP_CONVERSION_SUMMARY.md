@@ -20,7 +20,7 @@ All converted WebP files are stored in: `src/assets/images/webp/`
 - Custom.webp, custome.webp
 - diamond.webp, diamond (2).webp, diamond (3).webp
 - Fast-Delivery.webp
-- headerlogo.webp
+- headerlogo.svg
 - image.webp, img.webp, img1.webp, img2.webp
 - mahek (2).webp
 - Product.webp, Product1.webp, Product2.webp, Product3.webp, Product5.webp, Product6.webp

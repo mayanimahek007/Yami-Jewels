@@ -27,7 +27,7 @@ const CustomJewels = () => {
     e.preventDefault();
     const whatsappNumber = "919099975424";
     const message = `
-*New Custom Jewellery Request*
+*New Custom Jewelery Request*
 
 *Name:* ${formData.name}
 *Mobile:* ${formData.mobile}
@@ -62,7 +62,7 @@ const CustomJewels = () => {
       {/* Banner */}
       <img
         src={custom}
-        alt="Custom Jewellery"
+        alt="Custom Jewelery"
         className="w-full object-cover"
       />
 
@@ -73,7 +73,7 @@ const CustomJewels = () => {
             Designed by You, Crafted by Us
           </h2>
           <p className="text-center text-gray-600 mb-8">
-            Create a unique piece of jewellery that reflects your personal style.
+            Create a unique piece of Jewelery that reflects your personal style.
           </p>
 
           <form
@@ -128,7 +128,7 @@ const CustomJewels = () => {
             {/* Type */}
             <div>
               <label className="block text-sm mb-2 text-gray-700">
-                Jewellery Type*
+                Jewelery Type*
               </label>
               <select
                 name="type"

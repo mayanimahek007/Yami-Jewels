@@ -41,7 +41,7 @@ const Footer = () => {
         {/* Brand & Newsletter */}
         <div className="flex flex-col gap-4">
           <div className="flex items-center gap-3 mb-2 ">
-            <img src={require('../../assets/images/headerlogo.png')} alt="Yami Jewels Logo" className="lg:w-60 sm:w-40 w-[250px]" />
+            <img src={require('../../assets/images/headerlogo2.png')} alt="Yami Jewels Logo" className="lg:w-60 sm:w-40 w-[250px]" />
           </div>
           <p className="text-sm text-gray-200">Don’t miss any updates or promotions by signing up to our newsletter.</p>
           <form onSubmit={handleNewsletterSubmit} className="flex mt-2">

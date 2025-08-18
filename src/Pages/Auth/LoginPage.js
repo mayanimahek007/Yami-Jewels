@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { PiEyeLight, PiEyeSlashLight } from 'react-icons/pi';
-import headerLogo from '../../assets/images/webp/headerlogo.webp';
+import headerLogo from '../../assets/images/headerlogo.svg';
 import { useAuth } from '../../context/AuthContext';
 
 const LoginPage = () => {

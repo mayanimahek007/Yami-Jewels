@@ -4,7 +4,7 @@ import bannerImg from '../../assets/images/webp/banner1.webp'; // Save your atta
 const HeroSection = () => {
   return (
     <section className="w-full">
-      <img src={bannerImg} alt="Luxury Jewellery Banner" className="w-full h-auto object-cover" />
+      <img src={bannerImg} alt="Luxury Jewelery Banner" className="w-full h-auto object-cover" />
     </section>
   );
 };

@@ -148,7 +148,7 @@ const DiamondPage = () => {
       (!filters.shape || diamond.Shape === filters.shape) &&
       (!filters.color || diamond.Color === filters.color) &&
       (!filters.clarity || diamond.Clarity === filters.clarity) &&
-      (diamond.salePrice >= filters.priceRange[0] && diamond.salePrice <= filters.priceRange[1])
+      ((diamond.salePrice >= filters.priceRange[0]) && (diamond.salePrice <= filters.priceRange[1]))
     );
   });
 
