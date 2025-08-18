@@ -229,7 +229,7 @@ const ProductDisplaySection = () => {
       <div className="max-w-7xl mx-auto px-4">
         <h2 className="text-2xl sm:text-4xl font-bold text-center text-[#48182E] mb-2 font-playfair">
           {/* Trending Collection */}
-          Yami Collection
+          Yaami Collection
         </h2>
         <p className="text-sm sm:text-lg text-center text-gray-700 mb-4">
           The Latest looks, Crafted to Perfection

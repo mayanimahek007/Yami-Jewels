@@ -8,7 +8,7 @@ const whatsappConfig = {
   businessNumber: "919099975424",
   
   // Store information
-  storeName: "Yami Jewels",
+  storeName: "Yaami Jewels",
   storeAddress: "123 Jewelry Lane, Diamond District",
   
   // Order message template

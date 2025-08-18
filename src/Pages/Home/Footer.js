@@ -41,7 +41,7 @@ const Footer = () => {
         {/* Brand & Newsletter */}
         <div className="flex flex-col gap-4">
           <div className="flex items-center gap-3 mb-2 ">
-            <img src={require('../../assets/images/headerlogo2.png')} alt="Yami Jewels Logo" className="lg:w-60 sm:w-40 w-[250px]" />
+            <img src={require('../../assets/images/headerlogo2.png')} alt="Yaami Jewels Logo" className="lg:w-60 sm:w-40 w-[250px]" />
           </div>
           <p className="text-sm text-gray-200">Don’t miss any updates or promotions by signing up to our newsletter.</p>
           <form onSubmit={handleNewsletterSubmit} className="flex mt-2">
@@ -161,7 +161,7 @@ const Footer = () => {
 
       {/* Divider */}
       <div className="max-w-7xl mx-auto border-t border-gray-700 mt-8 pt-4 flex flex-col items-center justify-between px-6">
-        <div className="text-xs text-gray-300 text-center">© {new Date().getFullYear()} Yami Jewels | All rights reserved</div>
+        <div className="text-xs text-gray-300 text-center">© {new Date().getFullYear()} Yaami Jewels | All rights reserved</div>
       </div>
     </footer>
   );

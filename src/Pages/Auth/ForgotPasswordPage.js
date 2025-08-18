@@ -36,7 +36,7 @@ const ForgotPasswordPage = () => {
     <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4 py-10 sm:px-6 lg:px-8">
       <div className="w-full max-w-md bg-white rounded-xl shadow-md p-8 space-y-6">
         <div className="text-center">
-          <img className="mx-auto h-16 w-auto" src={headerLogo} alt="Yami Jewels" />
+          <img className="mx-auto h-16 w-auto" src={headerLogo} alt="Yaami Jewels" />
           <h2 className="mt-6 text-2xl font-bold text-gray-900">Forgot your password?</h2>
           <p className="mt-2 text-sm text-gray-600">
             Enter your email and we'll send you a reset link.

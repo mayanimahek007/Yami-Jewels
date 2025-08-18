@@ -1,8 +1,8 @@
-# Yami Jewels - Token Login Feature
+# Yaami Jewels - Token Login Feature
 
 ## Overview
 
-This document explains the new token login feature implemented in the Yami Jewels application. This feature allows users to log in directly using a JWT token and user data, bypassing the traditional login form.
+This document explains the new token login feature implemented in the Yaami Jewels application. This feature allows users to log in directly using a JWT token and user data, bypassing the traditional login form.
 
 ## Features Added
 

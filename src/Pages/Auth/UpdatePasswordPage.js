@@ -84,7 +84,7 @@ const UpdatePasswordPage = () => {
         
         {/* Logo */}
         <div className="text-center">
-          {/* <img src={headerLogo} alt="Yami Jewels" className="mx-auto h-16" /> */}
+          {/* <img src={headerLogo} alt="Yaami Jewels" className="mx-auto h-16" /> */}
           <h2 className=" text-2xl font-bold text-gray-800">Update Your Password</h2>
           <p className="text-sm text-gray-500">Keep your account secure by changing your password regularly</p>
         </div>

@@ -55,7 +55,7 @@ const DirectAdminLogin = () => {
           <img
             className="mx-auto h-20 w-auto mb-4"
             src={headerLogo}
-            alt="Yami Jewels"
+            alt="Yaami Jewels"
           />
           <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#48182E] mx-auto"></div>
           <p className="mt-4 text-lg">Logging you in as Admin...</p>
@@ -71,7 +71,7 @@ const DirectAdminLogin = () => {
           <img
             className="mx-auto h-20 w-auto mb-4"
             src={headerLogo}
-            alt="Yami Jewels"
+            alt="Yaami Jewels"
           />
           <div className="text-red-600 text-5xl mb-4">⚠️</div>
           <h2 className="text-2xl font-bold text-gray-900 mb-2">Login Error</h2>

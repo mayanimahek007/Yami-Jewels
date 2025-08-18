@@ -51,7 +51,7 @@ const ResetPasswordPage = () => {
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#f9f4f4] to-[#fbeef2] px-4 py-12">
       <div className="w-full max-w-md bg-white p-8 rounded-2xl shadow-xl">
         <div className="text-center mb-6">
-          <img src={headerLogo} alt="Yami Jewels" className="h-16 mx-auto" />
+          <img src={headerLogo} alt="Yaami Jewels" className="h-16 mx-auto" />
           <h2 className="text-3xl font-bold text-gray-900 mt-4">Reset your password</h2>
           <p className="text-sm text-gray-600">Enter your new password below</p>
         </div>

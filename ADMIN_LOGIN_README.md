@@ -1,8 +1,8 @@
-# Yami Jewels - Direct Admin Login Feature
+# Yaami Jewels - Direct Admin Login Feature
 
 ## Overview
 
-This document describes the Direct Admin Login feature implemented in the Yami Jewels application. This feature allows admin users to be automatically logged in and redirected to the admin dashboard when a valid admin login response is received.
+This document describes the Direct Admin Login feature implemented in the Yaami Jewels application. This feature allows admin users to be automatically logged in and redirected to the admin dashboard when a valid admin login response is received.
 
 ## Implementation Details
 
