@@ -140,7 +140,7 @@ const Footer = () => {
       <div className="block sm:hidden flex flex-col items-center mx-auto px-6 mt-8 relative">
         <h4 className="font-semibold mt-5 mb-2 text-lg">Keep In Touch</h4>
         {showInstaLinks && (
-          <div className="absolute left-0 bottom-full mb-2 w-64 bg-white text-gray-900 rounded-lg shadow-lg border border-gray-200 z-50">
+          <div className="absolute bottom-full mb-2 w-64 bg-white text-gray-900 rounded-lg shadow-lg border border-gray-200 z-50">
             {instaLinks.map((link, index) => (
               <a key={index} href={link.url} target="_blank" rel="noopener noreferrer"
                 className="block px-4 py-2 hover:bg-[#bfa14a] hover:text-white transition"
