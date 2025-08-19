@@ -9,8 +9,8 @@ const Footer = () => {
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState("");
   const instaLinks = [
-    { label: "INSTA - MFGDIAMOND", url: "https://www.instagram.com/mfgdiamond/" },
-    { label: "✨ Discover Our Matching Pairs ✨", url: "https://www.instagram.com/reel/DKHWtKsoG6L/?igsh=MTFubW5oOHJ3bTV1Zw==" }
+    { label: " MFGDIAMOND", url: "https://www.instagram.com/mfgdiamond/" },
+    { label: "YAAMI JEWELS", url: "https://www.instagram.com/yaami_jewels/" }
   ];
 
   const handleNewsletterSubmit = async (e) => {
